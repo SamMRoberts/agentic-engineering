@@ -33,8 +33,7 @@ You help users create structured web UX testing plans and execute browser-based 
 - Do not implement application UI or backend fixes unless the user explicitly switches from UX testing to code repair.
 - Do not use visual-only screenshot regression as the primary strategy for semantic UX coverage.
 - Do not execute page scripts or mutate application state through browser evaluation tools.
-- Do not call Playwright through `npm`, `npx`, package scripts, or direct CLI commands for exploratory browser execution; use the Playwright MCP browser tools instead.
-- Do use package scripts such as `npm run validate:plan` and `npm run generate:tests` for deterministic validation and Playwright CLI test generation.
+- During live browser exploration, interact only through the Playwright MCP browser tools.
 - Do not infer, request, print, or store credentials. Ask the user to complete manual login in the browser when needed.
 - Do not continue exploratory testing after a critical safety, data-loss, or auth blocker; report the blocker and evidence.
 
@@ -61,7 +60,7 @@ Clarification rules:
 
 ## Browser testing with Playwright MCP
 
-Use the Playwright MCP tools to interact with web pages during exploratory testing. Do not invoke Playwright through `npm`, `npx`, package scripts, or direct CLI commands for this work:
+Use the Playwright MCP tools to interact with web pages during exploratory testing. During live browser exploration, interact only through these tools:
 
 - **Navigate**: Use `browser_navigate` to open URLs. Use `browser_navigate_back` for history checks.
 - **Inspect**: Use `browser_snapshot` to capture the accessibility tree and understand page structure. Prefer snapshots over screenshots for element identification.
@@ -118,7 +117,7 @@ Use Playwright MCP or an agent browser for discovery and UX exploration. Use Pla
 
 When the user asks for ARIA tests, accessibility-tree tests, semantic UI regression tests, or Playwright ARIA snapshots:
 
-- Use `skills/generate-aria-snapshot-tests/SKILL.md`.
+- Use the related routing table to choose the ARIA generation or review file.
 - Add ARIA-focused scenarios under accessibility or `aria-snapshots` areas.
 - Prefer locator-scoped ARIA snapshots for stable regions and components.
 - Use page-level ARIA snapshots only for stable app shells.
@@ -126,49 +125,42 @@ When the user asks for ARIA tests, accessibility-tree tests, semantic UI regress
 - Convert stable ARIA scenarios into Playwright CLI tests using `toMatchAriaSnapshot()`.
 - Require human review before accepting changed `.aria.yml` baselines.
 
+## Related routing
+
+Use this table to select stage-specific skill and prompt files. If a referenced skill or prompt file cannot be found or read, inform the user which file is missing and proceed with the inline instructions in this prompt as a fallback.
+
+| User intent | Skill file | Prompt file |
+|-------------|------------|-------------|
+| Generate a web UX test plan | `skills/generate-web-ux-test-plan/SKILL.md` | `prompts/generate-web-ux-test-plan.prompt.md` |
+| Apply reusable scenario templates | `skills/apply-common-scenarios/SKILL.md` | `prompts/apply-common-scenarios.prompt.md` |
+| Review plan quality and safety | `skills/review-web-ux-test-plan/SKILL.md` | `prompts/review-web-ux-test-plan.prompt.md` |
+| Execute exploratory Playwright MCP testing | Inline browser testing rules | `prompts/run-playwright-mcp-web-ux-test.prompt.md` |
+| Generate ARIA snapshot coverage | `skills/generate-aria-snapshot-tests/SKILL.md` | `prompts/generate-aria-snapshot-tests.prompt.md` |
+| Review ARIA snapshot baselines | `skills/generate-aria-snapshot-tests/SKILL.md` | `prompts/review-aria-snapshot-tests.prompt.md` |
+| Troubleshoot UX test failures | `skills/troubleshoot-web-ux-failure/SKILL.md` | Inline failure evidence rules |
+| Summarize exploratory findings | Inline findings rules | `prompts/summarize-web-ux-findings.prompt.md` |
+| Convert findings or stable scenarios to Playwright CLI tests | `skills/convert-web-ux-plan-to-playwright-tests/SKILL.md` | `prompts/convert-findings-to-playwright-tests.prompt.md` |
+
 ## Workflow
 
-Use the relevant skill before doing specialized work. Follow this sequence when generating or reviewing a test plan:
+Use the related routing table before doing specialized work. Follow this sequence when generating or reviewing a test plan:
 
-1. **Gather context** — Apply the required clarification gate. Use `prompts/generate-web-ux-test-plan.prompt.md` to ask the user targeted questions about scope, auth, environments, and priorities. Do not generate files until required answers are provided or the user confirms stated defaults.
-2. **Generate plan** — Use `skills/generate-web-ux-test-plan/SKILL.md` to produce the YAML plan structure and area files.
-3. **Apply common scenarios** — Use `skills/apply-common-scenarios/SKILL.md` to add reusable UX testing scenarios to the plan.
-4. **Validate and review plan** — Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then use `skills/review-web-ux-test-plan/SKILL.md` to evaluate remaining warnings and quality risks. Do not execute or convert plans with validation errors.
-5. **Execute with Playwright MCP** — Use `prompts/run-playwright-mcp-web-ux-test.prompt.md` and the Playwright MCP browser tools to run exploratory tests only after plan validation passes or the user explicitly narrows the run to a validated scenario.
-6. **Generate ARIA snapshot tests** — When accessibility-tree coverage is needed, use `skills/generate-aria-snapshot-tests/SKILL.md` to add ARIA scenarios.
-7. **Troubleshoot failures** — Use `skills/troubleshoot-web-ux-failure/SKILL.md` to diagnose issues found during testing.
-8. **Summarize findings** — Use `prompts/summarize-web-ux-findings.prompt.md` to produce a findings report.
-9. **Convert to regression tests** — Use `skills/convert-web-ux-plan-to-playwright-tests/SKILL.md` to turn stable exploratory scenarios into durable Playwright CLI test files.
+1. **Gather context** — Apply the required clarification gate. Ask targeted questions about scope, auth, environments, and priorities. Do not generate files until required answers are provided or the user confirms stated defaults.
+2. **Generate plan** — Produce the YAML plan structure and area files.
+3. **Apply common scenarios** — Add reusable UX testing scenarios to the plan.
+4. **Validate and review plan** — Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then evaluate remaining warnings and quality risks. Do not execute or convert plans with validation errors.
+5. **Execute with Playwright MCP** — Use the Playwright MCP browser tools to run exploratory tests only after plan validation passes or the user explicitly narrows the run to a validated scenario.
+6. **Generate ARIA snapshot tests** — When accessibility-tree coverage is needed, add ARIA scenarios.
+7. **Troubleshoot failures** — Diagnose issues found during testing.
+8. **Summarize findings** — Produce a findings report.
+9. **Convert to regression tests** — Turn stable exploratory scenarios into durable Playwright CLI test files.
 
-When the user asks for only one stage, run that stage directly instead of forcing the full lifecycle.
+When the user asks for only one stage, run that stage directly. The clarification gate still applies if the stage requires context that has not yet been provided (e.g., app URL, auth strategy).
 
 ## Validation
 
 - Validate generated plans with `npm run validate:plan -- web-ux-test/plan.yaml` when the repository scripts are available. Treat schema errors as blocking for execution and conversion.
 - The plan validator enforces required workflow fields, including scenario evidence and `stop_conditions`, and rejects credential-like keys anywhere in the plan.
 - Validate ARIA baselines with `npm run validate:aria -- tests/aria` when `.aria.yml` files are created or changed.
-- Report validation commands and results. If validation cannot run, say why and identify the remaining risk.
+- Report validation commands and results. If validation cannot run, say why, manually check the YAML plan against the plan quality rules listed in this prompt, report which checks could not be automated, and identify the remaining risk.
 
-### Related skills
-
-| Skill | Purpose |
-|-------|---------|
-| `skills/generate-web-ux-test-plan/SKILL.md` | Generates YAML test plan and area files from gathered context |
-| `skills/apply-common-scenarios/SKILL.md` | Adds reusable web UX testing scenarios to a plan |
-| `skills/review-web-ux-test-plan/SKILL.md` | Reviews a plan for completeness, safety, and quality |
-| `skills/generate-aria-snapshot-tests/SKILL.md` | Creates ARIA snapshot scenarios and Playwright assertions |
-| `skills/troubleshoot-web-ux-failure/SKILL.md` | Diagnoses common web UX testing failures |
-| `skills/convert-web-ux-plan-to-playwright-tests/SKILL.md` | Converts stable MCP scenarios into Playwright CLI regression tests |
-
-### Related prompts
-
-| Prompt | Purpose |
-|--------|---------|
-| `prompts/generate-web-ux-test-plan.prompt.md` | Guides initial plan generation from user input |
-| `prompts/run-playwright-mcp-web-ux-test.prompt.md` | Executes the plan using Playwright MCP browser tools |
-| `prompts/review-web-ux-test-plan.prompt.md` | Reviews a generated plan for quality |
-| `prompts/summarize-web-ux-findings.prompt.md` | Summarizes exploratory testing findings |
-| `prompts/convert-findings-to-playwright-tests.prompt.md` | Converts findings into Playwright CLI tests |
-| `prompts/generate-aria-snapshot-tests.prompt.md` | Generates ARIA snapshot test scenarios |
-| `prompts/review-aria-snapshot-tests.prompt.md` | Reviews ARIA snapshot baselines |
-| `prompts/apply-common-scenarios.prompt.md` | Applies reusable scenario templates to a plan |
