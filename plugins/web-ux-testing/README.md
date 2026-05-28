@@ -44,6 +44,14 @@ node scripts/validate-plan.mjs web-ux-test/plan.yaml
 7. Summarize findings using `schemas/web-ux-finding.schema.yaml`.
 8. Convert selected findings into Playwright CLI regression tests.
 
+For stable user-defined steps, add `executable_steps` to scenarios marked `convert_to_regression_test: true`, then generate Playwright specs:
+
+```bash
+npm run generate:tests -- --plan web-ux-test/plan.yaml --out tests/web-ux
+```
+
+Supported executable actions include `navigate`, `click`, `fill`, `select`, `press`, `assert_visible`, `assert_text`, `assert_url`, and `capture_evidence`.
+
 ## Safety defaults
 
 - Do not store credentials in YAML plans.

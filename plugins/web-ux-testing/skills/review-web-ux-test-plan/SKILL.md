@@ -64,6 +64,8 @@ Return:
 
 Include the validation command result when it was run. If validation was not run, say why.
 
+If validation fails, put those failures first and do not call the plan execution-ready.
+
 ## Strong opinions
 
 Flag these as problems:

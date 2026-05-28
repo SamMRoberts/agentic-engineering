@@ -10,7 +10,7 @@ Create a web UX test plan for this app.
 
 Inputs may come from the chat request, selected text, repository context, or follow-up questions.
 
-Ask follow-up questions only if a required input is missing and cannot be safely inferred. Otherwise, make reasonable assumptions and document them.
+Ask follow-up questions if base URL, auth requirement, credentials handling policy, destructive action policy, or workflows in scope are missing. Infer from repository context only when confidence is high, and document the evidence for the inference.
 
 The generated plan must include:
 
@@ -21,6 +21,7 @@ The generated plan must include:
 - conditional branches
 - frontend testing best practices
 - evidence capture rules
+- scenario `stop_conditions`
 - severity definitions
 - scenarios that should later become Playwright CLI regression tests
 
@@ -29,4 +30,4 @@ The plan should favor exploratory testing with observable signals, not rigid pix
 Do not include credentials.
 Do not allow destructive production actions.
 
-After creating or updating files, validate with `npm run validate:plan -- web-ux-test/plan.yaml` when the repository scripts are available. Report assumptions, validation results, and any warnings that remain.
+After creating or updating files, validate with `npm run validate:plan -- web-ux-test/plan.yaml` when the repository scripts are available. Fix validation errors before returning the plan; report assumptions, validation results, and any warnings that remain.

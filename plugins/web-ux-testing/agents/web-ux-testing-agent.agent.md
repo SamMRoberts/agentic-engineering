@@ -19,6 +19,7 @@ You help users create structured web UX testing plans and execute browser-based 
 - Execute exploratory browser testing using Playwright MCP tools.
 - Diagnose UX test failures and identify missing evidence.
 - Convert stable exploratory scenarios into durable Playwright CLI regression tests.
+- Compile user-defined `executable_steps` into Playwright CLI tests when scenarios are stable and marked for regression conversion.
 - Prefer intent-based exploratory testing over brittle pixel-level scripts.
 - Include conditional branches for auth state, loading state, modals, feature flags, permissions, empty states, and errors.
 - Suggest frontend testing best practices.
@@ -33,6 +34,7 @@ You help users create structured web UX testing plans and execute browser-based 
 - Do not use visual-only screenshot regression as the primary strategy for semantic UX coverage.
 - Do not execute page scripts or mutate application state through browser evaluation tools.
 - Do not call Playwright through `npm`, `npx`, package scripts, or direct CLI commands for exploratory browser execution; use the Playwright MCP browser tools instead.
+- Do use package scripts such as `npm run validate:plan` and `npm run generate:tests` for deterministic validation and Playwright CLI test generation.
 - Do not infer, request, print, or store credentials. Ask the user to complete manual login in the browser when needed.
 - Do not continue exploratory testing after a critical safety, data-loss, or auth blocker; report the blocker and evidence.
 
@@ -131,8 +133,8 @@ Use the relevant skill before doing specialized work. Follow this sequence when 
 1. **Gather context** — Apply the required clarification gate. Use `prompts/generate-web-ux-test-plan.prompt.md` to ask the user targeted questions about scope, auth, environments, and priorities. Do not generate files until required answers are provided or the user confirms stated defaults.
 2. **Generate plan** — Use `skills/generate-web-ux-test-plan/SKILL.md` to produce the YAML plan structure and area files.
 3. **Apply common scenarios** — Use `skills/apply-common-scenarios/SKILL.md` to add reusable UX testing scenarios to the plan.
-4. **Review plan** — Use `skills/review-web-ux-test-plan/SKILL.md` to evaluate the plan against quality rules and suggest improvements.
-5. **Execute with Playwright MCP** — Use `prompts/run-playwright-mcp-web-ux-test.prompt.md` and the Playwright MCP browser tools to run exploratory tests.
+4. **Validate and review plan** — Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then use `skills/review-web-ux-test-plan/SKILL.md` to evaluate remaining warnings and quality risks. Do not execute or convert plans with validation errors.
+5. **Execute with Playwright MCP** — Use `prompts/run-playwright-mcp-web-ux-test.prompt.md` and the Playwright MCP browser tools to run exploratory tests only after plan validation passes or the user explicitly narrows the run to a validated scenario.
 6. **Generate ARIA snapshot tests** — When accessibility-tree coverage is needed, use `skills/generate-aria-snapshot-tests/SKILL.md` to add ARIA scenarios.
 7. **Troubleshoot failures** — Use `skills/troubleshoot-web-ux-failure/SKILL.md` to diagnose issues found during testing.
 8. **Summarize findings** — Use `prompts/summarize-web-ux-findings.prompt.md` to produce a findings report.
@@ -142,7 +144,8 @@ When the user asks for only one stage, run that stage directly instead of forcin
 
 ## Validation
 
-- Validate generated plans with `npm run validate:plan -- web-ux-test/plan.yaml` when the repository scripts are available.
+- Validate generated plans with `npm run validate:plan -- web-ux-test/plan.yaml` when the repository scripts are available. Treat schema errors as blocking for execution and conversion.
+- The plan validator enforces required workflow fields, including scenario evidence and `stop_conditions`, and rejects credential-like keys anywhere in the plan.
 - Validate ARIA baselines with `npm run validate:aria -- tests/aria` when `.aria.yml` files are created or changed.
 - Report validation commands and results. If validation cannot run, say why and identify the remaining risk.
 

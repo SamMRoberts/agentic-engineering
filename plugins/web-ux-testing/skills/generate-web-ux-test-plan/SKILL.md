@@ -11,7 +11,7 @@ Create a schema-aligned web UX testing plan that can guide exploratory Playwrigh
 
 ## Required inputs
 
-Collect these inputs from the user, infer them from repository context, or mark them as `unknown` with a follow-up question when they affect safety or execution:
+Collect these inputs from the user, infer them from repository context only when confidence is high, or mark them as `unknown` with a follow-up question when they affect safety or execution:
 
 - Application name
 - Base URL
@@ -29,7 +29,7 @@ Collect these inputs from the user, infer them from repository context, or mark 
 - Preferred test id attribute
 - Execution mode: Playwright MCP, built-in agent browser, Playwright CLI, or hybrid
 
-Ask before generating when any of these are missing: base URL, whether auth is required, credentials handling policy, destructive action policy, and the workflows in scope.
+Ask before generating when any of these are missing: base URL, whether auth is required, credentials handling policy, destructive action policy, and the workflows in scope. Do not fill these with unstated assumptions.
 
 ## Procedure
 
@@ -39,11 +39,13 @@ Ask before generating when any of these are missing: base URL, whether auth is r
 4. Generate the plan from the scaffold shape below and keep scenarios observable: decision signals, expected checks, issue indicators, evidence, and stop conditions.
 5. Add conditional branches for auth state, loading state, modals, permissions, feature flags, empty states, API failures, and responsive breakpoints when they can affect the journey.
 6. Mark stable, high-value scenarios with `convert_to_regression_test: true`; keep exploratory-only scenarios out of CI recommendations.
-7. Validate the resulting plan with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared and warnings are either fixed or intentionally accepted.
+7. Validate the resulting plan with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared. Treat warnings as risks that must be fixed or explicitly reported.
 
 ## Output requirements
 
 Generate YAML files using `schemas/web-ux-test-plan.schema.yaml`.
+
+Validation is strict. Every generated scenario must include evidence and `stop_conditions`, and must include at least one of `steps` or `branches`. Plans with validation errors are not ready for browser execution or Playwright CLI conversion.
 
 Prefer this structure:
 
