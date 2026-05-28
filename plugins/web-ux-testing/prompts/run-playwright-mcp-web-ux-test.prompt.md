@@ -32,6 +32,6 @@ For each finding, include:
 - suspected area
 - whether it should become a Playwright CLI regression test
 
-Overwrite `web-ux-test/results.yaml` on each new test run. Do not append to previous results. Write all findings to `web-ux-test/results.yaml` as a list of finding objects. If a scenario passes with no issues, record a finding object with severity `pass` and empty evidence fields, so the results file reflects all tested scenarios. Print a summary table to the console when testing is complete.
+Overwrite `web-ux-test/results.yaml` on each new test run. Do not append to previous results. Write findings to `web-ux-test/results.yaml` as a list of finding objects aligned with `schemas/web-ux-finding.schema.yaml`. If a scenario passes with no issues, do not create a synthetic `pass` finding; record the pass in progress tracking and in the final run summary table instead.
 
 Stop when the plan's stop conditions are met, a critical blocker prevents further safe testing, or the requested scenario scope is complete.
