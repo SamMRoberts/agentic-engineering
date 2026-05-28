@@ -17,7 +17,7 @@ Rules:
 - Follow the plan in priority order.
 - Take an accessibility snapshot before each new page load or navigation, and use element refs from snapshots instead of CSS selectors for all interactions.
 - Capture console errors and network failures.
-- Stop and report critical failures that block further testing.
+- Stop and report when the page cannot load, the application crashes, authentication is lost, or the test scenario's primary workflow cannot proceed.
 - Do not request, store, print, or infer credentials.
 - Pause for manual login when required by the auth strategy.
 
@@ -32,6 +32,6 @@ For each finding, include:
 - suspected area
 - whether it should become a Playwright CLI regression test
 
-Write all findings to `web-ux-test/results.yaml` as a list of finding objects. Print a summary table to the console when testing is complete.
+Overwrite `web-ux-test/results.yaml` on each new test run. Do not append to previous results. Write all findings to `web-ux-test/results.yaml` as a list of finding objects. If a scenario passes with no issues, record a finding object with severity `pass` and empty evidence fields, so the results file reflects all tested scenarios. Print a summary table to the console when testing is complete.
 
 Stop when the plan's stop conditions are met, a critical blocker prevents further safe testing, or the requested scenario scope is complete.

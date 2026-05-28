@@ -42,6 +42,7 @@ Example requests:
 - `Create a web UX testing plan for our staging dashboard. Use saved browser auth and cover navigation, forms, mobile, loading states, and accessibility.`
 - `Review web-ux-test/plan.yaml and tell me whether it is safe to run with Playwright MCP.`
 - `Run the validated checkout scenario with Playwright MCP and write findings to web-ux-test/results.yaml.`
+- `Run each scenario in the validated plan and keep web-ux-test/progress.md updated so I can resume later.`
 - `Explore the staging dashboard with Playwright MCP and recommend follow-up scenarios.`
 - `Run the generated Playwright CLI regression tests for checkout.duplicate-submit and summarize failures.`
 - `Summarize web-ux-test/results.yaml and recommend which findings should become Playwright CLI regression tests.`
@@ -105,6 +106,7 @@ When both sources are used, guided user requirements run first and become the ba
 - `web-ux-codebase-requirements` infers requirements from repository evidence.
 - `web-ux-plan-curator` creates, reviews, extends, and validates plan files.
 - `web-ux-test-file-creator` creates Playwright specs and ARIA baselines.
+- `web-ux-progress-manager` maintains `web-ux-test/progress.md` for scenario queues, status, artifacts, blockers, and resume checkpoints.
 - `web-ux-playwright-mcp-executor` runs validated plans or scenarios with Playwright MCP.
 - `web-ux-playwright-mcp-explorer` performs exploratory discovery with Playwright MCP.
 - `web-ux-playwright-cli-executor` runs generated Playwright CLI tests.
@@ -113,6 +115,8 @@ When both sources are used, guided user requirements run first and become the ba
 - `web-ux-safety-gatekeeper` reviews risky execution or conversion requests.
 
 Internal sub-agents are not meant to be invoked directly by users; they keep tool access narrow and make the orchestrator easier to reason about.
+
+During plan or CLI execution, the orchestrator runs each scenario in its own executor sub-agent session. It updates `web-ux-test/progress.md` before and after every scenario so users can track progress and resume interrupted runs from the first non-terminal scenario.
 
 ## ARIA snapshot integration
 

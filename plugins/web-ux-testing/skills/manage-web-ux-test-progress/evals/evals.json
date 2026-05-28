@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Create web-ux-test/progress.md for this validated plan and initialize the scenario queue before running tests.",
+            "expected_output": "A progress checkpoint with plan metadata, run mode, scenario table, and resume instructions.",
+            "assertions": [
+                "Uses the manage-web-ux-test-progress skill.",
+                "Initializes scenario statuses as pending.",
+                "Does not run tests."
+            ]
+        },
+        {
+            "prompt": "Update progress.md after scenario checkout.duplicate-submit failed and attach trace.zip plus finding FINDING-004.",
+            "expected_output": "An updated scenario row with failed status, artifact links, finding reference, and next action.",
+            "assertions": [
+                "Records evidence and finding references.",
+                "Keeps previous progress history.",
+                "Identifies the next runnable scenario."
+            ]
+        },
+        {
+            "prompt": "Run the next Playwright MCP scenario from the plan.",
+            "expected_output": "The skill should not trigger for test execution; it only manages progress checkpoints.",
+            "assertions": [
+                "Does not use this skill to run tests."
+            ]
+        }
+    ]
+}

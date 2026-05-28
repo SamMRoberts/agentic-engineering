@@ -26,5 +26,6 @@
 - Added a one-time requirements-source gate so the orchestrator asks whether to gather guided user requirements and whether to infer codebase requirements before invoking requirements sub-agents.
 - Preserved guided user requirements as the baseline when codebase inference is also enabled.
 - Split Playwright MCP execution into separate private agents and skills for validated plan/scenario execution and exploratory discovery.
+- Added `web-ux-test/progress.md` checkpoint guidance so each test scenario runs in its own executor sub-agent session and interrupted runs can resume from recorded progress.
 - Added Playwright CLI execution and report-generation skills with eval coverage.
 - Added a findings collection schema and reusable web UX report template.
