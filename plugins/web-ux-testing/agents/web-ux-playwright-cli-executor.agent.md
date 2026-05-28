@@ -3,6 +3,7 @@ name: web-ux-playwright-cli-executor
 description: 'Use when running generated Playwright CLI regression tests, ARIA snapshot tests, or selected web UX test files from the terminal. Captures command output, artifacts, failure summaries, and scenario or finding IDs.'
 argument-hint: 'Test command, test directory, scenario IDs, report path, browser/project, and safety constraints.'
 tools: [read, search, execute]
+model: GPT-5.3-Codex (copilot)
 user-invocable: false
 ---
 

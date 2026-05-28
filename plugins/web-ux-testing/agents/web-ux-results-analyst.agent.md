@@ -3,6 +3,7 @@ name: web-ux-results-analyst
 description: 'Use when analyzing web UX results from MCP findings, Playwright CLI output, ARIA snapshot diffs, screenshots, console logs, network failures, or accessibility snapshots. Separates confirmed findings from hypotheses and recommends regression candidates.'
 argument-hint: 'Results file, CLI output, ARIA diff, evidence bundle, scenario IDs, or analysis scope.'
 tools: [read, search]
+model: Claude Opus 4.8 (copilot)
 user-invocable: false
 ---
 

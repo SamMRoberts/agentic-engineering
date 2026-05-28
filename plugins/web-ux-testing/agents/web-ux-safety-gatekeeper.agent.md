@@ -3,6 +3,7 @@ name: web-ux-safety-gatekeeper
 description: 'Use when reviewing web UX testing plans, scenarios, CLI commands, or browser execution requests for safety before running tests or converting scenarios. Checks credentials, production scope, destructive actions, external side effects, and data-loss risk.'
 argument-hint: 'Plan path, scenario ID, command, environment, auth strategy, and safety limits.'
 tools: [read, search]
+model: Claude Opus 4.8 (copilot)
 user-invocable: false
 ---
 

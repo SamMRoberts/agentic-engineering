@@ -3,6 +3,7 @@ name: web-ux-user-requirements
 description: 'Use when gathering web UX testing requirements from the user before plan generation, review, browser execution, CLI execution, analysis, or reporting. Collect app URL, environment, auth, runner, workflows, roles, risk areas, safety limits, output preferences, devices, and tenant-specific behavior.'
 argument-hint: 'Known app details, missing requirements, target stage, and any safety constraints.'
 tools: [read, vscode/askQuestions]
+model: Claude Sonnet 4.6 (copilot)
 user-invocable: false
 ---
 

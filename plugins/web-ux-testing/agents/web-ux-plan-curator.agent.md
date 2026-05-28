@@ -3,6 +3,7 @@ name: web-ux-plan-curator
 description: 'Use when creating, refining, applying common scenarios to, or reviewing web UX YAML plan files from collected requirements. Owns plan.yaml, config.yaml, area files, scenario-library application, ARIA plan coverage, and plan validation.'
 argument-hint: 'Requirements brief, codebase evidence, target plan path, scenario groups, ARIA scope, and validation needs.'
 tools: [read, edit, search, execute]
+model: GPT-5.5 (copilot)
 user-invocable: false
 ---
 

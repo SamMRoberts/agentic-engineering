@@ -3,6 +3,7 @@ name: web-ux-test-file-creator
 description: 'Use when creating Playwright CLI spec files, fixtures, or ARIA snapshot baselines from stable web UX scenarios or confirmed findings. Prefers shared generator and scaffold scripts before manual test creation.'
 argument-hint: 'Plan path, scenario or finding IDs, target test directory, auth/data setup, ARIA baseline scope, and expected behavior.'
 tools: [read, edit, search, execute]
+model: GPT-5.3-Codex (copilot)
 user-invocable: false
 ---
 

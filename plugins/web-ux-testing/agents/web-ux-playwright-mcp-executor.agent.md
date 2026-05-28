@@ -3,6 +3,7 @@ name: web-ux-playwright-mcp-executor
 description: 'Use when running validated web UX test plans or scenarios through Playwright MCP or an agent browser. Executes browser exploration, captures evidence, writes findings, and stops on safety, auth, data-loss, or critical UX blockers.'
 argument-hint: 'Validated plan path, scenario ID or scope, base URL, auth/session strategy, browser, viewport, and stop conditions.'
 tools: [read, edit, playwright/browser_click, playwright/browser_close, playwright/browser_console_messages, playwright/browser_drag, playwright/browser_drop, playwright/browser_file_upload, playwright/browser_fill_form, playwright/browser_handle_dialog, playwright/browser_hover, playwright/browser_navigate, playwright/browser_navigate_back, playwright/browser_network_request, playwright/browser_network_requests, playwright/browser_press_key, playwright/browser_resize, playwright/browser_select_option, playwright/browser_snapshot, playwright/browser_tabs, playwright/browser_take_screenshot, playwright/browser_type, playwright/browser_wait_for]
+model: Claude Sonnet 4.6 (copilot)
 user-invocable: false
 ---
 
