@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Run the generated Playwright regression test for scenario checkout.duplicate-submit and summarize the CLI failure artifacts.",
+            "expected_output": "A targeted Playwright CLI run with exit code, failing tests, artifact paths, and scenario mapping.",
+            "assertions": [
+                "Uses the run-playwright-cli-web-ux-test skill.",
+                "Prefers a targeted command over a broad suite.",
+                "Captures artifacts and maps failures to scenario or finding IDs when possible."
+            ]
+        },
+        {
+            "prompt": "Run our ARIA snapshot Playwright tests for the settings dialog baseline and capture any diff output.",
+            "expected_output": "A CLI execution summary for the selected ARIA snapshot tests with baseline diff artifacts and setup blockers if present.",
+            "assertions": [
+                "Does not auto-accept baseline changes.",
+                "Reports artifact paths and relevant output excerpts.",
+                "Does not use Playwright MCP browser tools."
+            ]
+        },
+        {
+            "prompt": "Explore the app in a browser and find UX bugs.",
+            "expected_output": "The skill should not trigger; browser exploration belongs to run-playwright-mcp-web-ux-test.",
+            "assertions": [
+                "Does not use this skill for exploratory browser execution."
+            ]
+        }
+    ]
+}

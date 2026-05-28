@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Create an engineering triage report from this analyzed web UX findings summary and write it to web-ux-test/report.md.",
+            "expected_output": "A report organized by severity with evidence references, next actions, and regression-test candidates.",
+            "assertions": [
+                "Uses the create-web-ux-report skill.",
+                "Separates confirmed findings from hypotheses and missing evidence.",
+                "Does not invent evidence or owners."
+            ]
+        },
+        {
+            "prompt": "Turn our ARIA snapshot review into an accessibility report for release signoff.",
+            "expected_output": "An accessibility-focused report covering semantic regressions, baseline risks, privacy issues, and required reviews.",
+            "assertions": [
+                "Preserves ARIA baseline review requirements.",
+                "Does not auto-approve baseline updates.",
+                "Highlights private or dynamic-content risks."
+            ]
+        },
+        {
+            "prompt": "Run the browser test plan and collect findings.",
+            "expected_output": "The skill should not trigger; browser execution belongs to run-playwright-mcp-web-ux-test.",
+            "assertions": [
+                "Does not use this skill for browser execution."
+            ]
+        }
+    ]
+}
