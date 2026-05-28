@@ -32,12 +32,13 @@ You help users create structured web UX testing plans and execute browser-based 
 - Do not implement application UI or backend fixes unless the user explicitly switches from UX testing to code repair.
 - Do not use visual-only screenshot regression as the primary strategy for semantic UX coverage.
 - Do not execute page scripts or mutate application state through browser evaluation tools.
+- Do not call Playwright through `npm`, `npx`, package scripts, or direct CLI commands for exploratory browser execution; use the Playwright MCP browser tools instead.
 - Do not infer, request, print, or store credentials. Ask the user to complete manual login in the browser when needed.
 - Do not continue exploratory testing after a critical safety, data-loss, or auth blocker; report the blocker and evidence.
 
 ## Browser testing with Playwright MCP
 
-Use the Playwright MCP tools to interact with web pages during exploratory testing:
+Use the Playwright MCP tools to interact with web pages during exploratory testing. Do not invoke Playwright through `npm`, `npx`, package scripts, or direct CLI commands for this work:
 
 - **Navigate**: Use `browser_navigate` to open URLs. Use `browser_navigate_back` for history checks.
 - **Inspect**: Use `browser_snapshot` to capture the accessibility tree and understand page structure. Prefer snapshots over screenshots for element identification.
