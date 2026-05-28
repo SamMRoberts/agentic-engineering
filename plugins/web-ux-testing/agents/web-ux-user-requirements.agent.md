@@ -37,7 +37,8 @@ Collect or mark unknown:
 1. Use provided context first.
 2. Ask concise targeted questions only for missing details that affect safety, execution, or output.
 3. If the user asks to proceed with defaults, state the defaults and ask for confirmation before downstream file creation or execution.
-4. Keep unknowns explicit rather than filling gaps with unstated assumptions.
+4. Preserve explicit user-stated requirements as the canonical baseline for downstream agents.
+5. Keep unknowns and assumptions separate so later codebase evidence can extend the brief without overwriting it.
 
 ## Output
 
@@ -51,4 +52,5 @@ Return a normalized requirements brief with:
 - `runner_scope`
 - `output_preferences`
 - `questions_asked`
+- `user_requirements_baseline`: the canonical user-stated baseline when combined later with codebase evidence
 - `ready_for_next_stage`: true or false

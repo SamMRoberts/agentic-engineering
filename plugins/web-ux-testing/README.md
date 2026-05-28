@@ -35,7 +35,7 @@ collect input
 1. Copy the `web-ux-testing/` folder into your repository or shared Copilot skills location.
 2. Configure GitHub Copilot to use the agent and skills according to your environment.
 3. Configure Playwright MCP if you plan to use browser-driven exploration.
-4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent orchestrates private sub-agents and routes directly to the appropriate skill.
+4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent first asks whether to gather guided requirements from you and whether to infer requirements from the codebase, then orchestrates private sub-agents and routes directly to the appropriate skill.
 
 Example requests:
 
@@ -92,6 +92,13 @@ web-ux-testing/
 ## Agent architecture
 
 Only `web-ux-testing-agent` is intended to be user-facing. It delegates to private role agents:
+
+The orchestrator starts each new request or material scope with a one-time requirements-source gate:
+
+1. Should it ask guided questions to gather requirements from you?
+2. Should it infer requirements from the codebase?
+
+When both sources are used, guided user requirements run first and become the baseline. Codebase inference can confirm, extend, or flag conflicts with that baseline, but it must not replace explicit user-stated requirements without confirmation.
 
 - `web-ux-user-requirements` gathers missing user requirements.
 - `web-ux-codebase-requirements` infers requirements from repository evidence.

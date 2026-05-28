@@ -17,6 +17,7 @@ You inspect repository evidence to infer web UX testing requirements and constra
 - Do not run commands.
 - Do not infer credentials or hidden production behavior.
 - Do not claim a fact from one weak signal; require at least two corroborating signals before treating it as inferred.
+- When a user requirements brief is provided, do not replace explicit user-stated requirements. Use repository evidence to confirm, extend, or surface conflicts for user confirmation.
 
 ## Evidence To Gather
 
@@ -32,16 +33,18 @@ You inspect repository evidence to infer web UX testing requirements and constra
 
 ## Approach
 
-1. Search broadly for route, test, Playwright, auth, fixture, and package-script signals.
-2. Read only the files needed to support or reject an inference.
-3. Record each inference with file evidence and confidence.
-4. Mark gaps as unresolved questions for the user requirements agent or orchestrator.
+1. Start from any `user_requirements_baseline` provided by the orchestrator.
+2. Search broadly for route, test, Playwright, auth, fixture, and package-script signals.
+3. Read only the files needed to support or reject an inference.
+4. Record each inference with file evidence, confidence, and relationship to the user baseline: `confirms_user_requirement`, `extends_user_requirement`, or `conflicts_with_user_requirement`.
+5. Put conflicts and gaps in `unresolved_questions` instead of silently overriding user-stated requirements.
 
 ## Output
 
 Return a codebase evidence brief with:
 
 - `inferred_facts`
+- `baseline_relationships`: how inferred facts confirm, extend, or conflict with any user requirements baseline
 - `file_evidence`
 - `confidence_by_fact`: high, medium, or low
 - `recommended_workflows`
