@@ -7,11 +7,10 @@ It is designed for workflows that start with exploratory validation using Playwr
 ## What this pack provides
 
 - A custom Copilot agent profile
-- Skills for generating, reviewing, extending, troubleshooting, and converting test plans
+- Skills for generating, reviewing, extending, executing, summarizing, troubleshooting, and converting test plans
 - YAML schemas for plans, config, scenarios, and findings
 - Reusable scenario modules
 - Execution profiles
-- Prompt templates
 - Checklists
 - Utility scripts
 
@@ -32,8 +31,17 @@ collect input
 1. Copy the `web-ux-testing/` folder into your repository or shared Copilot skills location.
 2. Configure GitHub Copilot to use the agent and skills according to your environment.
 3. Configure Playwright MCP if you plan to use browser-driven exploration.
-4. Generate a plan using `prompts/generate-web-ux-test-plan.prompt.md`.
-5. Validate the generated plan:
+4. Invoke `web-ux-testing-agent` and describe the stage you want. The agent routes directly to the appropriate skill.
+
+Example requests:
+
+- `Create a web UX testing plan for our staging dashboard. Use saved browser auth and cover navigation, forms, mobile, loading states, and accessibility.`
+- `Review web-ux-test/plan.yaml and tell me whether it is safe to run with Playwright MCP.`
+- `Run the validated checkout scenario with Playwright MCP and write findings to web-ux-test/results.yaml.`
+- `Summarize web-ux-test/results.yaml and recommend which findings should become Playwright CLI regression tests.`
+- `Convert the confirmed duplicate-submit finding into a Playwright CLI regression test.`
+
+5. Validate generated or edited plans when the agent has not already done so:
 
 ```bash
 npm install
@@ -71,7 +79,6 @@ web-ux-testing/
   templates/
   checklists/
   profiles/
-  prompts/
   scripts/
 ```
 
