@@ -1,0 +1,19 @@
+id: RESPONSIVE-DESKTOP-001
+title: Desktop layout uses available space without breaking workflows
+goal: Validate desktop layout at common wide viewport sizes.
+priority: medium
+entry:
+  - Open the application with a desktop viewport.
+steps:
+  - Navigate primary pages.
+  - Resize to a wider desktop viewport when useful.
+checks:
+  - Primary content is visible and aligned.
+  - Large empty areas do not hide important context.
+  - Main interactions remain discoverable.
+issue_indicators:
+  - Content is pushed off-screen.
+  - Panels collapse unexpectedly.
+  - Important controls are hidden at desktop widths.
+evidence: [screenshot, url, console_errors]
+convert_to_regression_test: false

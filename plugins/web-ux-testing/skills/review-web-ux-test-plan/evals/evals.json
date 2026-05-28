@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Review web-ux-test/plan.yaml and tell me whether it is safe to run against staging with Playwright MCP.",
+            "expected_output": "A prioritized review covering schema validity, auth/session safety, destructive action limits, scenario quality, evidence, and MCP execution readiness.",
+            "assertions": [
+                "Uses the review-web-ux-test-plan skill.",
+                "Runs or recommends the validate-plan script when a file exists.",
+                "Leads with critical safety or execution blockers."
+            ]
+        },
+        {
+            "prompt": "Audit this YAML test plan for missing accessibility, network, console, responsive, and error-state coverage.",
+            "expected_output": "A coverage-focused plan review with concrete missing scenarios and suggested regression candidates.",
+            "assertions": [
+                "Checks accessibility and ARIA snapshot quality when relevant.",
+                "Flags vague checks and missing evidence.",
+                "Suggests scenario-library additions where applicable."
+            ]
+        },
+        {
+            "prompt": "Generate a full new plan from only this app description.",
+            "expected_output": "The skill should not trigger unless the user asks for a revised replacement after review; plan creation belongs to generate-web-ux-test-plan.",
+            "assertions": [
+                "Does not use this skill for greenfield plan generation."
+            ]
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+id: RECOVERY-STALE-STORAGE-001
+title: Stale browser storage does not corrupt UX
+goal: Validate app behavior when local storage/session storage contains stale values.
+priority: medium
+entry:
+  - Open the app after prior usage.
+steps:
+  - Inspect app behavior after reload.
+  - Clear relevant site storage when stale behavior is suspected.
+  - Reopen the app.
+checks:
+  - App can recover from stale client-side state.
+  - User-facing error messages are clear.
+  - App does not require unsupported manual recovery steps.
+issue_indicators:
+  - JSON parsing errors from persisted state.
+  - Feature flags or user preferences corrupt UI state.
+  - Clearing storage is the only recovery path.
+evidence: [screenshot, console_errors, network_failures]
+convert_to_regression_test: false

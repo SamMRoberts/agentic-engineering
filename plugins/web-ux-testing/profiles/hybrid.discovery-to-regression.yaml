@@ -1,0 +1,18 @@
+name: hybrid-discovery-to-regression
+runner:
+  type: hybrid
+  discovery_runner: playwright-mcp
+  regression_runner: playwright-cli
+  environment: local
+  base_url: http://localhost:5173
+workflow:
+  - generate_plan
+  - validate_plan
+  - run_exploratory_web_ux_testing
+  - summarize_findings
+  - select_regression_candidates
+  - convert_to_playwright_cli_tests
+rules:
+  do_not_modify_code_during_discovery: true
+  require_user_review_before_fixing: true
+  convert_high_and_critical_findings: true

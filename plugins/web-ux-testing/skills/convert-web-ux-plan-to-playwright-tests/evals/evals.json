@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Convert scenario checkout.duplicate-submit from web-ux-test/plan.yaml into a Playwright CLI regression test under tests/e2e.",
+            "expected_output": "A deterministic Playwright test with setup assumptions, stable locators, explicit assertions, and a command to run it.",
+            "assertions": [
+                "Uses the convert-web-ux-plan-to-playwright-tests skill.",
+                "Avoids arbitrary waits and pixel coordinates.",
+                "Preserves the source scenario ID."
+            ]
+        },
+        {
+            "prompt": "Turn this confirmed modal focus-trap finding into a regression test. Auth should use a test user fixture, not manual login.",
+            "expected_output": "A focused Playwright CLI regression test or test outline that uses deterministic auth setup and asserts focus behavior.",
+            "assertions": [
+                "Uses role or label locators where possible.",
+                "Includes fixture and test data assumptions.",
+                "Does not depend on production data."
+            ]
+        },
+        {
+            "prompt": "Explore this app with Playwright MCP and tell me what breaks.",
+            "expected_output": "The skill should not trigger; exploratory execution belongs to browser testing or plan execution workflows.",
+            "assertions": [
+                "Does not use this skill for open-ended exploratory browser testing."
+            ]
+        }
+    ]
+}

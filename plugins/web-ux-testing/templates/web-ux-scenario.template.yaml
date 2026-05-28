@@ -1,0 +1,31 @@
+id: AREA-SCENARIO-001
+title: Scenario title
+priority: medium
+goal: Describe the user-facing behavior being validated.
+entry:
+  - Open the relevant page or workflow.
+steps:
+  - Perform a user-relevant action.
+  - Observe the result.
+checks:
+  - Expected user-facing behavior is visible.
+  - No console errors occur.
+  - No required network requests fail unexpectedly.
+issue_indicators:
+  - User cannot complete the expected action.
+  - User sees unclear or incorrect feedback.
+  - App shows blank, stale, or broken state.
+evidence:
+  - screenshot
+  - console_errors
+  - network_failures
+stop_conditions:
+  - Critical failure blocks further testing in this area.
+convert_to_regression_test: false
+
+# Optional ARIA snapshot metadata for stable accessibility-tree regression coverage.
+aria:
+  snapshot_scope: locator
+  baseline_name: example.aria.yml
+  dynamic_content_policy: regex
+  recommended_assertion: 'expect(locator).toMatchAriaSnapshot({ name: "example.aria.yml" })'

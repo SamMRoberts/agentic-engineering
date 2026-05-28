@@ -1,0 +1,22 @@
+id: NAV-MAIN-001
+title: Main navigation reaches expected pages
+goal: Validate primary navigation items load expected destinations.
+priority: high
+entry:
+  - Open the application root URL.
+steps:
+  - Visit each primary navigation item.
+  - Confirm visible page heading or landmark for each route.
+  - Return to the root or dashboard.
+checks:
+  - Navigation links are visible and operable.
+  - Active navigation state matches the current route.
+  - No expected route produces a 404 or blank page.
+  - No console errors occur during navigation.
+issue_indicators:
+  - Broken link.
+  - Wrong active navigation state.
+  - Blank or partially loaded page.
+  - Required API request fails without user-facing recovery.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: true

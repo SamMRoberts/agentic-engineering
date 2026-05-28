@@ -1,0 +1,24 @@
+id: AUTH-MANUAL-LOGIN-001
+title: Pause for manual login when authentication is required
+goal: Safely handle required login without storing credentials in the test plan.
+priority: high
+entry:
+  - Open the application root URL.
+branches:
+  - condition: Login screen appears
+    signals:
+      - Email, username, or identity provider control is visible.
+      - Password field or SSO button is visible.
+    actions:
+      - Pause and request manual login.
+      - Resume testing only after the protected app shell is visible.
+    checks:
+      - Credentials are never requested or stored by the plan.
+      - Post-login redirect lands on the intended route.
+      - Session state is available for later scenarios.
+issue_indicators:
+  - Test runner asks for credentials directly.
+  - Login cannot complete manually.
+  - Post-login redirect loses intended destination.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: false

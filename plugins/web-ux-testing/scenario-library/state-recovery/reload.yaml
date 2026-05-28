@@ -1,0 +1,21 @@
+id: RECOVERY-RELOAD-001
+title: App recovers after reload
+goal: Verify core pages survive a normal browser reload.
+priority: high
+entry:
+  - Open a primary workflow page.
+steps:
+  - Reload the page.
+  - Wait for the app shell or expected page content to return.
+checks:
+  - App shell loads successfully after reload.
+  - User is not stuck on a blank page.
+  - Required API calls are reissued successfully.
+  - User-facing state remains understandable.
+issue_indicators:
+  - Blank page after reload.
+  - Infinite loading state.
+  - App loses required context without recovery.
+  - Console errors mention hydration, storage, or parsing.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: true

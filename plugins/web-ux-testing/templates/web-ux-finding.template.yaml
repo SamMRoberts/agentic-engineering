@@ -1,0 +1,21 @@
+id: FINDING-001
+scenario_id: SCENARIO-001
+severity: high
+title: Short finding title
+status: open
+environment: local
+runner: playwright-mcp
+reproduction_steps:
+  - Step one.
+  - Step two.
+expected_result: Describe the expected user-facing behavior.
+actual_result: Describe the observed user-facing behavior.
+evidence:
+  screenshots: []
+  console_errors: []
+  network_failures: []
+  urls: []
+  accessibility_snapshots: []
+suspected_area: []
+recommended_next_step: Triage and decide whether to convert to a regression test.
+convert_to_regression_test: false

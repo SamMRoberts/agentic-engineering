@@ -1,0 +1,29 @@
+id: CACHE-001
+title: App recovers from stale or bad cached state
+priority: medium
+goal: Verify that stale browser cache or persisted app state does not break the user experience.
+entry:
+  - Open the app with an existing saved browser session.
+  - Visit a primary workflow page.
+steps:
+  - Reload the page.
+  - Hard refresh the page if supported by the runner.
+  - Clear site storage/cache if stale behavior is suspected.
+  - Reopen the app root URL.
+  - Revisit the same workflow page.
+checks:
+  - App shell loads successfully after reload.
+  - User is not stuck on a blank page.
+  - User is not trapped in an auth loop.
+  - Old UI state does not corrupt the current workflow.
+  - Required API calls are reissued successfully.
+  - Clear user-facing recovery path exists if cached data is invalid.
+issue_indicators:
+  - Blank screen after reload.
+  - Infinite loading state.
+  - Stale data shown after refresh.
+  - Old feature-flag state persists incorrectly.
+  - Console errors mention storage, hydration, cache, or parsing.
+  - User must manually clear browser data to recover.
+evidence: [screenshot, console_errors, network_failures, url]
+convert_to_regression_test: false

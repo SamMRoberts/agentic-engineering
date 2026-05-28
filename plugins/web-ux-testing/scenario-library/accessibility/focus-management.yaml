@@ -1,0 +1,21 @@
+id: A11Y-FOCUS-001
+title: Focus is managed correctly for dialogs and route changes
+goal: Verify focus moves predictably after modal open/close and page transitions.
+priority: high
+entry:
+  - Open a page with dialogs, menus, or route transitions.
+steps:
+  - Open a modal or menu.
+  - Navigate inside it with keyboard.
+  - Close it.
+  - Navigate to another page.
+checks:
+  - Modal traps focus while open.
+  - Focus returns to a logical control after close.
+  - Route change places focus on a useful target or preserves logical flow.
+issue_indicators:
+  - Focus escapes behind modal.
+  - Focus is lost after close.
+  - Keyboard user cannot recover focus.
+evidence: [screenshot, accessibility_snapshot]
+convert_to_regression_test: true

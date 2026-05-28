@@ -1,0 +1,21 @@
+id: RESPONSIVE-MOBILE-001
+title: Mobile layout remains usable
+goal: Validate primary workflows at a mobile viewport.
+priority: medium
+entry:
+  - Open the application with a mobile viewport.
+steps:
+  - Navigate primary pages.
+  - Open menus and forms.
+  - Complete one primary workflow when safe.
+checks:
+  - Content does not overflow horizontally.
+  - Primary controls remain reachable.
+  - Navigation is usable on small screens.
+  - Forms are readable and operable.
+issue_indicators:
+  - Horizontal scrolling required unexpectedly.
+  - Controls overlap or are clipped.
+  - Mobile menu cannot be opened or closed.
+evidence: [screenshot, url, console_errors]
+convert_to_regression_test: false

@@ -1,0 +1,21 @@
+name: playwright-mcp-staging
+runner:
+  type: playwright-mcp
+  environment: staging
+  mode: headed
+  base_url: https://staging.example.com
+  browser: chromium
+  test_id_attribute: data-testid
+auth:
+  required: true
+  strategy: saved_browser_session
+  credentials_policy: never_store_credentials
+  unauthenticated_behavior: pause_for_manual_login
+  verify_before_each_area: true
+rules:
+  do_not_modify_code: true
+  report_before_fixing: true
+  avoid_destructive_actions: true
+  capture_console_errors: true
+  capture_network_failures: true
+  capture_screenshots_on_failure: true

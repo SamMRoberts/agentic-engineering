@@ -1,0 +1,19 @@
+id: EMPTY-STATE-001
+title: Empty states are understandable and actionable
+goal: Validate pages with no data provide clear guidance.
+priority: medium
+entry:
+  - Open a page or account state with no records.
+steps:
+  - Observe visible empty state.
+  - Activate primary empty-state action when safe.
+checks:
+  - Empty state explains what is missing.
+  - User receives a clear next action.
+  - Empty state is not confused with loading or error state.
+issue_indicators:
+  - Blank content area with no explanation.
+  - Empty state action is missing or broken.
+  - Empty state looks like an error.
+evidence: [screenshot, accessibility_snapshot]
+convert_to_regression_test: true

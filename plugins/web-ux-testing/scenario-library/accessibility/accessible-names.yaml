@@ -1,0 +1,19 @@
+id: A11Y-NAMES-001
+title: Interactive controls have accessible names
+goal: Verify buttons, links, inputs, and menus expose understandable names.
+priority: high
+entry:
+  - Open pages with primary interactive controls.
+steps:
+  - Inspect accessibility snapshots for key controls.
+  - Compare visible labels to accessible names.
+checks:
+  - Buttons and links have meaningful names.
+  - Inputs have labels or accessible names.
+  - Icon-only controls expose clear names.
+issue_indicators:
+  - Button name is empty or generic.
+  - Input has no label.
+  - Icon-only action is not announced clearly.
+evidence: [accessibility_snapshot, screenshot]
+convert_to_regression_test: true

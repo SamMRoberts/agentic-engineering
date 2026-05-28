@@ -1,0 +1,32 @@
+id: ARIA-COMPONENT-001
+title: Component accessibility tree matches expected roles, names, and states
+priority: high
+goal: Verify that a stable component exposes the expected accessibility semantics.
+entry:
+  - Open a route containing the target component.
+steps:
+  - Locate the component using role, label, or test id.
+  - Capture a locator-scoped ARIA snapshot.
+  - Interact with the component if it has expanded, selected, pressed, checked, invalid, or disabled states.
+  - Capture state-specific ARIA expectations when useful.
+checks:
+  - Component exposes the correct role.
+  - Component has a useful accessible name.
+  - State changes are reflected through ARIA or native semantics.
+  - Disabled, selected, expanded, checked, pressed, or invalid states are exposed when applicable.
+issue_indicators:
+  - Component is only exposed as generic text or generic container.
+  - Visible label does not become the accessible name.
+  - Expanded, disabled, selected, checked, or invalid state is not exposed.
+  - Snapshot changes when unrelated visual styling changes.
+evidence:
+  - aria_snapshot
+  - accessibility_snapshot
+  - screenshot
+  - url
+convert_to_regression_test: true
+aria:
+  snapshot_scope: locator
+  baseline_name: component.aria.yml
+  dynamic_content_policy: regex
+  recommended_assertion: 'expect(component).toMatchAriaSnapshot({ name: "component.aria.yml" })'

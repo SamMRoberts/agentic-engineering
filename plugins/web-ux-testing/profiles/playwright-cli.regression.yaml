@@ -1,0 +1,18 @@
+name: playwright-cli-regression
+runner:
+  type: playwright-cli
+  environment: local
+  mode: headless
+  base_url: http://localhost:5173
+  browser: chromium
+  test_id_attribute: data-testid
+auth:
+  required: false
+  strategy: none
+  credentials_policy: use_environment_variables
+rules:
+  do_not_modify_code: false
+  report_before_fixing: false
+  avoid_destructive_actions: true
+  capture_console_errors: true
+  capture_network_failures: true

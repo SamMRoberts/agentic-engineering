@@ -1,0 +1,25 @@
+name: playwright-cli-aria-regression
+
+runner:
+  type: playwright-cli
+  environment: local
+  base_url: http://localhost:5173
+  browser: chromium
+  test_id_attribute: data-testid
+
+aria:
+  enabled: true
+  snapshot_dir: tests/aria
+  baseline_extension: .aria.yml
+  prefer_locator_scoped_snapshots: true
+  update_policy: manual_review_required
+  dynamic_content_policy: regex
+
+rules:
+  do_not_modify_code: false
+  require_user_review_before_snapshot_update: true
+  avoid_destructive_actions: true
+  prefer_accessibility_snapshot: true
+  prefer_aria_snapshots: true
+  capture_console_errors: true
+  capture_network_failures: true

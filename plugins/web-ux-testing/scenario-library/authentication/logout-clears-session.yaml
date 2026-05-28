@@ -1,0 +1,20 @@
+id: AUTH-LOGOUT-001
+title: Logout clears session and blocks protected routes
+goal: Verify logout ends the session and prevents protected route access.
+priority: high
+entry:
+  - Start authenticated.
+steps:
+  - Open the user/account menu.
+  - Activate logout.
+  - Attempt to revisit a protected route.
+checks:
+  - User is returned to login or public landing page.
+  - Protected route is no longer accessible.
+  - Refresh does not restore authenticated state.
+issue_indicators:
+  - Logout appears to succeed but session remains active.
+  - Protected route is accessible after logout.
+  - User is stuck on a blank page after logout.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: true

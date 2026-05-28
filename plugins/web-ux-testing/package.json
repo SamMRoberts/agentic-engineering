@@ -1,0 +1,20 @@
+{
+  "name": "web-ux-testing",
+  "version": "0.1.0",
+  "description": "GitHub Copilot agent skill pack for structured web UX testing plans.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "validate:plan": "node scripts/validate-plan.mjs",
+    "scaffold": "node scripts/scaffold-plan.mjs",
+    "list:scenarios": "node scripts/list-scenarios.mjs",
+    "split": "node scripts/split-plan-by-area.mjs",
+    "merge": "node scripts/merge-area-plans.mjs",
+    "scaffold:aria": "node scripts/scaffold-aria-snapshot-test.mjs",
+    "validate:aria": "node scripts/validate-aria-snapshots.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.6.1"
+  }
+}

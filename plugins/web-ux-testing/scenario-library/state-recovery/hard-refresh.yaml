@@ -1,0 +1,19 @@
+id: RECOVERY-HARD-REFRESH-001
+title: App recovers after hard refresh
+goal: Verify hard refresh does not break app startup or route state.
+priority: medium
+entry:
+  - Open a primary workflow page.
+steps:
+  - Perform a hard refresh if supported by the runner.
+  - Reopen the app root URL if needed.
+checks:
+  - App reloads without requiring manual browser data cleanup.
+  - User is not stuck in stale UI state.
+  - Required route data loads again.
+issue_indicators:
+  - Hard refresh causes blank page.
+  - App shell loads but page data never appears.
+  - User must manually clear browser data to recover.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: false

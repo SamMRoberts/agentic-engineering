@@ -1,0 +1,20 @@
+id: NAV-DEEP-LINK-001
+title: Deep links load the expected state
+goal: Validate that direct links to important routes load correctly.
+priority: medium
+entry:
+  - Open a known deep link directly in a fresh tab or session.
+steps:
+  - Visit a protected deep link.
+  - Visit a public deep link.
+  - Refresh each route.
+checks:
+  - Direct links load the correct page or redirect safely.
+  - Authenticated deep links preserve destination after login.
+  - Unknown deep links show a useful not-found state.
+issue_indicators:
+  - Deep link drops user on wrong page.
+  - Required route data never loads.
+  - Auth redirects lose intended destination.
+evidence: [screenshot, url, console_errors, network_failures]
+convert_to_regression_test: true

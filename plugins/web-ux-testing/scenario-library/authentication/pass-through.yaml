@@ -1,0 +1,49 @@
+id: AUTH-PASS-THROUGH-001
+title: Authenticated user can pass through to protected app shell
+priority: high
+goal: Verify that a user with a valid saved session reaches the protected application without unnecessary login friction.
+entry:
+  - Open the application root URL.
+branches:
+  - condition: User is already authenticated
+    signals:
+      - Protected app shell is visible.
+      - User menu or profile control is visible.
+      - Login form is not visible.
+    actions:
+      - Refresh the page.
+      - Navigate to a protected route.
+    checks:
+      - Session persists after refresh.
+      - Protected route remains accessible.
+      - No auth redirect loop occurs.
+      - No console errors appear.
+    failure_handling:
+      - Capture screenshot.
+      - Record current URL.
+      - Record console errors.
+      - Record failed network requests.
+  - condition: User is not authenticated
+    signals:
+      - Login form is visible.
+      - URL indicates login or auth route.
+    actions:
+      - Pause for manual login when using Playwright MCP.
+      - Resume after login succeeds.
+    checks:
+      - User lands on intended destination after login.
+      - No credentials are stored in the plan.
+      - No auth error remains visible.
+issue_indicators:
+  - Authenticated user is redirected to login.
+  - Login redirect loop occurs.
+  - Session is lost after reload.
+  - Protected route briefly exposes content before redirect.
+  - User lands on the wrong route after login.
+evidence:
+  - screenshot
+  - url
+  - console_errors
+  - network_failures
+  - accessibility_snapshot
+convert_to_regression_test: true

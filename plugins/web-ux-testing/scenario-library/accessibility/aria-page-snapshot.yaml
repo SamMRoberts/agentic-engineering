@@ -1,0 +1,35 @@
+id: ARIA-PAGE-001
+title: Page accessibility tree matches expected app shell structure
+priority: high
+goal: Verify that a stable page exposes the expected semantic structure through the accessibility tree.
+entry:
+  - Open a stable route such as the home page, dashboard, or primary workflow landing page.
+steps:
+  - Capture the page-level ARIA snapshot when the page is fully loaded.
+  - Compare headings, landmarks, navigation, and primary controls against the expected baseline.
+  - Review any snapshot differences before accepting them as intentional.
+checks:
+  - Page has a meaningful main landmark.
+  - Primary heading is exposed with the expected accessible name.
+  - Navigation is exposed as navigation or menu structure.
+  - Primary buttons and links have accessible names.
+  - Loading-only or skeleton content is not captured as the final baseline.
+issue_indicators:
+  - Main content is missing from the accessibility tree.
+  - Primary heading has the wrong name or level.
+  - Navigation controls are unnamed.
+  - Important interactive controls are exposed as generic text or generic containers.
+  - Snapshot includes unstable IDs, timestamps, or user-specific private data.
+evidence:
+  - aria_snapshot
+  - accessibility_snapshot
+  - screenshot
+  - url
+stop_conditions:
+  - Page cannot reach a stable loaded state.
+convert_to_regression_test: true
+aria:
+  snapshot_scope: page
+  baseline_name: page-shell.aria.yml
+  dynamic_content_policy: avoid_snapshot
+  recommended_assertion: 'expect(page).toMatchAriaSnapshot({ name: "page-shell.aria.yml" })'

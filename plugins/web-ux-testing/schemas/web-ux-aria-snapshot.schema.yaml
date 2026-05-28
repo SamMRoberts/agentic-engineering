@@ -1,0 +1,45 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.com/schemas/web-ux-aria-snapshot.schema.yaml"
+title: "Web UX ARIA Snapshot Plan"
+type: object
+required:
+  - id
+  - target
+  - snapshot_scope
+  - baseline_name
+  - locator_strategy
+  - dynamic_content_policy
+properties:
+  id:
+    type: string
+  target:
+    type: string
+    enum: [page, app_shell, navigation, main, region, form, dialog, menu, component, status_region]
+  snapshot_scope:
+    type: string
+    enum: [page, locator, region]
+  baseline_name:
+    type: string
+    pattern: "^.+\\.aria\\.yml$"
+  locator_strategy:
+    type: string
+    enum: [role, label, text, test-id, css, page]
+  locator:
+    type: string
+  dynamic_content_policy:
+    type: string
+    enum: [none, regex, mask, omit, avoid_snapshot]
+  include_states:
+    type: array
+    items:
+      type: string
+      enum: [loaded, loading, empty, error, expanded, collapsed, selected, disabled, invalid, required, checked, unchecked, pressed]
+  assertions:
+    type: array
+    items:
+      type: string
+  update_policy:
+    type: string
+    enum: [manual_review_required, update_when_intentional, never_auto_accept]
+  notes:
+    type: string

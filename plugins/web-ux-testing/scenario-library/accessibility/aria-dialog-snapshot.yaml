@@ -1,0 +1,35 @@
+id: ARIA-DIALOG-001
+title: Dialog exposes accessible name, modal structure, and focus state
+priority: high
+goal: Verify that dialogs, modals, and overlays are exposed with correct accessibility semantics.
+entry:
+  - Open a page containing a dialog-triggering control.
+steps:
+  - Activate the dialog trigger.
+  - Locate the dialog by role and accessible name.
+  - Capture a locator-scoped ARIA snapshot of the dialog.
+  - Validate focus behavior with keyboard-only navigation.
+  - Close the dialog and verify focus returns to the trigger or expected control.
+checks:
+  - Dialog has role dialog or alertdialog.
+  - Dialog has a useful accessible name.
+  - Dialog content is exposed in a logical order.
+  - Close/cancel/confirm controls have accessible names.
+  - Focus is trapped while the dialog is open and restored after close.
+issue_indicators:
+  - Dialog is not discoverable by role.
+  - Dialog title is visible but not used as accessible name.
+  - Keyboard focus escapes behind the dialog.
+  - Close button is unnamed.
+  - Background content remains active while modal dialog is open.
+evidence:
+  - aria_snapshot
+  - accessibility_snapshot
+  - screenshot
+  - url
+convert_to_regression_test: true
+aria:
+  snapshot_scope: locator
+  baseline_name: dialog.aria.yml
+  dynamic_content_policy: regex
+  recommended_assertion: 'expect(dialog).toMatchAriaSnapshot({ name: "dialog.aria.yml" })'
