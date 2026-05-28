@@ -21,12 +21,14 @@ If the plan path is missing, ask for it or inspect the default `web-ux-test/plan
 ## Procedure
 
 1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when a plan file is available. This performs schema validation and safety linting.
-2. Treat validation errors as blocking issues before qualitative review. Required workflow fields include scenario evidence, `stop_conditions`, and at least one of `steps` or `branches`.
-3. Check safety next: credentials, destructive actions, production scope, external service side effects, and stop conditions.
-4. Review scenario quality: clear goal, observable entry, branches, checks, issue indicators, evidence, and regression-candidate flags.
-5. Review execution suitability for the target runner. Exploratory MCP plans should include evidence and branches; CLI-oriented plans should isolate setup, data, and deterministic assertions.
-6. Compare coverage against the scenario library categories and flag important missing areas.
-7. Return findings ordered by severity with concrete fixes. Include revised YAML only when requested or when the fix is small enough to be clearer than prose.
+2. If the validation script is not found or fails to execute, note this in the output, skip automated validation, and proceed with manual schema review against the required fields.
+3. If the YAML cannot be parsed at all, report the parse error location, stop the review, and ask the user to fix syntax before resubmitting.
+4. Treat validation errors as blocking issues before qualitative review. Required workflow fields include scenario evidence, `stop_conditions`, and at least one of `steps` or `branches`.
+5. Check safety next: credentials, destructive actions, production scope, external service side effects, and stop conditions.
+6. Review scenario quality: clear goal, observable entry, branches, checks, issue indicators, evidence, and regression-candidate flags.
+7. Review execution suitability for the target runner. Exploratory MCP plans should include evidence and branches; CLI-oriented plans should isolate setup, data, and deterministic assertions.
+8. Compare coverage against the scenario library categories and flag important missing areas.
+9. Return findings ordered by severity with concrete fixes. Include revised YAML only when requested or when the fix is 5 lines or fewer of YAML.
 
 ## Review criteria
 
