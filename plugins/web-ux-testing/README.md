@@ -42,6 +42,7 @@ Example requests:
 - `Create a web UX testing plan for our staging dashboard. Use saved browser auth and cover navigation, forms, mobile, loading states, and accessibility.`
 - `Review web-ux-test/plan.yaml and tell me whether it is safe to run with Playwright MCP.`
 - `Run the validated checkout scenario with Playwright MCP and write findings to web-ux-test/results.yaml.`
+- `Explore the staging dashboard with Playwright MCP and recommend follow-up scenarios.`
 - `Run the generated Playwright CLI regression tests for checkout.duplicate-submit and summarize failures.`
 - `Summarize web-ux-test/results.yaml and recommend which findings should become Playwright CLI regression tests.`
 - `Create an engineering triage report from the analyzed findings.`
@@ -104,7 +105,8 @@ When both sources are used, guided user requirements run first and become the ba
 - `web-ux-codebase-requirements` infers requirements from repository evidence.
 - `web-ux-plan-curator` creates, reviews, extends, and validates plan files.
 - `web-ux-test-file-creator` creates Playwright specs and ARIA baselines.
-- `web-ux-playwright-mcp-executor` runs validated plans with Playwright MCP.
+- `web-ux-playwright-mcp-executor` runs validated plans or scenarios with Playwright MCP.
+- `web-ux-playwright-mcp-explorer` performs exploratory discovery with Playwright MCP.
 - `web-ux-playwright-cli-executor` runs generated Playwright CLI tests.
 - `web-ux-results-analyst` analyzes findings, CLI output, and ARIA diffs.
 - `web-ux-report-writer` creates audience-specific reports.

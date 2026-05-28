@@ -1,13 +1,13 @@
 ---
 name: run-playwright-mcp-web-ux-test
-description: 'Use when executing a validated web UX test plan or scenario with Playwright MCP or an agent browser. Use for exploratory browser runs, collecting structured UX findings, screenshots, console errors, network failures, accessibility snapshots, and writing web-ux-test/results.yaml. Do not use for Playwright CLI regression test generation.'
+description: 'Use when executing a validated web UX test plan or specific validated scenario with Playwright MCP or an agent browser. Use for formal plan/scenario execution, collecting structured UX findings, screenshots, console errors, network failures, accessibility snapshots, and writing web-ux-test/results.yaml. Do not use for open-ended exploratory discovery or Playwright CLI regression test generation.'
 argument-hint: 'Provide the plan path, scenario ID or priority area, base URL, auth/session strategy, browser, viewport, and safety limits.'
 user-invocable: true
 ---
 
 # Run Playwright MCP Web UX Test
 
-Execute a validated web UX test plan with Playwright MCP or an agent browser and collect structured findings without modifying application code.
+Execute a validated web UX test plan or specific validated scenario with Playwright MCP or an agent browser and collect structured findings without modifying application code.
 
 ## Required inputs
 
@@ -19,6 +19,8 @@ Execute a validated web UX test plan with Playwright MCP or an agent browser and
 - Safety limits for destructive actions, sends, purchases, deletes, or admin operations
 
 If the plan file does not exist or cannot be parsed, stop immediately and report the error without attempting browser interactions.
+
+If the user asks for open-ended exploration without a validated plan or scenario, use `skills/explore-web-ux-with-playwright-mcp/SKILL.md` instead.
 
 ## Procedure
 
@@ -34,7 +36,7 @@ If the plan file does not exist or cannot be parsed, stop immediately and report
 
 ## Browser rules
 
-- Do not modify application code during exploratory testing.
+- Do not modify application code during plan or scenario execution.
 - Do not execute page scripts or mutate application state through browser evaluation tools.
 - Pause for manual login when required by the auth strategy.
 - Stop and report critical safety, auth, data-loss, or destructive-action blockers.
