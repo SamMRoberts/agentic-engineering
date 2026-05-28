@@ -18,6 +18,8 @@ Diagnose web UX test failures and turn them into focused follow-up scenarios, ev
 - Console errors and failed network requests
 - Screenshot or accessibility snapshot when available
 - Browser, viewport, auth/session state, and environment
+- Scenario plan branch that was active when the failure occurred
+- Baseline diffs for ARIA snapshot failures
 
 If evidence is incomplete, identify the smallest evidence set needed before guessing at root cause.
 
@@ -46,23 +48,6 @@ If evidence is incomplete, identify the smallest evidence set needed before gues
 - Responsive layout break
 - ARIA snapshot mismatch
 - Missing accessible name or role
-
-## Triage pattern
-
-For each failure, collect:
-
-- current URL
-- reproduction steps
-- user-visible behavior
-- expected behavior
-- console errors
-- failed network requests
-- screenshot
-- accessibility snapshot when useful
-- browser and viewport
-- auth/session state
-
-Also collect baseline diffs for ARIA snapshot failures and the scenario plan branch that was active when the failure occurred.
 
 ## Output
 
