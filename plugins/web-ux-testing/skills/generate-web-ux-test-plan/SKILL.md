@@ -98,11 +98,13 @@ Each scenario must include:
 - priority
 - goal
 - entry
-- steps or branches
+- steps, branches, or executable_steps
 - checks
 - issue_indicators
 - evidence
 - stop_conditions
+
+Use `executable_steps` only for stable, deterministic user-defined flows that should compile to Playwright CLI tests. Keep exploratory instructions in `steps` or `branches`.
 
 ## Review before returning
 

@@ -20,8 +20,8 @@ If the plan path is missing, ask for it or inspect the default `web-ux-test/plan
 
 ## Procedure
 
-1. Parse the plan shape against `schemas/web-ux-test-plan.schema.yaml` and note missing required sections before qualitative review.
-2. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when a plan file is available.
+1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when a plan file is available. This performs schema validation and safety linting.
+2. Treat validation errors as blocking issues before qualitative review. Required workflow fields include scenario evidence, `stop_conditions`, and at least one of `steps` or `branches`.
 3. Check safety next: credentials, destructive actions, production scope, external service side effects, and stop conditions.
 4. Review scenario quality: clear goal, observable entry, branches, checks, issue indicators, evidence, and regression-candidate flags.
 5. Review execution suitability for the target runner. Exploratory MCP plans should include evidence and branches; CLI-oriented plans should isolate setup, data, and deterministic assertions.
