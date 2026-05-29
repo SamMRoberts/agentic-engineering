@@ -5,10 +5,14 @@ on:
     branches: [main]
     paths:
       - 'plugins/**'
+      - '.github/scripts/**/*.mjs'
+      - 'scripts/**/*.mjs'
   pull_request:
     branches: [main]
     paths:
       - 'plugins/**'
+      - '.github/scripts/**/*.mjs'
+      - 'scripts/**/*.mjs'
 
 permissions:
   contents: read
