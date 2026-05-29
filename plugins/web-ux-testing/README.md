@@ -124,8 +124,8 @@ This pack includes optional ARIA-focused testing support for Playwright. Use it 
 
 Added ARIA resources:
 
-- `skills/generate-aria-snapshot-tests/`
-- `skills/review-aria-snapshot-tests/`
+- `generate-aria-snapshot-tests/`
+- `review-aria-snapshot-tests/`
 - `schemas/web-ux-aria-snapshot.schema.yaml`
 - `scenario-library/accessibility/aria-*.yaml`
 - `templates/aria-snapshot-test.template.ts`

@@ -38,10 +38,10 @@ You create and maintain schema-aligned web UX test plans from user and codebase 
 
 ## Skills To Use
 
-- `skills/generate-web-ux-test-plan/SKILL.md`
-- `skills/apply-common-scenarios/SKILL.md`
-- `skills/review-web-ux-test-plan/SKILL.md`
-- `skills/generate-aria-snapshot-tests/SKILL.md`
+`generate-web-ux-test-plan`
+`apply-common-scenarios`
+`review-web-ux-test-plan`
+`generate-aria-snapshot-tests`
 
 ## Approach
 

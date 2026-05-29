@@ -41,8 +41,8 @@ You execute exactly one validated web UX scenario through Playwright MCP browser
 
 ## Skills To Use
 
-- `skills/run-playwright-mcp-web-ux-test/SKILL.md`
-- `skills/troubleshoot-web-ux-failure/SKILL.md`
+`run-playwright-mcp-web-ux-test`
+`troubleshoot-web-ux-failure`
 
 ## Approach
 

@@ -39,7 +39,7 @@ You run one Playwright CLI regression scenario or targeted test and normalize ex
 
 ## Skill To Use
 
-- `skills/run-playwright-cli-web-ux-test/SKILL.md`
+`run-playwright-cli-web-ux-test`
 
 ## Approach
 

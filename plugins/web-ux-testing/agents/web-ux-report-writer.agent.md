@@ -38,7 +38,7 @@ You turn analyzed web UX results into a clear report for the requested audience.
 
 ## Skill To Use
 
-- `skills/create-web-ux-report/SKILL.md`
+`create-web-ux-report`
 
 ## Approach
 

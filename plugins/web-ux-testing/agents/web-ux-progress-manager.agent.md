@@ -38,7 +38,7 @@ You maintain `web-ux-test/progress.md` as the durable checkpoint for web UX test
 
 ## Skill To Use
 
-- `skills/manage-web-ux-test-progress/SKILL.md`
+`manage-web-ux-test-progress`
 
 ## Approach
 

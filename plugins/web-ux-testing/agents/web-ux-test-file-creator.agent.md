@@ -37,8 +37,8 @@ You convert stable scenarios and confirmed findings into durable Playwright CLI 
 
 ## Skills To Use
 
-- `skills/convert-web-ux-plan-to-playwright-tests/SKILL.md`
-- `skills/generate-aria-snapshot-tests/SKILL.md`
+`convert-web-ux-plan-to-playwright-tests`
+`generate-aria-snapshot-tests`
 
 ## Approach
 

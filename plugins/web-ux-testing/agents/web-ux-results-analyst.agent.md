@@ -38,9 +38,9 @@ You analyze web UX evidence and turn raw results into confirmed findings, hypoth
 
 ## Skills To Use
 
-- `skills/summarize-web-ux-findings/SKILL.md`
-- `skills/troubleshoot-web-ux-failure/SKILL.md`
-- `skills/review-aria-snapshot-tests/SKILL.md` for ARIA diffs or baselines
+`summarize-web-ux-findings`
+`troubleshoot-web-ux-failure`
+`review-aria-snapshot-tests` for ARIA diffs or baselines
 
 ## Approach
 

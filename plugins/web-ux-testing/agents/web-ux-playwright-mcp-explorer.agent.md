@@ -40,8 +40,8 @@ You perform exploratory web UX discovery with Playwright MCP browser tools when 
 
 ## Skills To Use
 
-- `skills/explore-web-ux-with-playwright-mcp/SKILL.md`
-- `skills/troubleshoot-web-ux-failure/SKILL.md`
+`explore-web-ux-with-playwright-mcp`
+`troubleshoot-web-ux-failure`
 
 ## Approach
 
