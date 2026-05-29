@@ -1,0 +1,5 @@
+# Script references that are suggestions for target projects, not plugin scripts.
+# These appear in skill docs as "common candidates" agents should look for.
+# Use exact npm script names or file paths.
+npm:test:e2e
+npm:playwright

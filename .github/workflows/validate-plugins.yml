@@ -1,0 +1,61 @@
+name: Validate Plugins and Skills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: [web-ux-testing]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: plugins/${{ matrix.plugin }}
+        run: npm ci
+
+      - name: Run tests
+        working-directory: plugins/${{ matrix.plugin }}
+        run: npm test
+
+      - name: Validate plugin structure
+        working-directory: plugins/${{ matrix.plugin }}
+        run: |
+          echo "=== Validating plugin structure ==="
+
+          # Check required files exist
+          for file in plugin.json package.json; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Missing required file: $file"
+              exit 1
+            fi
+          done
+
+          # Check skills directory exists
+          if [ ! -d "skills" ]; then
+            echo "ERROR: Missing skills directory"
+            exit 1
+          fi
+
+          echo "Plugin structure OK"
+
+      - name: Validate skill script references
+        working-directory: plugins/${{ matrix.plugin }}
+        run: node ../../.github/scripts/validate-skill-refs.mjs
