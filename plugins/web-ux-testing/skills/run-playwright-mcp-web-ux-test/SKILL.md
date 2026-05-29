@@ -23,6 +23,12 @@ If the plan file does not exist or cannot be parsed, stop immediately and report
 
 If the user asks for open-ended exploration without a validated plan or scenario, use `skills/explore-web-ux-with-playwright-mcp/SKILL.md` instead.
 
+## Runner selection
+
+- Use this skill by default when the user asks to run, test, check, or validate a web UX scenario and does not specify a runner.
+- Use Playwright MCP or an explicit agent browser for browser execution and evidence capture.
+- Do not use this skill for Playwright CLI regression generation, existing CLI commands, CI test runs, or ARIA baseline execution.
+
 ## Procedure
 
 1. Read the relevant plan scenario and confirm it is validation-ready. Do not execute plans with known schema errors unless the user narrows the run to one validated scenario.

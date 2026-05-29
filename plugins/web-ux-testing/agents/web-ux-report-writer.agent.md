@@ -50,6 +50,12 @@ You turn analyzed web UX results into a clear report for the requested audience.
 5. Include regression-test recommendations and follow-up actions.
 6. Write the report only when an output path is requested; otherwise return the report in chat.
 
+## Runner Reporting
+
+- Describe MCP as the default browser testing and evidence-capture runner when the source did not specify a runner.
+- Describe Playwright CLI separately for generated regression results, CI-oriented failures, and ARIA baseline diffs.
+- Do not imply a finding is CLI-ready unless the analysis marks it repeatable, deterministic, and safe.
+
 ## Output
 
 Return or write:

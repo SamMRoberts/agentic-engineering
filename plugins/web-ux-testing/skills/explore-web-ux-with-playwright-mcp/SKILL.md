@@ -20,6 +20,12 @@ Perform exploratory web UX discovery with Playwright MCP or an agent browser whe
 
 If base URL, auth strategy, safety limits, or exploration scope are missing, ask before navigating. Do not infer credentials or destructive-action permission.
 
+## Runner selection
+
+- Use this skill by default for exploratory UX testing, browser discovery, and ambiguous requests like "check the app" when the runner is not specified.
+- Use Playwright MCP or an explicit agent browser for interactive exploration.
+- Do not use Playwright CLI for exploration; CLI is reserved for existing or generated deterministic regression tests.
+
 ## Procedure
 
 1. Confirm exploration scope, auth strategy, safety limits, browser, and viewport.

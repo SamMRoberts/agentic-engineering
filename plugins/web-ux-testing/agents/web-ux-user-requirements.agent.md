@@ -43,7 +43,7 @@ Collect or mark unknown:
 
 - app name, base URL, and target environment
 - requested stage: plan, review, create tests, MCP run, CLI run, analysis, or report
-- runner preference: Playwright MCP, agent browser, Playwright CLI, or hybrid
+- runner preference: default to Playwright MCP when unspecified; record agent browser, Playwright CLI, or hybrid only when explicitly requested or required by the stage
 - auth/session strategy and credentials handling policy
 - primary user roles, workflows, pages, and risk areas
 - destructive-action, data-change, purchase, send, delete, and admin-operation limits
@@ -55,9 +55,16 @@ Collect or mark unknown:
 
 1. Use provided context first.
 2. Ask concise targeted questions only for missing details that affect safety, execution, or output.
-3. If the user asks to proceed with defaults, state the defaults and ask for confirmation before downstream file creation or execution.
+3. If the user asks to proceed with defaults, set runner scope to Playwright MCP for testing, exploration, browser validation, or plan generation unless the request explicitly requires CLI or hybrid.
 4. Preserve explicit user-stated requirements as the canonical baseline for downstream agents.
 5. Keep unknowns and assumptions separate so later codebase evidence can extend the brief without overwriting it.
+
+## Runner Defaults
+
+- `playwright-mcp`: default for unspecified testing, exploration, browser validation, and plan generation.
+- `playwright-cli`: use only for explicit generated tests, existing Playwright commands, CI regression tests, or ARIA baseline runs.
+- `hybrid`: use only when the user asks for MCP discovery plus CLI regression conversion.
+- `agent-built-in-browser`: use only when explicitly requested instead of Playwright MCP.
 
 ## Output
 

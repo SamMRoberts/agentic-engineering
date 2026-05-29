@@ -32,10 +32,18 @@ Collect these inputs from the user, infer them from repository context only when
 
 Ask before generating when any of these are missing: base URL, whether auth is required, credentials handling policy, destructive action policy, and the workflows in scope. Do not fill these with unstated assumptions.
 
+## Runner selection
+
+- Default to `playwright-mcp` when the user does not specify a runner.
+- Use `playwright-mcp` for exploratory browser testing, browser validation, and plans that will be executed by MCP or an agent browser.
+- Use `playwright-cli` only when the user explicitly wants repeatable automation, generated Playwright tests, CI regression tests, or ARIA baseline tests.
+- Use `hybrid` only when the user asks for MCP discovery followed by CLI regression conversion.
+- Use `agent-built-in-browser` only when explicitly requested instead of Playwright MCP.
+
 ## Procedure
 
 1. Define scope first: in-scope pages/workflows, out-of-scope or unsafe actions, target environment, and whether production data is involved.
-2. Choose a runner default: use `playwright-mcp` for exploratory browser testing, `hybrid` when the user wants discovery plus regression candidates, and `playwright-cli` only when the plan is meant for repeatable automation.
+2. Choose a runner using the runner-selection rules above.
 3. Set auth explicitly. Never store credentials in YAML; use `saved_browser_session`, `manual_login_pause`, `test_user`, environment variables, or a secret manager policy.
 4. Generate the plan from the scaffold shape below and keep scenarios observable: decision signals, expected checks, issue indicators, evidence, and stop conditions.
 5. Add conditional branches for auth state, loading state, modals, permissions, feature flags, empty states, API failures, responsive breakpoints, and tenant or org configuration differences when they can affect the journey.

@@ -18,6 +18,12 @@ Review ARIA snapshot coverage and baseline diffs as user-facing semantic UX arti
 
 If no baseline, test file, scenario, or diff is provided, ask for the artifact to review before approving or rejecting changes.
 
+## Runner selection
+
+- Treat ARIA discovery evidence as Playwright MCP or agent-browser output when the runner is unspecified.
+- Treat `.aria.yml` baselines and `toMatchAriaSnapshot()` tests as Playwright CLI regression artifacts.
+- Do not recommend CLI baseline acceptance without human review of semantic changes.
+
 ## Procedure
 
 1. Identify the snapshot scope: page, locator, region, form, dialog, menu, navigation, component, or app shell.

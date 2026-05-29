@@ -12,11 +12,18 @@ Review an existing web UX testing plan and return prioritized findings that help
 ## Required inputs
 
 - Plan YAML path or content
-- Intended runner: Playwright MCP, agent browser, Playwright CLI, or hybrid
+- Intended runner when specified; default to Playwright MCP when unspecified
 - Target environment and base URL when available
 - Auth/session strategy when available
 
 If the plan path is missing, ask for it or inspect the default `web-ux-test/plan.yaml` when working in a repository that follows this plugin layout.
+
+## Runner selection
+
+- If the target runner is missing, review the plan for Playwright MCP readiness by default.
+- Treat Playwright MCP plans as exploratory or browser-execution plans that need evidence, branches, stop conditions, and safe auth/session handling.
+- Treat Playwright CLI plans as regression automation only when the plan explicitly includes deterministic setup, `executable_steps`, generated tests, CI intent, or ARIA baselines.
+- Treat hybrid plans as MCP discovery plus selected CLI regression conversion.
 
 ## Procedure
 
@@ -26,7 +33,7 @@ If the plan path is missing, ask for it or inspect the default `web-ux-test/plan
 4. Treat validation errors as blocking issues before qualitative review. Required workflow fields include scenario evidence, `stop_conditions`, and at least one of `steps` or `branches`.
 5. Check safety next: credentials, destructive actions, production scope, external service side effects, and stop conditions.
 6. Review scenario quality: clear goal, observable entry, branches, checks, issue indicators, evidence, and regression-candidate flags.
-7. Review execution suitability for the target runner. Exploratory MCP plans should include evidence and branches; CLI-oriented plans should isolate setup, data, and deterministic assertions.
+7. Review execution suitability for the selected runner. Exploratory MCP plans should include evidence and branches; CLI-oriented plans should isolate setup, data, and deterministic assertions.
 8. Compare coverage against the scenario library categories and flag important missing areas.
 9. Return findings ordered by severity with concrete fixes. Include revised YAML only when requested or when the fix is 5 lines or fewer of YAML.
 

@@ -34,6 +34,12 @@ Avoid broad ARIA snapshots for:
 
 If the user asks for visual layout or pixel diff testing, recommend a visual testing workflow instead and only add ARIA checks for semantic coverage.
 
+## Runner selection
+
+- Use Playwright MCP or an agent browser to discover accessible structure and gather exploratory ARIA evidence when the runner is unspecified.
+- Use Playwright CLI only for durable ARIA snapshot regression tests with stable scopes and reviewed `.aria.yml` baselines.
+- For hybrid requests, discover candidates with MCP first, then convert stable ARIA scenarios to CLI baselines.
+
 ## Procedure
 
 1. Identify stable targets: app shell, landmarks, navigation, forms, dialogs, menus, tabs, or components with predictable roles and names.

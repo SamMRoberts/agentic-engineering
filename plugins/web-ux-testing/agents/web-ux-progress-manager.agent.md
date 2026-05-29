@@ -44,11 +44,17 @@ You maintain `web-ux-test/progress.md` as the durable checkpoint for web UX test
 ## Approach
 
 1. Create `web-ux-test/progress.md` before the first scenario run when it does not exist.
-2. Initialize the scenario queue from the validated plan, requested scenario subset, or CLI test mapping.
+2. Initialize the scenario queue from the validated plan, requested scenario subset, or CLI test mapping. Use `playwright-mcp` as the run mode when the runner is unspecified.
 3. Before each scenario sub-agent session, mark that scenario `in_progress` and record the delegated agent name.
 4. After each scenario sub-agent session, update status, evidence, findings, artifacts, blockers, and next action.
 5. On resume, read `progress.md`, identify the first non-terminal scenario, and report what can continue safely.
 6. Preserve terminal statuses unless the user explicitly requests a rerun.
+
+## Runner Tracking
+
+- Record `playwright-mcp` for default browser execution and exploration when no runner was specified.
+- Record `playwright-cli` only for explicit generated or existing CLI test runs.
+- Record `hybrid` only when the workflow includes both MCP discovery and CLI regression conversion.
 
 ## Scenario Statuses
 

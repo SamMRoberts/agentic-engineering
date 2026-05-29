@@ -47,6 +47,12 @@ You perform a focused safety review before browser execution, CLI execution, or 
 - non-isolated CLI tests and broad command scope
 - private or personalized content in ARIA baselines or reports
 
+## Runner Safety Rules
+
+- If the runner is unspecified, evaluate the request as Playwright MCP browser testing by default.
+- Require explicit confirmation for Playwright CLI when the command scope is broad, production-targeted, mutates data, or runs generated regression tests against shared environments.
+- Treat hybrid workflows as two safety reviews when needed: MCP discovery safety first, CLI conversion or execution safety before generated tests run.
+
 ## Output
 
 Return:

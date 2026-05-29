@@ -14,10 +14,16 @@ Add standard scenario modules from the repository scenario library to an existin
 - Target plan path, usually `web-ux-test/plan.yaml`
 - Scenario groups requested by the user or inferred from the app risk profile
 - Auth requirements and session strategy
-- Runner type and environment
+- Runner type when specified, defaulting to Playwright MCP, and environment
 - Any destructive-action constraints
 
 If the user gives no target plan, default to `web-ux-test/plan.yaml`. If the file does not exist, switch to the generate-plan workflow first.
+
+## Runner selection
+
+- Preserve the plan runner when it is explicit.
+- If the plan or user request does not specify a runner, default added scenarios to Playwright MCP browser execution.
+- Add Playwright CLI regression tags only for stable, deterministic scenarios that are safe to automate or explicitly requested for conversion.
 
 ## Procedure
 

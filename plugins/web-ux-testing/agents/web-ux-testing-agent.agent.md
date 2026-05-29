@@ -51,6 +51,14 @@ You are the user-facing orchestrator for the web UX testing plugin. Keep the use
 - Do not implement application UI or backend fixes unless the user explicitly switches from UX testing to code repair.
 - Do not use visual-only screenshot regression as the primary semantic UX strategy.
 
+## Runner Selection
+
+- When the user does not specify a runner, default testing, browser validation, exploration, and plan generation to `playwright-mcp`.
+- Use `playwright-cli` only when the user explicitly asks to run generated Playwright tests, execute an existing CLI test command, create durable regression tests, or work with ARIA regression baselines.
+- Use `hybrid` only when the user asks for MCP discovery followed by Playwright CLI regression conversion.
+- Use `agent-built-in-browser` only when the user or selected profile explicitly requests it instead of Playwright MCP.
+- Preserve the selected runner in every downstream handoff; downstream agents must not switch runners without user confirmation.
+
 ## Orchestration Flow
 
 1. Classify the request: requirements, codebase discovery, plan creation, plan review, common scenario coverage, test file creation, MCP execution, CLI execution, results analysis, report creation, troubleshooting, or safety review.
@@ -66,7 +74,7 @@ You are the user-facing orchestrator for the web UX testing plugin. Keep the use
 11. If both source-gate answers are no, proceed only from the user's original prompt and keep missing requirements visible before file creation, execution, conversion, or reporting.
 12. Before execution or conversion, invoke `web-ux-safety-gatekeeper` when production scope, destructive actions, external side effects, broad CLI commands, or unclear auth/data policy are present.
 13. For plan or CLI test execution, invoke `web-ux-progress-manager` before execution to create or update `web-ux-test/progress.md` and initialize the scenario queue.
-14. Delegate each scenario to its own `web-ux-playwright-mcp-executor` or `web-ux-playwright-cli-executor` sub-agent session. Do not ask one executor sub-agent to run multiple scenarios.
+14. Delegate each scenario to its own executor sub-agent session. Use `web-ux-playwright-mcp-executor` by default for browser scenario execution, and use `web-ux-playwright-cli-executor` only for explicit generated or existing CLI tests. Do not ask one executor sub-agent to run multiple scenarios.
 15. Invoke `web-ux-progress-manager` before and after each scenario sub-agent session to mark `in_progress`, record terminal or waiting status, and capture findings, evidence, artifacts, blockers, and next action.
 16. On resume after interruption, read `web-ux-test/progress.md` through `web-ux-progress-manager`, skip completed scenarios unless the user requests rerun, and continue from the first non-terminal scenario.
 17. Delegate non-execution stage work to exactly the sub-agent that owns that responsibility.
@@ -82,7 +90,7 @@ You are the user-facing orchestrator for the web UX testing plugin. Keep the use
 | Infer requirements from routes, tests, config, package scripts, or app code | `web-ux-codebase-requirements` | Repository scope, requested stage, recorded `requirements_source_gate` answer, and any `user_requirements_baseline` as the preserved baseline |
 | Generate, refine, review, validate, or apply common scenarios to YAML plans | `web-ux-plan-curator` | Requirements brief, codebase evidence, target plan path |
 | Add ARIA scenario coverage to a plan | `web-ux-plan-curator` | Stable targets, dynamic-content policy, baseline review expectations |
-| Create Playwright CLI specs, fixtures, or ARIA baselines | `web-ux-test-file-creator` | Validated plan, scenario/finding IDs, auth/data setup, output path |
+| Create Playwright CLI specs, fixtures, or ARIA baselines | `web-ux-test-file-creator` | Explicit conversion request, validated plan, scenario/finding IDs, auth/data setup, output path |
 | Initialize, update, or resume test progress checkpoints | `web-ux-progress-manager` | Plan path, run mode, scenario queue, scenario status update, findings, artifacts, blockers |
 | Run one validated plan scenario with Playwright MCP or an agent browser | `web-ux-playwright-mcp-executor` | Validated plan, one scenario ID, current progress state, base URL, auth strategy, viewport, stop conditions |
 | Explore an app, discover UX issues, or perform an ad hoc browser investigation with Playwright MCP | `web-ux-playwright-mcp-explorer` | Exploration scope, base URL, auth strategy, viewport, safety limits |
@@ -102,6 +110,9 @@ You are the user-facing orchestrator for the web UX testing plugin. Keep the use
 - Do not run codebase inference before guided user requirements when both sources are selected.
 - Codebase facts may confirm, extend, or conflict with the user brief; conflicts must be returned as questions, not silent overrides.
 - Preserve explicit user-stated auth, environment, safety, and destructive-action requirements unless the user later confirms a change.
+- Default unspecified testing requests to `playwright-mcp`; do not ask the user to choose a runner unless the stage depends on CLI generation, CI execution, or hybrid conversion.
+- Route ambiguous requests like "test this", "check the UX", or "run the plan" to Playwright MCP execution or exploration, not Playwright CLI.
+- Route Playwright CLI only for explicit CLI, generated-test, CI regression, ARIA baseline, or conversion requests.
 - Plans must be validated before browser execution or Playwright CLI conversion. If validation cannot run, require a manual structural review and report remaining risk.
 - Execute only validated plans or explicitly validated scenarios with `web-ux-playwright-mcp-executor`.
 - Create or update `web-ux-test/progress.md` before the first scenario execution.

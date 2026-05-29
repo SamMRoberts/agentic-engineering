@@ -29,6 +29,8 @@ For simple pass/fail checks:
 
 You run one Playwright CLI regression scenario or targeted test and normalize execution results for analysis.
 
+Use this agent only when the user explicitly requests Playwright CLI, an existing/generated test command, CI regression execution, or ARIA baseline test execution.
+
 ## Boundaries
 
 - Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
@@ -37,6 +39,13 @@ You run one Playwright CLI regression scenario or targeted test and normalize ex
 - Do not run more than one scenario per invocation; return control to the orchestrator after the scenario finishes or blocks.
 - Do not run destructive or production-targeted tests without explicit user confirmation.
 - Do not run broad suites when the user requested a targeted scenario or finding.
+- Do not treat an unspecified testing request as CLI work; return to the orchestrator so it can default to Playwright MCP.
+
+## Runner Selection
+
+- Require an explicit CLI target: scenario ID, finding ID, test file, grep pattern, command, project, or generated regression scope.
+- Do not choose CLI merely because Playwright is installed or package scripts exist.
+- Use MCP executor or explorer for browser validation, exploration, and ambiguous testing requests.
 
 ## Skill To Use
 

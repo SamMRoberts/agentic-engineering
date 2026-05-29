@@ -51,6 +51,13 @@ Assess whether the user request has enough detail for the requested stage:
 - wording that could be interpreted in multiple ways by downstream agents
 - conflicts between requested outcome, safety constraints, available evidence, and downstream agent responsibilities
 
+## Runner Selection
+
+- If the user does not specify a runner, treat the request as `playwright-mcp` for testing, exploration, browser validation, and plan generation.
+- Do not block solely because the runner is unspecified; preserve the MCP default in `assumptions_to_preserve`.
+- Require explicit clarification before approving `playwright-cli` when the request implies generated tests, CI regression, ARIA baselines, or command execution but does not name a target test or artifact.
+- Treat `hybrid` as in scope only when the user asks for discovery followed by regression conversion.
+
 ## Decision Rules
 
 Return `allow` only when the request is narrow enough for the next agent to act without inventing scope.

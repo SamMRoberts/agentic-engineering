@@ -21,6 +21,12 @@ Run one durable Playwright CLI test scenario created from a web UX scenario or f
 
 If the command is missing, inspect package scripts, Playwright config, profiles, and generated test locations before choosing a default. Ask for confirmation before broad suite runs, production runs, or tests that may mutate real data.
 
+## Runner selection
+
+- Use this skill only for explicit Playwright CLI work: generated regression scenarios, existing test files, targeted commands, CI regression runs, or ARIA baseline tests.
+- Do not use this skill for unspecified testing requests; default those to Playwright MCP execution or exploration.
+- Require a narrow CLI target before running: scenario ID, finding ID, test path, grep pattern, project, or command.
+
 ## Procedure
 
 1. Identify the narrowest safe command that exercises exactly one requested scenario, finding, file, project, or grep pattern.

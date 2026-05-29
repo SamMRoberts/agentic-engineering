@@ -18,6 +18,12 @@ Maintain a durable `web-ux-test/progress.md` checkpoint so users can track scena
 - Current status update or resume request
 - Findings, evidence, artifacts, blockers, or required confirmations when available
 
+## Runner selection
+
+- Default run mode to `playwright-mcp` when the workflow does not specify a runner.
+- Use `playwright-cli` only for explicit generated or existing CLI test execution.
+- Use `hybrid` only when tracking both MCP discovery/execution and later CLI regression conversion.
+
 ## Procedure
 
 1. Create `web-ux-test/progress.md` from `templates/web-ux-progress.template.md` when no progress file exists.

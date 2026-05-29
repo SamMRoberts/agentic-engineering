@@ -34,7 +34,7 @@ collect input
 
 1. Copy the `web-ux-testing/` folder into your repository or shared Copilot skills location.
 2. Configure GitHub Copilot to use the agent and skills according to your environment.
-3. Configure Playwright MCP if you plan to use browser-driven exploration.
+3. Configure Playwright MCP for the default browser-driven testing path.
 4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent first asks whether to gather guided requirements from you and whether to infer requirements from the codebase, then orchestrates private sub-agents and routes directly to the appropriate skill.
 
 Example requests:
@@ -56,7 +56,7 @@ npm install
 node scripts/validate-plan.mjs web-ux-test/plan.yaml
 ```
 
-6. Run the plan with Playwright MCP, an agent browser, or Playwright CLI depending on the selected profile.
+6. Run the plan with Playwright MCP by default, an agent browser when explicitly selected, or Playwright CLI only for generated or existing regression tests.
 7. Analyze findings using `schemas/web-ux-finding.schema.yaml` or `schemas/web-ux-findings.schema.yaml`.
 8. Create a report when the findings are ready for engineering, accessibility, product, or CI review.
 9. Convert selected findings into Playwright CLI regression tests.
@@ -76,6 +76,14 @@ Supported executable actions include `navigate`, `click`, `fill`, `select`, `pre
 - Avoid destructive production actions unless explicitly allowed.
 - Prefer observable signals over implementation assumptions.
 - Avoid pixel coordinates and fixed sleeps.
+
+## Runner selection guide
+
+- Default to Playwright MCP when the user does not specify a runner for testing, exploration, browser validation, or plan generation.
+- Use Playwright MCP for exploratory UX testing, scoped browser discovery, validated scenario execution, evidence capture, and ambiguous requests like "test this" or "check the UX".
+- Use Playwright CLI only when the user explicitly asks to run generated Playwright tests, execute an existing test command, run CI-style regression tests, convert scenarios or findings into durable tests, or work with ARIA snapshot baselines.
+- Use `hybrid` only when the workflow intentionally starts with MCP discovery and then converts selected stable findings or scenarios into CLI regression tests.
+- Use the built-in agent browser only when the user or selected profile explicitly requests it instead of Playwright MCP.
 
 ## Package structure
 

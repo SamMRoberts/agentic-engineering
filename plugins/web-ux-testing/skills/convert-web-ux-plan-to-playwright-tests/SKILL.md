@@ -19,6 +19,12 @@ Convert stable exploratory scenarios or confirmed findings into repeatable Playw
 
 If the scenario depends on manual login, production-only data, nondeterministic timing, or destructive actions, do not convert it directly. Recommend a fixture, test user, mocked auth, or a narrower regression case first.
 
+## Runner selection
+
+- Use this skill only when the user explicitly asks to create or convert to Playwright CLI regression tests.
+- Do not treat unspecified testing requests as conversion requests; default those to Playwright MCP execution or exploration.
+- Convert only stable, deterministic, safe MCP findings or scenarios that are explicit regression candidates.
+
 ## Procedure
 
 1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` before conversion. Do not convert plans with validation errors.

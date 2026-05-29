@@ -18,6 +18,12 @@ Turn structured web UX findings into a concise, severity-ordered report that pre
 
 If findings cannot be parsed, report the parse problem and ask for corrected findings before summarizing. If evidence is missing, say what is missing instead of inventing it.
 
+## Runner selection
+
+- Treat MCP findings as the default evidence source when the runner is not specified.
+- Recommend Playwright CLI only for findings that are repeatable, safe, deterministic, and suitable for durable regression coverage.
+- Do not imply CLI conversion is required for every MCP finding.
+
 ## Procedure
 
 1. Read the findings and align fields to `schemas/web-ux-finding.schema.yaml` when possible.

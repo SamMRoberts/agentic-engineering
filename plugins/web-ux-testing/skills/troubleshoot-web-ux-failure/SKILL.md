@@ -23,6 +23,12 @@ Diagnose web UX test failures and turn them into focused follow-up scenarios, ev
 
 If evidence is incomplete, identify the smallest evidence set needed before guessing at root cause.
 
+## Runner selection
+
+- If the failure source is unspecified, treat it as Playwright MCP browser testing evidence by default.
+- Use Playwright CLI context only when the failure comes from an explicit CLI command, generated regression test, CI run, or ARIA baseline diff.
+- Recommend CLI conversion only after MCP evidence shows a repeatable, safe, deterministic failure.
+
 ## Procedure
 
 1. Classify the failure category from observable symptoms before proposing fixes.

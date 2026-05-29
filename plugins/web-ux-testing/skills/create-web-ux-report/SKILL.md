@@ -19,6 +19,12 @@ Create a report from analyzed web UX testing results without reinterpreting raw 
 
 If analysis is missing, ask for results analysis first or produce a report that clearly separates confirmed findings from unreviewed raw evidence.
 
+## Runner selection
+
+- Describe unspecified browser-test evidence as Playwright MCP by default.
+- Describe Playwright CLI only for explicit generated regression runs, existing test commands, CI results, or ARIA baseline diffs.
+- Keep MCP exploratory findings and CLI regression outcomes in separate report sections when both are present.
+
 ## Procedure
 
 1. Use the analyzed findings as the source of truth.

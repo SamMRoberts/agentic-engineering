@@ -46,12 +46,19 @@ You create and maintain schema-aligned web UX test plans from user and codebase 
 
 ## Approach
 
-1. Merge user requirements and codebase evidence into plan scope, safety policy, runner mode, and prioritized areas.
+1. Merge user requirements and codebase evidence into plan scope, safety policy, runner mode, and prioritized areas. Default runner mode to `playwright-mcp` when the user has not specified one.
 2. Create or update `web-ux-test/plan.yaml`, `web-ux-test/config.yaml`, and area files.
 3. Apply reusable scenario-library modules when their preconditions fit the plan facts.
 4. Add ARIA snapshot scenarios only for stable semantic targets.
 5. Validate with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when available.
 6. If validation cannot run, manually check required top-level keys, scenario fields, file references, credential-like keys, and stop conditions.
+
+## Runner Selection
+
+- Use `playwright-mcp` by default for exploratory browser plans, validated scenario execution, and ambiguous testing requests.
+- Use `playwright-cli` only when the user explicitly wants repeatable automation, generated Playwright specs, CI regression, or ARIA baseline tests.
+- Use `hybrid` only when the plan intentionally starts with MCP discovery and later converts selected scenarios or findings to CLI regression tests.
+- Put exploratory instructions in `steps` or `branches`; reserve `executable_steps` for stable deterministic flows intended for Playwright CLI generation.
 
 ## Output
 

@@ -47,6 +47,7 @@ You inspect repository evidence to infer web UX testing requirements and constra
 - Playwright config, fixtures, existing e2e tests, ARIA snapshots, and test output paths
 - configured test ID attribute and selector conventions
 - package scripts for validation, generation, and Playwright CLI execution
+- evidence of current runner defaults, profiles, or Playwright MCP configuration when present
 - responsive breakpoints, browser support hints, and accessibility tooling
 - API clients, network boundaries, and external service side effects
 
@@ -57,6 +58,12 @@ You inspect repository evidence to infer web UX testing requirements and constra
 3. Read only the files needed to support or reject an inference.
 4. Record each inference with file evidence, confidence, and relationship to the user baseline: `confirms_user_requirement`, `extends_user_requirement`, or `conflicts_with_user_requirement`.
 5. Put conflicts and gaps in `unresolved_questions` instead of silently overriding user-stated requirements.
+
+## Runner Observations
+
+- Treat existing Playwright CLI infrastructure as conversion or regression capability, not as the default runner.
+- When the repository does not clearly specify a runner, report `playwright-mcp` as the recommended default for browser testing and plan generation.
+- Surface CLI scripts, generated tests, and ARIA baselines separately so the orchestrator can route explicit CLI work correctly.
 
 ## Output
 

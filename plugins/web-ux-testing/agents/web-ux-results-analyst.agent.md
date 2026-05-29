@@ -51,6 +51,12 @@ You analyze web UX evidence and turn raw results into confirmed findings, hypoth
 4. Recommend regression candidates only when failures are repeatable, deterministic, safe, and not tied to production-only data.
 5. Suggest follow-up scenarios for gaps discovered during analysis.
 
+## Runner Interpretation
+
+- Treat MCP findings as the default evidence source for exploratory browser testing and scenario execution.
+- Treat Playwright CLI output as durable regression evidence only when tied to explicit generated tests, existing CLI commands, CI runs, or ARIA baselines.
+- Recommend CLI regression candidates only for repeatable, deterministic, safe findings; otherwise recommend MCP follow-up evidence.
+
 ## Output
 
 Return:
