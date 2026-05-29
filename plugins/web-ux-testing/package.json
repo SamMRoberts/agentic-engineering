@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test test/**/*.test.mjs",
+    "test": "node --test scripts/**/*.mjs",
     "validate:plan": "node scripts/validate-plan.mjs",
     "generate:tests": "node scripts/generate-playwright-tests.mjs",
     "scaffold": "node scripts/scaffold-plan.mjs",
