@@ -7,6 +7,7 @@ It is designed for workflows that start with exploratory validation using Playwr
 ## What this pack provides
 
 - A user-facing Copilot orchestrator agent
+- A portable workflow skill for runtimes that cannot select custom agents
 - Private role-specific sub-agents for requirements, planning, execution, analysis, and reporting
 - Skills for generating, reviewing, extending, executing, summarizing, troubleshooting, and converting test plans
 - YAML schemas for plans, config, scenarios, and findings
@@ -35,7 +36,7 @@ collect input
 1. Copy the `web-ux-testing/` folder into your repository or shared Copilot skills location.
 2. Configure GitHub Copilot to use the agent and skills according to your environment.
 3. Configure Playwright MCP for the default browser-driven testing path.
-4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent first asks whether to gather guided requirements from you and whether to infer requirements from the codebase, then orchestrates private sub-agents and routes directly to the appropriate skill.
+4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent first asks whether to gather guided requirements from you and whether to infer requirements from the codebase, then orchestrates private sub-agents and routes directly to the appropriate skill. In runtimes that cannot select custom agents, invoke the `web-ux-testing-workflow` skill instead; it mirrors the orchestrator flow, calls matching subagents when available, and falls back to stage skills when subagents are unavailable.
 
 Example requests:
 
@@ -126,6 +127,21 @@ When both sources are used, guided user requirements run first and become the ba
 Internal sub-agents are not meant to be invoked directly by users; they keep tool access narrow and make the orchestrator easier to reason about.
 
 During plan or CLI execution, the orchestrator runs each scenario in its own executor sub-agent session. It updates `web-ux-test/progress.md` before and after every scenario so users can track progress and resume interrupted runs from the first non-terminal scenario.
+
+## Portable skill orchestration
+
+Use `web-ux-testing-workflow` when the host supports skills but does not let the user select `web-ux-testing-agent`, such as Codex-style agent runtimes.
+
+The workflow skill follows the same gates as the custom agent:
+
+1. Check whether the request is scoped well enough to continue.
+2. Ask whether to gather guided requirements and whether to infer requirements from the codebase.
+3. Default unspecified testing, exploration, browser validation, and plan generation to Playwright MCP.
+4. Call the matching `web-ux-*` subagent when subagents are available.
+5. Fall back to the equivalent stage skill when subagents are unavailable.
+6. Stop when required subagents or skills are unavailable, safety details are missing, or the workflow is too broad or risky.
+
+This keeps the same behavior available in both VS Code custom-agent mode and portable skill-only environments.
 
 ## ARIA snapshot integration
 
