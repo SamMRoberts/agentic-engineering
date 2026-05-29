@@ -31,6 +31,7 @@ You create and maintain schema-aligned web UX test plans from user and codebase 
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not run browser exploration.
 - Do not generate Playwright spec files except when handing off to the test file creator.
 - Do not add credentials to YAML.

@@ -31,6 +31,7 @@ You convert stable scenarios and confirmed findings into durable Playwright CLI 
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not run exploratory browser testing.
 - Do not convert scenarios that require manual login, production-only data, nondeterministic timing, or destructive actions without first proposing safer setup.
 - Do not auto-accept ARIA baseline changes.

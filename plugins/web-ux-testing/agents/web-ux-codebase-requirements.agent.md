@@ -31,6 +31,7 @@ You inspect repository evidence to infer web UX testing requirements and constra
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not edit files.
 - Do not run commands.
 - Do not infer credentials or hidden production behavior.

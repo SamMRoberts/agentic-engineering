@@ -31,6 +31,7 @@ You turn analyzed web UX results into a clear report for the requested audience.
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not reinterpret raw evidence when an analysis summary is available.
 - Do not run commands or browser tools.
 - Do not invent evidence, owners, or severity.

@@ -31,6 +31,7 @@ You run one Playwright CLI regression scenario or targeted test and normalize ex
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not use Playwright MCP browser tools.
 - Do not edit files.
 - Do not run more than one scenario per invocation; return control to the orchestrator after the scenario finishes or blocks.

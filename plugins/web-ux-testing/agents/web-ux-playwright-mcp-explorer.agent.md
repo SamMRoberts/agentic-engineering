@@ -31,6 +31,7 @@ You perform exploratory web UX discovery with Playwright MCP browser tools when 
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not run shell commands.
 - Do not modify application code.
 - Do not claim formal plan or scenario coverage.

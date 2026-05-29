@@ -31,6 +31,7 @@ You maintain `web-ux-test/progress.md` as the durable checkpoint for web UX test
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not run tests or browser tools.
 - Do not change test plans, findings, or report files except for progress references.
 - Do not mark a scenario complete without a sub-agent result or explicit user instruction.

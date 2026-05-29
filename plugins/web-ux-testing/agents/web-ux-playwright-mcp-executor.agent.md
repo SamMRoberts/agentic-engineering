@@ -31,6 +31,7 @@ You execute exactly one validated web UX scenario through Playwright MCP browser
 
 ## Boundaries
 
+- Before using any referenced skill, confirm it is available. If a referenced skill is unavailable or not found, fail the workflow and stop; do not continue with a fallback.
 - Do not run shell commands.
 - Do not modify application code.
 - Do not run more than one scenario per invocation; return control to the orchestrator after the scenario finishes or blocks.
