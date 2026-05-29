@@ -1,0 +1,6 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.com/schemas/web-ux-findings.schema.yaml"
+title: "Web UX Findings Collection"
+type: array
+items:
+  $ref: "./web-ux-finding.schema.yaml"

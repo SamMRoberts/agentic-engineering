@@ -21,12 +21,12 @@ If the user gives no target plan, default to `web-ux-test/plan.yaml`. If the fil
 
 ## Procedure
 
-1. Inspect `scenario-library/registry.yaml` to identify available modules and their `applies_when` conditions.
+1. Inspect `scenario-library/registry.yaml` to identify available modules and their `applies_when` conditions. If `scenario-library/registry.yaml` does not exist or cannot be parsed, stop and inform the user that the scenario library is unavailable, and suggest running the library setup step.
 2. Match scenarios to plan facts instead of adding every module. Prefer high-priority scenarios for primary workflows, auth, forms, accessibility, and error states.
-3. Preserve existing scenario IDs and avoid duplicates. If a scenario already exists, refine it rather than adding a second copy.
+3. Preserve existing scenario IDs and avoid duplicates. If a scenario already exists, refine it rather than adding a second copy. If a registry scenario conflicts with an existing custom scenario, such as different checks or stop conditions for the same feature, prefer the custom scenario's checks and append any additional registry checks that do not contradict them. Flag the conflict in the summary for user review.
 4. Add scenarios to the most relevant area file or `test_areas` entry, keeping IDs aligned with the registry where possible.
 5. Include observable checks, issue indicators, evidence requirements, and stop conditions for every added scenario.
-6. Mark stable, high-value scenarios as `convert_to_regression_test: true` when they can run repeatably without production data or manual-only state.
+6. Mark a scenario as `convert_to_regression_test: true` when it requires no manual intervention, uses no production-only data, and covers a primary user workflow or a previously reported bug.
 7. Validate with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` and fix schema errors.
 
 Use `npm run list:scenarios` or `node scripts/list-scenarios.mjs` when you need a quick registry summary.

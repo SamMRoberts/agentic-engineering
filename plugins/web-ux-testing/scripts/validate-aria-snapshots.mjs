@@ -8,17 +8,17 @@ const root = path.resolve(dir);
 const warnings = [];
 const errors = [];
 
-function walk(directory) {
+function walkDirectory(directory) {
   if (!fs.existsSync(directory)) return [];
   const entries = fs.readdirSync(directory, { withFileTypes: true });
   return entries.flatMap((entry) => {
     const full = path.join(directory, entry.name);
-    if (entry.isDirectory()) return walk(full);
+    if (entry.isDirectory()) return walkDirectory(full);
     return [full];
   });
 }
 
-const files = walk(root).filter((file) => file.endsWith(".aria.yml"));
+const files = walkDirectory(root).filter((file) => file.endsWith(".aria.yml"));
 
 for (const file of files) {
   const content = fs.readFileSync(file, "utf8");

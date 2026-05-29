@@ -11,7 +11,7 @@ Create a schema-aligned web UX testing plan that can guide exploratory Playwrigh
 
 ## Required inputs
 
-Collect these inputs from the user, infer them from repository context, or mark them as `unknown` with a follow-up question when they affect safety or execution:
+Collect these inputs from the user, infer them from repository context only when confidence is high, or mark them as `unknown` with a follow-up question when they affect safety or execution:
 
 - Application name
 - Base URL
@@ -28,8 +28,9 @@ Collect these inputs from the user, infer them from repository context, or mark 
 - External service limits
 - Preferred test id attribute
 - Execution mode: Playwright MCP, built-in agent browser, Playwright CLI, or hybrid
+- Multi-tenancy or org-specific configuration differences
 
-Ask before generating when any of these are missing: base URL, whether auth is required, credentials handling policy, destructive action policy, and the workflows in scope.
+Ask before generating when any of these are missing: base URL, whether auth is required, credentials handling policy, destructive action policy, and the workflows in scope. Do not fill these with unstated assumptions.
 
 ## Procedure
 
@@ -37,13 +38,15 @@ Ask before generating when any of these are missing: base URL, whether auth is r
 2. Choose a runner default: use `playwright-mcp` for exploratory browser testing, `hybrid` when the user wants discovery plus regression candidates, and `playwright-cli` only when the plan is meant for repeatable automation.
 3. Set auth explicitly. Never store credentials in YAML; use `saved_browser_session`, `manual_login_pause`, `test_user`, environment variables, or a secret manager policy.
 4. Generate the plan from the scaffold shape below and keep scenarios observable: decision signals, expected checks, issue indicators, evidence, and stop conditions.
-5. Add conditional branches for auth state, loading state, modals, permissions, feature flags, empty states, API failures, and responsive breakpoints when they can affect the journey.
+5. Add conditional branches for auth state, loading state, modals, permissions, feature flags, empty states, API failures, responsive breakpoints, and tenant or org configuration differences when they can affect the journey.
 6. Mark stable, high-value scenarios with `convert_to_regression_test: true`; keep exploratory-only scenarios out of CI recommendations.
-7. Validate the resulting plan with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared and warnings are either fixed or intentionally accepted.
+7. Validate the resulting plan with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared. Treat warnings as risks that must be fixed or listed in the review section with justification for why they were not fixed.
 
 ## Output requirements
 
 Generate YAML files using `schemas/web-ux-test-plan.schema.yaml`.
+
+Validation is strict. Every generated scenario must include evidence and `stop_conditions`, and must include at least one of `steps`, `branches`, or `executable_steps`. Plans with validation errors are not ready for browser execution or Playwright CLI conversion.
 
 Prefer this structure:
 
@@ -96,11 +99,13 @@ Each scenario must include:
 - priority
 - goal
 - entry
-- steps or branches
+- `steps`, `branches`, or `executable_steps`
 - checks
 - issue_indicators
 - evidence
 - stop_conditions
+
+Use `executable_steps` only for stable, deterministic user-defined flows that should compile to Playwright CLI tests. Keep exploratory instructions in `steps` or `branches`.
 
 ## Review before returning
 

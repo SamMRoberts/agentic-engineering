@@ -21,15 +21,19 @@ If the scenario depends on manual login, production-only data, nondeterministic 
 
 ## Procedure
 
-1. Select only scenarios marked stable or `convert_to_regression_test: true`, plus confirmed bugs with a minimal reproduction path.
-2. Translate exploratory steps into deterministic arrange-act-assert flow. Replace observations like "check page works" with explicit assertions.
-3. Prefer locators in this order: role, label, text for stable visible names, configured test ID, then CSS only as a last resort.
-4. Isolate setup through fixtures, test users, mocked auth, or seeded data. Avoid production data and shared mutable state.
-5. Handle async UI with web-first assertions instead of fixed sleeps.
-6. Keep each test focused on one behavior. Split long exploratory journeys into smaller tests when assertions cover different risks.
-7. Provide the command to run the generated tests and note assumptions that must be satisfied before CI use.
+1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` before conversion. Do not convert plans with validation errors.
+2. Select only scenarios marked stable or `convert_to_regression_test: true`, plus confirmed bugs with a minimal reproduction path.
+3. When scenarios include `executable_steps`, prefer `npm run generate:tests -- --plan web-ux-test/plan.yaml --out tests/web-ux` or `node scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux` so generated tests follow the shared compiler path.
+4. Translate exploratory prose steps into deterministic arrange-act-assert flow only when no `executable_steps` are available. Replace observations like "check page works" with explicit assertions.
+5. Prefer locators in this order: role, label, text for stable visible names, configured test ID, then CSS only as a last resort.
+6. Isolate setup through fixtures, test users, mocked auth, or seeded data. Avoid production data and shared mutable state.
+7. Handle async UI with web-first assertions instead of fixed sleeps.
+8. Keep each test focused on one behavior. Split long exploratory journeys into smaller tests when assertions cover different risks.
+9. Provide the command to run the generated tests and note assumptions that must be satisfied before CI use.
 
 Use `templates/playwright-test.template.ts` as the shape for standard tests and `templates/aria-snapshot-test.template.ts` for ARIA snapshot tests when helpful.
+
+The deterministic generator currently supports `navigate`, `click`, `fill`, `select`, `press`, `assert_visible`, `assert_text`, `assert_url`, and `capture_evidence` actions in `executable_steps`.
 
 ## Conversion rules
 

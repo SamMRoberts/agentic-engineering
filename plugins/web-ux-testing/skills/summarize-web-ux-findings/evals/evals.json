@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Summarize web-ux-test/results.yaml for triage and tell me which findings should become regression tests.",
+            "expected_output": "A severity-ordered report that separates confirmed findings from hypotheses and recommends regression candidates.",
+            "assertions": [
+                "Uses the summarize-web-ux-findings skill.",
+                "Does not invent missing evidence.",
+                "Groups findings by critical, high, medium, and low severity."
+            ]
+        },
+        {
+            "prompt": "Here are three web UX findings with screenshots and console errors. Create an engineering triage summary with next steps.",
+            "expected_output": "A concise triage report preserving evidence, reproduction details, suspected areas, and recommended next steps.",
+            "assertions": [
+                "Preserves scenario IDs and evidence references.",
+                "Separates confirmed issues from follow-up questions.",
+                "Identifies repeatable regression-test candidates."
+            ]
+        },
+        {
+            "prompt": "Run the validated plan in the browser and collect findings.",
+            "expected_output": "The skill should not trigger; browser execution belongs to run-playwright-mcp-web-ux-test.",
+            "assertions": [
+                "Does not use this skill for browser execution."
+            ]
+        }
+    ]
+}

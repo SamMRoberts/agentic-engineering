@@ -2,13 +2,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import process from "node:process";
 import YAML from "yaml";
-
-function arg(name, fallback) {
-  const idx = process.argv.indexOf(`--${name}`);
-  return idx >= 0 ? process.argv[idx + 1] : fallback;
-}
+import { arg } from "./lib/cli-utils.mjs";
 
 const name = arg("name", "example-app");
 const baseUrl = arg("base-url", "http://localhost:5173");

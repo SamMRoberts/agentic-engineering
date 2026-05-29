@@ -1,0 +1,29 @@
+{
+    "cases": [
+        {
+            "prompt": "Run scenario forms.required-fields from web-ux-test/plan.yaml against staging with Playwright MCP. Auth uses a saved browser session.",
+            "expected_output": "Executes the selected validated scenario with Playwright MCP, captures browser evidence, writes structured findings, and summarizes results.",
+            "assertions": [
+                "Uses the run-playwright-mcp-web-ux-test skill.",
+                "Takes accessibility snapshots before navigation or interaction.",
+                "Writes findings to web-ux-test/results.yaml."
+            ]
+        },
+        {
+            "prompt": "Explore the checkout flow from our validated web UX plan and capture console/network failures as evidence.",
+            "expected_output": "Runs the relevant plan scope safely with Playwright MCP and records console, network, screenshot, URL, and accessibility evidence for any findings.",
+            "assertions": [
+                "Does not modify application code.",
+                "Does not request or print credentials.",
+                "Stops on critical safety or auth blockers."
+            ]
+        },
+        {
+            "prompt": "Generate Playwright CLI regression tests for all convert_to_regression_test scenarios.",
+            "expected_output": "The skill should not trigger; Playwright CLI generation belongs to convert-web-ux-plan-to-playwright-tests.",
+            "assertions": [
+                "Does not use this skill for CLI test generation."
+            ]
+        }
+    ]
+}
