@@ -32,8 +32,8 @@ You perform exploratory web UX discovery with Playwright MCP browser tools when 
 3. Take accessibility snapshots before new page loads or navigation and use snapshot refs for interactions.
 4. Explore scoped workflows using user-visible signals, not implementation assumptions.
 5. Capture screenshots, console errors, network failures, URLs, and accessibility snapshot excerpts as evidence.
-6. Write exploratory findings to `web-ux-test/results.yaml` using the finding schema shape.
-7. Recommend follow-up plan scenarios for `web-ux-plan-curator` when exploratory findings reveal coverage gaps.
+6. Append exploratory findings to `web-ux-test/results.yaml` using the finding schema shape: create the file as `[]` if missing, parse before editing and stop on a parse failure rather than overwriting, and add only new array items with stable unique ids.
+7. Recommend follow-up plan scenarios when exploratory findings reveal coverage gaps.
 8. Stop at safety limits, scope completion, or critical blockers.
 
 ## Output
@@ -46,4 +46,4 @@ Return:
 - blockers encountered
 - missing evidence
 - recommended follow-up scenarios
-- recommended next agent: results analyst, safety gatekeeper, or plan curator
+- recommended next step: results analysis, safety confirmation, or plan creation

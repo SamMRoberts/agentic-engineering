@@ -1,17 +1,17 @@
 ---
 name: run-playwright-cli-web-ux-test
-description: 'Use when running exactly one generated Playwright CLI regression scenario, ARIA snapshot scenario, or selected web UX test from the terminal. Use for command selection, targeted execution, artifact capture, failure summaries, progress status, and mapping CLI failures back to scenario or finding IDs. Do not use for Playwright MCP browser exploration or broad multi-scenario runs.'
-argument-hint: 'Provide one scenario ID or targeted test, current progress state, test command, test path, Playwright project/browser, report path, environment, and safety constraints.'
+description: 'Use when running one or more generated Playwright CLI regression scenarios, ARIA snapshot scenarios, or selected web UX tests from the terminal, processed one at a time in a single session. Use for command selection, targeted execution, artifact capture, failure summaries, progress status, and mapping CLI failures back to scenario or finding IDs. Do not use for Playwright MCP browser exploration or broad full-suite runs.'
+argument-hint: 'Provide one or more scenario IDs or targeted tests, current progress state, test command, test path, Playwright project/browser, report path, environment, and safety constraints.'
 user-invocable: true
 ---
 
 # Run Playwright CLI Web UX Test
 
-Run one durable Playwright CLI test scenario created from a web UX scenario or finding and normalize the execution result for analysis.
+Run the requested durable Playwright CLI test scenarios created from web UX scenarios or findings, one at a time, and normalize the execution results for analysis.
 
 ## Required inputs
 
-- One scenario ID, finding ID, grep pattern, test command, or test file path when known
+- One or more scenario IDs, finding IDs, grep patterns, test commands, or test file paths when known
 - Current `web-ux-test/progress.md` state when available
 - Target environment and base URL
 - Playwright project, browser, or profile when known
@@ -23,18 +23,18 @@ If the command is missing, inspect package scripts, Playwright config, profiles,
 
 ## Procedure
 
-1. Identify the narrowest safe command that exercises exactly one requested scenario, finding, file, project, or grep pattern.
+1. Identify the narrowest safe command that exercises exactly one requested scenario, finding, file, project, or grep pattern, running each requested scenario one at a time.
 2. Prefer package scripts when available. Common candidates include `npm test`, `npm run test:e2e`, `npm run playwright`, `npx playwright test`, or project-specific Playwright scripts.
 3. Confirm that dependencies are installed. If the command cannot run because dependencies or Playwright browsers are missing, report the setup step instead of rewriting tests.
 4. Run the selected command and capture exit code, key stdout/stderr excerpts, report paths, screenshots, traces, videos, and other artifacts.
 5. Map failures back to scenario IDs or finding IDs using test titles, comments, file names, or generated metadata when possible.
-6. Return scenario status and progress details so the orchestrator can update `web-ux-test/progress.md` before delegating the next scenario.
-7. Do not diagnose beyond the supplied command output and artifacts. Hand off ambiguous failures to the results analyst.
+6. Update `web-ux-test/progress.md` with each scenario's status as you go, so an interrupted batch can resume from the first non-terminal scenario.
+7. Do not diagnose beyond the supplied command output and artifacts. Hand off ambiguous failures to results analysis.
 
 ## Safety rules
 
 - Do not run destructive, production-targeted, or broad tests without explicit confirmation.
-- Do not run more than one scenario per invocation.
+- Run the requested scenario list in one session; checkpoint `progress.md` per scenario instead of using a separate session per scenario.
 - Do not print secrets from environment variables, config, traces, or logs.
 - Do not use Playwright MCP browser tools for CLI execution.
 - Prefer targeted commands over full-suite commands.
@@ -53,4 +53,4 @@ Return:
 - artifact paths
 - important stdout/stderr excerpts
 - setup blockers
-- recommended next agent: results analyst, report writer, or test file creator
+- recommended next step: results analysis or reporting
