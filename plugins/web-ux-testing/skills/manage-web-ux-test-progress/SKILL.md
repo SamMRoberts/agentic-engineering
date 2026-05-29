@@ -22,15 +22,15 @@ Maintain a durable `web-ux-test/progress.md` checkpoint so users can track scena
 
 1. Create `web-ux-test/progress.md` from `templates/web-ux-progress.template.md` when no progress file exists.
 2. Initialize the scenario table before the first scenario runs.
-3. Mark exactly one scenario `in_progress` before delegating that scenario to an executor sub-agent.
-4. After the scenario returns, update its terminal or waiting status and record findings, evidence, artifacts, blockers, and next action.
+3. Mark a scenario `in_progress` when its execution begins (the executor processes the batch one scenario at a time).
+4. As each scenario finishes, update its terminal or waiting status and record findings, evidence, artifacts, blockers, and next action.
 5. On resume, skip terminal scenarios unless the user requests rerun, and identify the first scenario with `pending`, `blocked`, `needs_evidence`, or `needs_user_confirmation` status.
-6. Preserve requirements-source gate answers, auth/session strategy, safety limits, and previous progress history.
+6. Preserve auth/session strategy, safety limits, and previous progress history.
 
 ## Status Rules
 
 - `pending`: not started
-- `in_progress`: currently delegated to one sub-agent session
+- `in_progress`: currently executing
 - `passed`: completed without findings that block the scenario
 - `failed`: completed with confirmed failure
 - `blocked`: could not proceed because of safety, auth, data, environment, or app blocker
