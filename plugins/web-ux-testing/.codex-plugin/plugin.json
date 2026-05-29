@@ -1,0 +1,39 @@
+{
+  "name": "web-ux-testing",
+  "version": "0.1.0",
+  "description": "Agent workflows, skills, schemas, and scripts for planning, running, and reporting web UX tests.",
+  "author": {
+    "name": "Sam Roberts"
+  },
+  "homepage": "https://github.com/SamMRoberts",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-testing",
+  "license": "MIT",
+  "keywords": [
+    "web-ux",
+    "playwright",
+    "accessibility",
+    "testing"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Web UX Testing",
+    "shortDescription": "Plan, run, and report structured web UX tests.",
+    "longDescription": "Agent workflows, reusable scenarios, validation schemas, and utility scripts for generating web UX test plans, executing browser-based exploratory checks, converting stable findings into Playwright regression tests, and producing engineering-ready reports.",
+    "developerName": "Sam Roberts",
+    "category": "Testing",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-testing",
+    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "defaultPrompt": [
+      "Create a web UX testing plan for this app.",
+      "Run the validated web UX scenarios with Playwright MCP.",
+      "Convert confirmed UX findings into Playwright tests."
+    ],
+    "brandColor": "#0F766E",
+    "screenshots": []
+  }
+}
