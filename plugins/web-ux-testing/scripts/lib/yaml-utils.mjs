@@ -6,6 +6,15 @@ export function readYamlFile(filePath) {
   return YAML.parse(raw);
 }
 
+export function toSafeFileName(value) {
+  const safe = String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return safe || "unnamed";
+}
+
 export function walk(value, visitor, currentPath = []) {
   visitor(value, currentPath);
 
