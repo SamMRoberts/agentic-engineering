@@ -3,7 +3,7 @@ name: web-ux-codebase-requirements
 description: 'Use when gathering web UX testing requirements from repository context. Inspect routes, app framework, auth/session patterns, Playwright setup, fixtures, test-id conventions, workflows, forms, API clients, responsive breakpoints, package scripts, and existing tests.'
 argument-hint: 'Repository area, app framework hints, known routes, or test planning scope.'
 tools: [read, search]
-model: Gemini 3.1 Pro (Preview) (copilot)
+model: GPT-5.5 (copilot)
 user-invocable: false
 ---
 

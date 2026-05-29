@@ -3,7 +3,7 @@ name: web-ux-report-writer
 description: 'Use when creating audience-specific web UX test reports from analyzed findings. Produces engineering triage, accessibility review, product summary, CI regression summary, or issue-ready markdown reports.'
 argument-hint: 'Analysis summary, findings file, report audience, output path, and desired report type.'
 tools: [read, edit]
-model: Claude Opus 4.8 (copilot)
+model: GPT-5.5 (copilot)
 user-invocable: false
 ---
 

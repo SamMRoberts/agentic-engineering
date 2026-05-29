@@ -3,7 +3,7 @@ name: web-ux-playwright-mcp-explorer
 description: 'Use when performing open-ended exploratory web UX discovery with Playwright MCP or an agent browser. Explore scoped workflows, capture UX evidence, write exploratory findings, and recommend follow-up scenarios. Do not use for executing a validated test plan or specific validated scenario.'
 argument-hint: 'Base URL, auth/session strategy, exploration scope, workflows, browser, viewport, safety limits, and output path.'
 tools: [read, edit, playwright/browser_click, playwright/browser_close, playwright/browser_console_messages, playwright/browser_drag, playwright/browser_drop, playwright/browser_file_upload, playwright/browser_fill_form, playwright/browser_handle_dialog, playwright/browser_hover, playwright/browser_navigate, playwright/browser_navigate_back, playwright/browser_network_request, playwright/browser_network_requests, playwright/browser_press_key, playwright/browser_resize, playwright/browser_select_option, playwright/browser_snapshot, playwright/browser_tabs, playwright/browser_take_screenshot, playwright/browser_type, playwright/browser_wait_for]
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.5 (copilot)
 user-invocable: false
 ---
 

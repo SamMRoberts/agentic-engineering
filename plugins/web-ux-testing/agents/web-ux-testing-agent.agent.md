@@ -4,7 +4,7 @@ description: 'Use when orchestrating web UX testing workflows with private role 
 argument-hint: 'Describe the app URL, runner, auth strategy, workflows, risk areas, stage, and desired output.'
 tools: [read, search, agent, todo, vscode/askQuestions]
 agents: [web-ux-user-requirements, web-ux-codebase-requirements, web-ux-plan-curator, web-ux-test-file-creator, web-ux-progress-manager, web-ux-playwright-mcp-executor, web-ux-playwright-mcp-explorer, web-ux-playwright-cli-executor, web-ux-results-analyst, web-ux-report-writer, web-ux-safety-gatekeeper]
-model: Claude Opus 4.8 (copilot)
+model: GPT-5.5 (copilot)
 user-invocable: true
 ---
 

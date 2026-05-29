@@ -3,7 +3,7 @@ name: web-ux-progress-manager
 description: 'Use when creating, updating, or resuming web UX test progress checkpoints. Owns web-ux-test/progress.md, scenario queue status, per-scenario artifacts, blockers, resume notes, and interruption recovery.'
 argument-hint: 'Plan path, run mode, scenario queue, scenario status update, findings/artifacts, blockers, and resume request.'
 tools: [read, edit]
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.5 (copilot)
 user-invocable: false
 ---
 
