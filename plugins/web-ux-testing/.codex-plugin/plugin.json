@@ -15,7 +15,6 @@
     "testing"
   ],
   "skills": "./skills/",
-  "scripts": "./scripts/",
   "interface": {
     "displayName": "Web UX Testing",
     "shortDescription": "Plan, run, and report structured web UX tests.",

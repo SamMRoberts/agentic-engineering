@@ -48,7 +48,7 @@ If the user asks for visual layout or pixel diff testing, recommend a visual tes
 4. Add ARIA metadata to relevant web UX scenarios and include `aria_snapshot` or `accessibility_snapshot` evidence.
 5. For Playwright CLI output, prefer role and label locators, assert visibility first, then use `expect(locator).toMatchAriaSnapshot()` with a named baseline.
 6. Require human review for changed `.aria.yml` baselines. Never auto-accept baseline changes as proof of correctness.
-7. Validate generated baselines with `npm run validate:aria -- tests/aria` or `node scripts/validate-aria-snapshots.mjs tests/aria` when baseline files are created.
+7. Validate generated baselines with `node skills/generate-aria-snapshot-tests/scripts/validate-aria-snapshots.mjs tests/aria` when baseline files are created.
 
 ## Required output
 
@@ -60,7 +60,7 @@ When adding ARIA testing support to a plan, update or create:
 - Playwright CLI regression candidates using `expect(locator).toMatchAriaSnapshot()`
 - `.aria.yml` baseline names for stable pages/components
 
-When generating files, use `npm run scaffold:aria -- --scenario=<id> --title=<title> --route=<route> --role=<role> --baseline=<name>.aria.yml` or `node scripts/scaffold-aria-snapshot-test.mjs` as a starting point, then tailor the locators and baseline content.
+When generating files, use `node skills/generate-aria-snapshot-tests/scripts/scaffold-aria-snapshot-test.mjs --scenario=<id> --title=<title> --route=<route> --role=<role> --baseline=<name>.aria.yml` as a starting point, then tailor the locators and baseline content.
 
 ## ARIA scenario style
 

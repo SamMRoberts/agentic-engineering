@@ -33,9 +33,9 @@ If the user gives no target plan, default to `web-ux-test/plan.yaml`. If the fil
 4. Add scenarios to the most relevant area file or `test_areas` entry, keeping IDs aligned with the registry where possible.
 5. Include observable checks, issue indicators, evidence requirements, and stop conditions for every added scenario.
 6. Mark a scenario as `convert_to_regression_test: true` when it requires no manual intervention, uses no production-only data, and covers a primary user workflow or a previously reported bug.
-7. Validate with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` and fix schema errors.
+7. Validate with `node skills/apply-common-scenarios/scripts/validate-plan.mjs web-ux-test/plan.yaml` and fix schema errors.
 
-Use `npm run list:scenarios` or `node scripts/list-scenarios.mjs` when you need a quick registry summary.
+Use `node skills/apply-common-scenarios/scripts/list-scenarios.mjs` when you need a quick registry summary.
 
 ## Supported scenario groups
 

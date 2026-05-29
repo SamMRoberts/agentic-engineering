@@ -48,7 +48,7 @@ Ask before generating when any of these are missing: base URL, whether auth is r
 4. Generate the plan from the scaffold shape below and keep scenarios observable: decision signals, expected checks, issue indicators, evidence, and stop conditions.
 5. Add conditional branches for auth state, loading state, modals, permissions, feature flags, empty states, API failures, responsive breakpoints, and tenant or org configuration differences when they can affect the journey.
 6. Mark stable, high-value scenarios with `convert_to_regression_test: true`; keep exploratory-only scenarios out of CI recommendations.
-7. Validate the resulting plan with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared. Treat warnings as risks that must be fixed or listed in the review section with justification for why they were not fixed.
+7. Validate the resulting plan with `node skills/generate-web-ux-test-plan/scripts/validate-plan.mjs web-ux-test/plan.yaml`, then revise until errors are cleared. Treat warnings as risks that must be fixed or listed in the review section with justification for why they were not fixed.
 
 ## Output requirements
 

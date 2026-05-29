@@ -50,7 +50,7 @@ You create and maintain schema-aligned web UX test plans from user and codebase 
 2. Create or update `web-ux-test/plan.yaml`, `web-ux-test/config.yaml`, and area files.
 3. Apply reusable scenario-library modules when their preconditions fit the plan facts.
 4. Add ARIA snapshot scenarios only for stable semantic targets.
-5. Validate with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when available.
+5. Validate with `node skills/generate-web-ux-test-plan/scripts/validate-plan.mjs web-ux-test/plan.yaml` when available.
 6. If validation cannot run, manually check required top-level keys, scenario fields, file references, credential-like keys, and stop conditions.
 
 ## Runner Selection

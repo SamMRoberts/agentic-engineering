@@ -68,10 +68,10 @@ Stop and return `blocked` when any of these are true:
 ## Approach
 
 1. Confirm the exact source scenario or finding IDs, output path, asset type, and safety constraints from the handoff.
-2. If a plan is involved, run plan validation once with `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml`. Stop on validation errors.
+2. If a plan is involved, run plan validation once with `node skills/generate-web-ux-test-plan/scripts/validate-plan.mjs web-ux-test/plan.yaml`. Stop on validation errors.
 3. Select one path:
-   - Playwright CLI from `executable_steps`: use `npm run generate:tests -- --plan web-ux-test/plan.yaml --out tests/web-ux` or `node scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux`.
-   - ARIA snapshot scaffold: use `npm run scaffold:aria` or `node scripts/scaffold-aria-snapshot-test.mjs` with explicit scenario, title, route, role, and baseline arguments.
+   - Playwright CLI from `executable_steps`: use `node skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux`.
+   - ARIA snapshot scaffold: use `node skills/generate-aria-snapshot-tests/scripts/scaffold-aria-snapshot-test.mjs` with explicit scenario, title, route, role, and baseline arguments.
    - Manual minimal file: use only when the generator cannot represent a confirmed, deterministic finding, and keep the file focused on that finding.
 4. Use deterministic fixtures, test users, mocked auth, or seeded data instead of production state.
 5. Prefer role, label, text, and configured test-id locators before CSS fallback.
