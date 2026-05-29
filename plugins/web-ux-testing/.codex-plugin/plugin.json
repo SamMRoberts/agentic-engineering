@@ -1,6 +1,6 @@
 {
   "name": "web-ux-testing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent workflows, skills, schemas, and scripts for planning, running, and reporting web UX tests.",
   "author": {
     "name": "Sam Roberts"
@@ -15,6 +15,7 @@
     "testing"
   ],
   "skills": "./skills/",
+  "scripts": "./scripts/",
   "interface": {
     "displayName": "Web UX Testing",
     "shortDescription": "Plan, run, and report structured web UX tests.",
