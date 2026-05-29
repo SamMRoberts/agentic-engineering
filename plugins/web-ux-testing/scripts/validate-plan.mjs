@@ -3,8 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-import { isCliEntry } from "./lib/cli-utils.mjs";
 import { lintPlan } from "./lib/plan-lint.mjs";
 import { validateAgainstSchema } from "./lib/schema-utils.mjs";
 import { readYamlFile } from "./lib/yaml-utils.mjs";
@@ -58,7 +58,7 @@ function runCli() {
   console.log("Plan validation passed.");
 }
 
-const isCli = isCliEntry(import.meta.url);
+const isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isCli) {
   runCli();

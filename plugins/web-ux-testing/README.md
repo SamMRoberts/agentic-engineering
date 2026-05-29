@@ -6,10 +6,8 @@ It is designed for workflows that start with exploratory validation using Playwr
 
 ## What this pack provides
 
-- A single fast user-facing Copilot agent that runs planning, analysis, and
-  reporting inline and delegates only browser/CLI execution
-- Isolated least-privilege executor sub-agents for Playwright MCP exploration,
-  validated plan execution, and Playwright CLI runs
+- A user-facing Copilot orchestrator agent
+- Private role-specific sub-agents for requirements, planning, execution, analysis, and reporting
 - Skills for generating, reviewing, extending, executing, summarizing, troubleshooting, and converting test plans
 - YAML schemas for plans, config, scenarios, and findings
 - Reusable scenario modules
@@ -17,21 +15,7 @@ It is designed for workflows that start with exploratory validation using Playwr
 - Checklists
 - Utility scripts
 
-## Modes
-
-The agent picks the lightest mode that satisfies the request and names it before
-starting. Default is **quick-scan** so the common case is fast.
-
-- **quick-scan** (default): URL + workflow → exploratory browser pass → concise
-  findings. No plan files.
-- **planned-run**: generate/validate a YAML plan, then batch-execute scenarios with
-  inline `progress.md` checkpoints.
-- **regression-generation**: convert confirmed findings/`executable_steps` into
-  durable Playwright CLI tests.
-- **full-audit** (opt-in): requirements → plan → validate → execute → analyze →
-  report.
-
-## Full-audit lifecycle
+## Recommended lifecycle
 
 ```text
 collect input
@@ -51,10 +35,7 @@ collect input
 1. Copy the `web-ux-testing/` folder into your repository or shared Copilot skills location.
 2. Configure GitHub Copilot to use the agent and skills according to your environment.
 3. Configure Playwright MCP if you plan to use browser-driven exploration.
-4. Invoke `web-ux-testing-agent` and describe what you want. Give it a base URL and a
-   workflow and it runs a quick scan by default; ask for a plan, regression tests, or a
-   full audit to escalate. It only asks blocking questions, runs planning and analysis
-   itself, and delegates only browser and CLI execution to isolated sub-agents.
+4. Invoke `web-ux-testing-agent` and describe the stage you want. The user-facing agent first asks whether to gather guided requirements from you and whether to infer requirements from the codebase, then orchestrates private sub-agents and routes directly to the appropriate skill.
 
 Example requests:
 
@@ -112,32 +93,30 @@ web-ux-testing/
 
 ## Agent architecture
 
-`web-ux-testing-agent` is the single user-facing agent. It does requirements
-gathering, plan creation/review, scenario application, progress tracking, results
-analysis, reporting, test generation, and safety review **itself** by reading the
-relevant skill and acting on it. This keeps the common path fast: no orchestrator
-hop and no separate agent spin-up for read/write work.
+Only `web-ux-testing-agent` is intended to be user-facing. It delegates to private role agents:
 
-It delegates only the three things that need an isolated tool scope it deliberately
-does not hold:
+The orchestrator starts each new request or material scope with a one-time requirements-source gate:
 
-- `web-ux-playwright-mcp-explorer` performs exploratory discovery with Playwright MCP (powers quick-scan).
-- `web-ux-playwright-mcp-executor` runs a batch of validated scenarios with Playwright MCP in one session.
+1. Should it ask guided questions to gather requirements from you?
+2. Should it infer requirements from the codebase?
+
+When both sources are used, guided user requirements run first and become the baseline. Codebase inference can confirm, extend, or flag conflicts with that baseline, but it must not replace explicit user-stated requirements without confirmation.
+
+- `web-ux-user-requirements` gathers missing user requirements.
+- `web-ux-codebase-requirements` infers requirements from repository evidence.
+- `web-ux-plan-curator` creates, reviews, extends, and validates plan files.
+- `web-ux-test-file-creator` creates Playwright specs and ARIA baselines.
+- `web-ux-progress-manager` maintains `web-ux-test/progress.md` for scenario queues, status, artifacts, blockers, and resume checkpoints.
+- `web-ux-playwright-mcp-executor` runs validated plans or scenarios with Playwright MCP.
+- `web-ux-playwright-mcp-explorer` performs exploratory discovery with Playwright MCP.
 - `web-ux-playwright-cli-executor` runs generated Playwright CLI tests.
+- `web-ux-results-analyst` analyzes findings, CLI output, and ARIA diffs.
+- `web-ux-report-writer` creates audience-specific reports.
+- `web-ux-safety-gatekeeper` reviews risky execution or conversion requests.
 
-These executor sub-agents are not meant to be invoked directly by users; the narrow
-tool scopes preserve safety boundaries (no app-code edits, no broad shell, no
-credential handling).
+Internal sub-agents are not meant to be invoked directly by users; they keep tool access narrow and make the orchestrator easier to reason about.
 
-Requirements are single-pass: if you provide a base URL and a workflow, the agent
-proceeds and asks only blocking questions. It may infer details from the codebase
-when at least two signals agree, but it surfaces conflicts with your explicit
-statements as questions rather than overriding them.
-
-During execution the agent hands the executor the full remaining scenario list. The
-executor runs them in one session and updates `web-ux-test/progress.md` after each
-scenario, so users can track progress and resume interrupted runs from the first
-non-terminal scenario.
+During plan or CLI execution, the orchestrator runs each scenario in its own executor sub-agent session. It updates `web-ux-test/progress.md` before and after every scenario so users can track progress and resume interrupted runs from the first non-terminal scenario.
 
 ## ARIA snapshot integration
 

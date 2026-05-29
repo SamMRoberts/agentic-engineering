@@ -14,33 +14,8 @@ if (!basePlanPath) {
   process.exit(2);
 }
 
-if (!fs.existsSync(basePlanPath)) {
-  console.error(`ERROR: Base plan not found: ${path.resolve(basePlanPath)}`);
-  process.exit(2);
-}
-
-if (!fs.existsSync(areasDir)) {
-  console.error(`ERROR: Areas directory not found: ${path.resolve(areasDir)}`);
-  process.exit(2);
-}
-
 const plan = YAML.parse(fs.readFileSync(basePlanPath, "utf8"));
-const files = fs
-  .readdirSync(areasDir)
-  .filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"))
-  .sort();
-
-plan.test_areas = files.map((file) => {
-  const areaPath = path.join(areasDir, file);
-
-  try {
-    return YAML.parse(fs.readFileSync(areaPath, "utf8"));
-  } catch (error) {
-    console.error(`ERROR: Failed to parse ${areaPath}: ${error.message}`);
-    process.exit(1);
-  }
-});
-
-fs.mkdirSync(path.dirname(outPath), { recursive: true });
+const files = fs.readdirSync(areasDir).filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
+plan.test_areas = files.map((file) => YAML.parse(fs.readFileSync(path.join(areasDir, file), "utf8")));
 fs.writeFileSync(outPath, YAML.stringify(plan), "utf8");
 console.log(`Merged ${files.length} area files into ${outPath}`);

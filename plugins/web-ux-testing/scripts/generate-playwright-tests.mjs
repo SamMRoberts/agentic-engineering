@@ -3,14 +3,23 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-import { arg, isCliEntry } from "./lib/cli-utils.mjs";
 import { collectScenarios } from "./lib/plan-lint.mjs";
-import { readYamlFile, toSafeFileName } from "./lib/yaml-utils.mjs";
+import { readYamlFile } from "./lib/yaml-utils.mjs";
 import { validatePlan } from "./validate-plan.mjs";
+
+function arg(name, fallback) {
+  const index = process.argv.indexOf(`--${name}`);
+  return index >= 0 ? process.argv[index + 1] : fallback;
+}
 
 function stringLiteral(value) {
   return JSON.stringify(value ?? "");
+}
+
+function safeFileName(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function locatorExpression(locator) {
@@ -91,7 +100,7 @@ export function generatePlaywrightTestsFromPlan(plan, options = {}) {
       continue;
     }
 
-    const filePath = path.join(outDir, `${toSafeFileName(scenario.id)}.spec.ts`);
+    const filePath = path.join(outDir, `${safeFileName(scenario.id)}.spec.ts`);
     const code = compileScenario(scenario);
 
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -108,7 +117,7 @@ export function generatePlaywrightTestsFromPlanFile(planPath, options = {}) {
 }
 
 function runCli() {
-  const planPath = arg("plan", undefined, { positionalIndex: 2 });
+  const planPath = arg("plan", process.argv[2]);
   const outDir = arg("out", "tests/web-ux");
 
   if (!planPath) {
@@ -139,7 +148,7 @@ function runCli() {
   }
 }
 
-const isCli = isCliEntry(import.meta.url);
+const isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isCli) {
   runCli();

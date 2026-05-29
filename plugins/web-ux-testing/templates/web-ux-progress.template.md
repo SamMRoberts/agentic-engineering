@@ -39,4 +39,4 @@
 
 ## Notes
 
-- Keep this file updated as each scenario is executed so an interrupted batch can resume.
+- Keep this file updated before and after every scenario sub-agent session.
