@@ -95,13 +95,14 @@ web-ux-testing/
 
 Only `web-ux-testing-agent` is intended to be user-facing. It delegates to private role agents:
 
-The orchestrator starts each new request or material scope with a one-time requirements-source gate:
+The orchestrator first checks whether the user's request is scoped clearly enough to continue. If the request is too broad, vague, conflicting, or likely to cause downstream agent drift, it asks targeted clarification questions or blocks the workflow. Once scope is clear, it runs a one-time requirements-source gate:
 
 1. Should it ask guided questions to gather requirements from you?
 2. Should it infer requirements from the codebase?
 
 When both sources are used, guided user requirements run first and become the baseline. Codebase inference can confirm, extend, or flag conflicts with that baseline, but it must not replace explicit user-stated requirements without confirmation.
 
+- `web-ux-requirements-gatekeeper` verifies that the user's request is scoped clearly enough to continue without downstream agent drift.
 - `web-ux-user-requirements` gathers missing user requirements.
 - `web-ux-codebase-requirements` infers requirements from repository evidence.
 - `web-ux-plan-curator` creates, reviews, extends, and validates plan files.
