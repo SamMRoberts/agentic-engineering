@@ -38,13 +38,17 @@ function recordScriptUser(skill, script) {
   scriptUsers.set(script, users);
 }
 
+function toPosixPath(value) {
+  return normalize(value).split("\\").join("/");
+}
+
 function expectedSkillScriptPrefix(skill) {
-  return normalize(join(skillsDir, skill, "scripts")) + "/";
+  return `${toPosixPath(join(skillsDir, skill, "scripts"))}/`;
 }
 
 function validateSkillScriptPath(skill, script) {
-  const normalized = normalize(script).replaceAll("\\", "/");
-  const expectedPrefix = expectedSkillScriptPrefix(skill).replaceAll("\\", "/");
+  const normalized = toPosixPath(script);
+  const expectedPrefix = expectedSkillScriptPrefix(skill);
 
   if (!normalized.startsWith(expectedPrefix)) {
     console.error(
