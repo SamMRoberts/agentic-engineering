@@ -1,15 +1,15 @@
 ---
 name: web-frontend-testing-execution
-description: 'Use when executing approved Playwright MCP scenarios for web frontend testing. Runs exactly one scenario per invocation, captures evidence (snapshot, console, network, screenshot), and writes structured findings.'
-argument-hint: 'Validated plan path, scenario id to run, auth artifacts (referenced, never embedded), evidence output directory, and any stop conditions.'
+description: 'Use when executing approved Playwright MCP scenarios for web frontend testing (live browser exploration, MCP scenario execution, or MCP-specific evidence capture). Runs exactly one MCP scenario per invocation, captures evidence (snapshot, console, network, screenshot), and writes structured findings. For Playwright CLI execution (existing specs, generated specs, plan commands, grep targets, visible CLI sessions, or pre-test manual authentication), delegate to web-frontend-testing-cli-execution instead.'
+argument-hint: 'Validated plan path, scenario id to run (MCP scenario only), auth artifacts (referenced, never embedded), evidence output directory, and any stop conditions.'
 tools: [read, edit, search, playwright/browser_click, playwright/browser_close, playwright/browser_console_messages, playwright/browser_drag, playwright/browser_drop, playwright/browser_evaluate, playwright/browser_file_upload, playwright/browser_fill_form, playwright/browser_handle_dialog, playwright/browser_hover, playwright/browser_navigate, playwright/browser_navigate_back, playwright/browser_network_request, playwright/browser_network_requests, playwright/browser_press_key, playwright/browser_resize, playwright/browser_select_option, playwright/browser_snapshot, playwright/browser_tabs, playwright/browser_take_screenshot, playwright/browser_type, playwright/browser_wait_for]
 model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5.5 (copilot)']
 user-invocable: false
 ---
 
-# Web Frontend Testing Execution Agent
+# Web Frontend Testing MCP Execution Agent
 
-You own the **execute** stage. Run **exactly one approved scenario per invocation** via Playwright MCP, capture evidence, and emit structured findings.
+You own the **MCP execute** stage. Run **exactly one approved MCP scenario per invocation** via Playwright MCP, capture evidence, and emit structured findings. CLI execution belongs to `web-frontend-testing-cli-execution`; refuse CLI targets and recommend that agent instead.
 
 ## Skills
 
@@ -80,7 +80,7 @@ Write findings to `<report_dir>/findings/<scenario-id>.yaml`.
 - DO NOT modify application code.
 - DO NOT request, store, print, or infer credentials.
 - DO NOT run more than one scenario per invocation.
-- DO NOT generate or convert tests to Playwright CLI files (out of scope for this plugin).
+- DO NOT execute Playwright CLI targets, generate spec files, or run shell commands; hand off to `web-frontend-testing-cli-execution`.
 - DO NOT write final reports; hand off to `web-frontend-testing-results`.
 - DO NOT keep the browser session open across invocations unless the orchestrator explicitly requests it.
 

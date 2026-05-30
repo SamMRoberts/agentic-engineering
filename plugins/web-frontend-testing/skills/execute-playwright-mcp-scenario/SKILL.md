@@ -1,6 +1,6 @@
 ---
 name: execute-playwright-mcp-scenario
-description: 'Use when executing exactly one approved Playwright MCP scenario from a validated test-plan.yaml. Captures snapshot, console, network, and screenshot evidence, validates each `expect`, and writes a structured findings YAML. Use for: running one scenario, capturing evidence for a single flow, recording findings. Do not use for: running multiple scenarios in one pass, generating Playwright CLI tests, or writing reports.'
+description: 'Use when executing exactly one approved Playwright MCP scenario from a validated test-plan.yaml (live browser exploration or MCP-specific evidence capture). Captures snapshot, console, network, and screenshot evidence, validates each `expect`, and writes a structured findings YAML. Use for: running one MCP scenario, capturing evidence for a single flow, recording findings. Do not use for: Playwright CLI execution (use run-playwright-cli-frontend-test), running multiple scenarios in one pass, generating Playwright CLI tests, or writing reports.'
 argument-hint: 'Validated plan path, scenario_id to run, evidence output directory, auth artifact references (paths/env names only), and stop conditions.'
 user-invocable: false
 ---

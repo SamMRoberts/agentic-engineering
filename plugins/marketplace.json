@@ -17,7 +17,7 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Testing",
-      "description": "Plan, run, and report Playwright MCP tests for web frontends."
+      "description": "Plan, run, and report Playwright CLI (preferred) or MCP tests for web frontends."
     },
     {
       "name": "web-ux-testing",

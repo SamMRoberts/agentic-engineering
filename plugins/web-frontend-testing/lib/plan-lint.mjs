@@ -15,6 +15,22 @@ const CREDENTIAL_PATTERNS = [
 const FIRST_PASS_SCENARIO_CAP = 10;
 const ENV_VAR_REFERENCE = /\$\{?[A-Z][A-Z0-9_]*\}?/; // e.g., $TOKEN, ${TOKEN}
 
+const CLI_RUNNERS = new Set(["playwright-cli", "hybrid"]);
+
+function hasCliTarget(scenario) {
+    if (!scenario || typeof scenario !== "object") return false;
+    if (typeof scenario.test_file === "string" && scenario.test_file.trim().length > 0) return true;
+    if (typeof scenario.test_command === "string" && scenario.test_command.trim().length > 0) return true;
+    if (Array.isArray(scenario.executable_steps) && scenario.executable_steps.length > 0) return true;
+    return false;
+}
+
+function authStrategyAllowsManualPreTest(strategy) {
+    // Manual pre-test auth only makes sense when the test does not have
+    // baked-in credentials or a programmatic seed it will overwrite.
+    return strategy === "storage_state" || strategy === "shared" || strategy === "none";
+}
+
 export function lintPlan(plan) {
     const errors = [];
     const warnings = [];
@@ -70,9 +86,77 @@ export function lintPlan(plan) {
         errors.push(`/safety/destructive_actions_allowed must be false when target.stage is "production"`);
     }
 
-    // Runner sanity (we expect playwright-mcp for this plugin).
-    if (plan.runner && plan.runner !== "playwright-mcp") {
-        warnings.push(`/runner is "${plan.runner}"; the web-frontend-testing plugin defaults to "playwright-mcp" — confirm the caller opted into another runner`);
+    // Runner-specific rules.
+    const runner = plan.runner;
+    const planCliSession = plan.cli_session;
+    const planCliCommand = typeof planCliSession?.test_command === "string" && planCliSession.test_command.trim().length > 0;
+    const planCliDir = typeof planCliSession?.test_dir === "string" && planCliSession.test_dir.trim().length > 0;
+    const cliScenarios = scenarios.filter(hasCliTarget);
+
+    if (CLI_RUNNERS.has(runner)) {
+        if (!planCliCommand && !planCliDir && cliScenarios.length === 0) {
+            errors.push(
+                `/runner is "${runner}" but no deterministic CLI target exists: set cli_session.test_command, cli_session.test_dir, or add scenarios with test_file/test_command/executable_steps`
+            );
+        }
+
+        scenarios.forEach((sc, i) => {
+            if (!sc || typeof sc !== "object") return;
+            const base = `/scenarios/${i}`;
+            if (Array.isArray(sc.executable_steps) && sc.executable_steps.length > 0
+                && sc.convert_to_regression_test !== true) {
+                warnings.push(
+                    `${base} has executable_steps but convert_to_regression_test is not true; the generator will skip it`
+                );
+            }
+
+            const auth = plan.target?.auth_strategy;
+            const scenarioAuth = sc.pre_test_auth_session;
+            const planAuth = planCliSession?.pre_test_auth_session;
+            const effectiveAuth = scenarioAuth ?? planAuth;
+            if (effectiveAuth?.enabled === true) {
+                if (!authStrategyAllowsManualPreTest(auth)) {
+                    errors.push(
+                        `${base}/pre_test_auth_session.enabled is true but target.auth_strategy "${auth}" is incompatible (use none, shared, or storage_state)`
+                    );
+                }
+                const readySignal = effectiveAuth.ready_signal;
+                if (readySignal === "storage_state_written"
+                    && !(effectiveAuth.storage_state_path || planAuth?.storage_state_path)) {
+                    errors.push(
+                        `${base}/pre_test_auth_session.ready_signal is "storage_state_written" but no storage_state_path is provided`
+                    );
+                }
+                if (readySignal === "exit_code"
+                    && !(effectiveAuth.command || planAuth?.command)) {
+                    errors.push(
+                        `${base}/pre_test_auth_session.ready_signal is "exit_code" but no command is provided`
+                    );
+                }
+            }
+        });
+
+        if (runner === "hybrid") {
+            const hasMcpSteps = scenarios.some((sc) => Array.isArray(sc?.steps) && sc.steps.length > 0);
+            const hasCli = cliScenarios.length > 0 || planCliCommand || planCliDir;
+            if (!hasMcpSteps || !hasCli) {
+                errors.push(
+                    `/runner is "hybrid" but the plan does not contain both MCP discovery steps and a CLI regression target`
+                );
+            }
+        }
+    } else if (runner && runner !== "playwright-mcp") {
+        // The schema catches unknown enum values; this branch only hits when
+        // a future runner is added without updating the lint.
+        warnings.push(`/runner is "${runner}"; CLI-specific checks were skipped`);
+    } else {
+        // playwright-mcp plan: CLI fields are optional, but surface a warning
+        // if the user wrote CLI-only metadata that this runner ignores.
+        if (cliScenarios.length > 0 || planCliCommand || planCliDir) {
+            warnings.push(
+                `/cli_session or scenario CLI metadata is present but runner is "playwright-mcp"; set runner to "playwright-cli" or "hybrid" to use it`
+            );
+        }
     }
 
     // Forbidden_urls should be populated for production.
@@ -96,3 +180,9 @@ export function lintPlan(plan) {
 
     return { errors, warnings };
 }
+
+// Exported so the generator can iterate scenarios without re-walking the plan.
+export function collectScenarios(plan) {
+    return Array.isArray(plan?.scenarios) ? plan.scenarios.map((scenario) => ({ scenario })) : [];
+}
+
