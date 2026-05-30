@@ -1,4 +1,11 @@
 {
   "agents": "agents",
-  "skills": "skills"
+  "skills": "skills",
+  "entrypointAgent": "web-ux-testing-agent",
+  "privateAgents": [
+    "web-ux-requirements-agent",
+    "web-ux-plan-agent",
+    "web-ux-execution-agent",
+    "web-ux-results-agent"
+  ]
 }
