@@ -44,10 +44,12 @@ If any required input is missing, return `validation_result: fail` with `unresol
    - Mark the scenario id in the return value under `destructive_scenarios` so the orchestrator can collect explicit user approval before execution.
 6. Populate `safety.forbidden_urls` with hosts outside the explicit target and any user-listed forbidden hosts.
 7. Populate `safety.forbidden_selectors` with anything the user called out (e.g., "do not click Pay").
-8. Run the validation rules below. On failure, fix what you can and re-run; if a rule still fails, return `validation_result: fail` with the failing rules listed.
+8. Run the validation rules below by executing [./scripts/validate-plan.mjs](./scripts/validate-plan.mjs) against the written plan path. Fix any reported `ERROR:` lines and re-run until it exits 0; treat `WARN:` lines as risks that must be resolved or recorded in `unresolved_risks`.
 9. Write the plan to `<report_dir>/test-plan.yaml`.
 
 ## Validation Rules (block on failure)
+
+The validator at [./scripts/validate-plan.mjs](./scripts/validate-plan.mjs) enforces these rules deterministically against [../../schemas/web-frontend-test-plan.schema.yaml](../../schemas/web-frontend-test-plan.schema.yaml):
 
 - `plan_version: 1` is present.
 - Every scenario has a unique kebab-case `id`.
@@ -55,8 +57,16 @@ If any required input is missing, return `validation_result: fail` with `unresol
 - Every scenario lists at least one entry in `evidence_required`.
 - Every step `action` is one of: `navigate | click | fill | press | snapshot | wait_for | evaluate | select`.
 - `target.stage: production` forces `safety.destructive_actions_allowed: false`.
-- No credential-shaped strings appear anywhere in the file. Reject values that look like tokens, JWTs, cookies, or `password=` patterns.
-- `runner` is `playwright-mcp` unless the caller explicitly opted into another runner.
+- No credential-shaped strings (JWT, GitHub PAT, OpenAI/Slack/AWS keys, `password=` literals, bearer headers) appear anywhere. Reference secrets via `${ENV_VAR}` or storage-state paths.
+- `runner` defaults to `playwright-mcp`; other values emit a warning and require explicit caller opt-in.
+
+Run the validator from the plugin root:
+
+```bash
+node skills/generate-web-frontend-test-plan/scripts/validate-plan.mjs <path-to-plan.yaml>
+```
+
+Exit codes: `0` on pass, `1` on validation errors, `2` on missing/invalid arguments.
 
 ## Output
 
@@ -74,3 +84,5 @@ Return:
 ## Resources
 
 - [./templates/test-plan.template.yaml](./templates/test-plan.template.yaml) — canonical scenario shape and inline comments for each field.
+- [./scripts/validate-plan.mjs](./scripts/validate-plan.mjs) — deterministic plan validator (schema + lint).
+- [../../schemas/web-frontend-test-plan.schema.yaml](../../schemas/web-frontend-test-plan.schema.yaml) — JSON Schema (draft 2020-12) backing the validator.

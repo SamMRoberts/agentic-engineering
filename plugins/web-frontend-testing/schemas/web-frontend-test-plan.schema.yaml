@@ -1,0 +1,142 @@
+# JSON Schema (draft 2020-12) for plugins/web-frontend-testing test-plan.yaml.
+# Mirrors the inline rules in skills/generate-web-frontend-test-plan/SKILL.md.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://samroberts.dev/agentic-engineering/web-frontend-test-plan.schema.yaml"
+title: WebFrontendTestPlan
+type: object
+additionalProperties: true
+required:
+  - plan_version
+  - target
+  - runner
+  - safety
+  - scope
+  - scenarios
+
+properties:
+  plan_version:
+    const: 1
+
+  target:
+    type: object
+    additionalProperties: true
+    required: [url, stage, auth_strategy]
+    properties:
+      url:
+        type: string
+        format: uri
+      stage:
+        enum: [local, staging, production]
+      auth_strategy:
+        enum: [none, shared, per_test_seed, storage_state]
+      dev_command:
+        type: string
+
+  runner:
+    enum: [playwright-mcp, playwright-cli, hybrid]
+
+  safety:
+    type: object
+    additionalProperties: true
+    required: [destructive_actions_allowed, forbidden_selectors, forbidden_urls]
+    properties:
+      destructive_actions_allowed:
+        type: boolean
+      forbidden_selectors:
+        type: array
+        items: { type: string }
+      forbidden_urls:
+        type: array
+        items: { type: string }
+
+  scope:
+    type: object
+    additionalProperties: true
+    required: [in_scope, out_of_scope]
+    properties:
+      in_scope:
+        type: array
+        items: { type: string }
+      out_of_scope:
+        type: array
+        items: { type: string }
+
+  scenarios:
+    type: array
+    minItems: 1
+    items:
+      $ref: "#/$defs/scenario"
+
+$defs:
+  scenario:
+    type: object
+    additionalProperties: true
+    required:
+      - id
+      - title
+      - priority
+      - surface
+      - steps
+      - success_criteria
+      - evidence_required
+    properties:
+      id:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+      title:
+        type: string
+        minLength: 1
+      priority:
+        enum: [P1, P2, P3]
+      surface:
+        enum:
+          - route
+          - form
+          - auth
+          - a11y
+          - navigation
+          - error_handling
+          - responsive
+      preconditions:
+        type: array
+        items: { type: string }
+      steps:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/step"
+      success_criteria:
+        type: array
+        minItems: 1
+        items: { type: string }
+      evidence_required:
+        type: array
+        minItems: 1
+        items:
+          enum: [snapshot, console, network, screenshot]
+
+  step:
+    type: object
+    additionalProperties: true
+    required: [action, target, expect]
+    properties:
+      action:
+        enum:
+          - navigate
+          - click
+          - fill
+          - press
+          - select
+          - snapshot
+          - wait_for
+          - evaluate
+      target:
+        type: string
+        minLength: 1
+      value:
+        # Allow any scalar; some actions take no value at all.
+        type: [string, number, boolean, "null"]
+      expect:
+        type: string
+        minLength: 1
