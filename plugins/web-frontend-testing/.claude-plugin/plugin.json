@@ -1,6 +1,6 @@
 {
     "name": "web-frontend-testing",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "description": "Orchestrated Playwright workflow for web frontend testing: guided requirements intake, codebase surface scan, standardized test plan, Playwright CLI execution (preferred) with optional visible session and pre-test manual authentication, Playwright MCP exploration, dual engineering/executive reporting, and an interactive MCP report viewer.",
     "author": {
         "name": "Sam Roberts",

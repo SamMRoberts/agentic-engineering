@@ -2,6 +2,21 @@
 
 All notable changes to the `web-frontend-testing` plugin are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the plugin uses [semantic versioning](https://semver.org/).
 
+## 0.4.0 — 2026-05-30
+
+### Added
+
+- Added `web-frontend-testing-workflow`, a separate MCP workflow gatekeeper for hosts where users cannot select the custom orchestrator agent.
+- Added workflow MCP tools for fallback orchestration: `start_workflow`, `validate_intake`, `scan_surface_inventory`, `validate_test_plan`, `save_test_plan`, `approve_test_plan`, `get_next_execution_target`, `record_execution_result`, and `validate_report_ready`.
+- Added persisted `workflow-state.json` approval state in report directories so approvals are bound to the current plan hash and plan edits require re-approval.
+- Added workflow tests covering plan hash stability, path scoping, approval gates, destructive/production blocking, one-target selection, unknown-target refusal, result recording, and report readiness.
+
+### Changed
+
+- Registered `web-frontend-testing-workflow` beside Playwright and the report viewer in the plugin MCP manifests.
+- Documentation and Codex default prompts now describe the default-agent fallback runbook for hosts that cannot invoke the custom orchestrator agent.
+- Root package scripts now include `test:mcp-workflow` and `build:mcp-workflow`.
+
 ## 0.3.1 — 2026-05-30
 
 ### Changed

@@ -25,6 +25,15 @@
                 "run",
                 "start:stdio"
             ]
+        },
+        "web-frontend-testing-workflow": {
+            "command": "npm",
+            "args": [
+                "--prefix",
+                "./mcp-workflow",
+                "run",
+                "start:stdio"
+            ]
         }
     }
 }
