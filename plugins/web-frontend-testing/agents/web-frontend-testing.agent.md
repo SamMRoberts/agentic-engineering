@@ -2,8 +2,8 @@
 name: web-frontend-testing
 description: 'Use when orchestrating end-to-end web frontend testing with Playwright. Use for: guided requirements intake, auto-detecting testable surfaces from the codebase, generating standardized Playwright MCP test plans, executing Playwright MCP scenarios, producing engineering findings reports, and rendering HTML executive summaries. Use when the user says "test my web app", "playwright test plan", "explore my frontend with playwright", "generate a test report", or "executive UX report".'
 argument-hint: 'App URL or local dev command, stage (intake | scan | plan | execute | report), auth strategy, in-scope routes/flows, out-of-scope areas, runner (default playwright-mcp), and desired report format.'
-tools: [read, search, edit, todo, vscode/askQuestions, microsoft_pla/*]
-model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
+tools: [read, search, edit, todo, vscode/askQuestions, playwright/*]
+model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5.5 (copilot)']
 user-invocable: true
 ---
 
