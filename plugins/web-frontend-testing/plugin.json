@@ -1,0 +1,20 @@
+{
+    "agents": "agents",
+    "skills": "skills",
+    "entrypointAgent": "web-frontend-testing",
+    "privateAgents": [
+        "web-frontend-testing-requirements",
+        "web-frontend-testing-plan",
+        "web-frontend-testing-execution",
+        "web-frontend-testing-results"
+    ],
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest"
+            ]
+        }
+    }
+}

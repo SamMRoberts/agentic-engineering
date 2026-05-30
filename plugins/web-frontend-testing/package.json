@@ -1,0 +1,16 @@
+{
+    "name": "web-frontend-testing",
+    "version": "0.1.0",
+    "description": "Copilot agent plugin for orchestrating Playwright MCP web frontend testing workflows.",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "test": "node --test test/**/*.test.mjs",
+        "validate:plan": "node skills/generate-web-frontend-test-plan/scripts/validate-plan.mjs"
+    },
+    "dependencies": {
+        "ajv": "^8.17.1",
+        "ajv-formats": "^3.0.1",
+        "yaml": "^2.6.1"
+    }
+}
