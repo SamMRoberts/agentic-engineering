@@ -1,0 +1,11 @@
+{
+    "agents": "agents",
+    "skills": "skills",
+    "entrypointAgent": "web-frontend-testing",
+    "privateAgents": [
+        "web-frontend-testing-requirements",
+        "web-frontend-testing-plan",
+        "web-frontend-testing-execution",
+        "web-frontend-testing-results"
+    ]
+}

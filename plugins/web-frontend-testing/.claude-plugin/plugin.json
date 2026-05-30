@@ -1,0 +1,27 @@
+{
+    "name": "web-frontend-testing",
+    "version": "0.1.0",
+    "description": "Orchestrated Playwright MCP workflow for web frontend testing: guided requirements intake, codebase surface scan, standardized test plan, per-scenario execution, and dual engineering/executive reporting.",
+    "author": {
+        "name": "Sam Roberts",
+        "url": "https://github.com/SamMRoberts"
+    },
+    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-frontend-testing",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/SamMRoberts/agentic-engineering"
+    },
+    "license": "MIT",
+    "keywords": [
+        "playwright",
+        "playwright-mcp",
+        "web-frontend",
+        "ui-testing",
+        "accessibility",
+        "testing"
+    ],
+    "agents": "./agents/",
+    "skills": "./skills/",
+    "hooks": "./hooks.json",
+    "mcpServers": "./.mcp.json"
+}

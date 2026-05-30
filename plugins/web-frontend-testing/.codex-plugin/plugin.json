@@ -1,0 +1,49 @@
+{
+    "name": "web-frontend-testing",
+    "version": "0.1.0",
+    "description": "Orchestrated Playwright MCP workflow for web frontend testing: guided requirements intake, codebase surface scan, standardized test plan, per-scenario execution, and dual engineering/executive reporting.",
+    "author": {
+        "name": "Sam Roberts"
+    },
+    "homepage": "https://github.com/SamMRoberts/agentic-engineering",
+    "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-frontend-testing",
+    "license": "MIT",
+    "keywords": [
+        "playwright",
+        "playwright-mcp",
+        "web-frontend",
+        "ui-testing",
+        "accessibility",
+        "testing"
+    ],
+    "agents": "./agents/",
+    "skills": "./skills/",
+    "entrypointAgent": "web-frontend-testing",
+    "privateAgents": [
+        "web-frontend-testing-requirements",
+        "web-frontend-testing-plan",
+        "web-frontend-testing-execution",
+        "web-frontend-testing-results"
+    ],
+    "interface": {
+        "displayName": "Web Frontend Testing",
+        "shortDescription": "Plan, run, and report Playwright MCP tests for web frontends.",
+        "longDescription": "User-facing orchestrator that walks a five-stage Playwright-based workflow (intake → codebase scan → plan → execute → report). It auto-detects testable surfaces from the repository, generates a standardized test-plan.yaml, runs one Playwright MCP scenario per invocation with full evidence capture, and emits both an engineering Markdown report and a self-contained accessible executive HTML summary.",
+        "developerName": "Sam Roberts",
+        "category": "Testing",
+        "capabilities": [
+            "Interactive",
+            "Write"
+        ],
+        "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-frontend-testing",
+        "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+        "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+        "defaultPrompt": [
+            "Scan this repository and propose a Playwright MCP test plan for the frontend.",
+            "Run the approved scenarios against http://localhost:3000 and capture evidence.",
+            "Generate the engineering and executive reports for the latest test run."
+        ],
+        "brandColor": "#1D4ED8",
+        "screenshots": []
+    }
+}
