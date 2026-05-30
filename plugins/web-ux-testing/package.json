@@ -5,15 +5,19 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test scripts/**/*.mjs",
-    "validate:plan": "node scripts/validate-plan.mjs",
-    "generate:tests": "node scripts/generate-playwright-tests.mjs",
-    "scaffold": "node scripts/scaffold-plan.mjs",
-    "list:scenarios": "node scripts/list-scenarios.mjs",
-    "split": "node scripts/split-plan-by-area.mjs",
-    "merge": "node scripts/merge-area-plans.mjs",
-    "scaffold:aria": "node scripts/scaffold-aria-snapshot-test.mjs",
-    "validate:aria": "node scripts/validate-aria-snapshots.mjs"
+    "test": "node --test test/**/*.test.mjs",
+    "validate:skill-refs": "node ../../.github/scripts/validate-skill-refs.mjs",
+    "validate:apply-common-scenarios": "node skills/apply-common-scenarios/scripts/validate-plan.mjs",
+    "list:apply-common-scenarios": "node skills/apply-common-scenarios/scripts/list-scenarios.mjs",
+    "validate:convert-plan": "node skills/convert-web-ux-plan-to-playwright-tests/scripts/validate-plan.mjs",
+    "generate:tests": "node skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs",
+    "scaffold:aria": "node skills/generate-aria-snapshot-tests/scripts/scaffold-aria-snapshot-test.mjs",
+    "validate:aria": "node skills/generate-aria-snapshot-tests/scripts/validate-aria-snapshots.mjs",
+    "scaffold:plan": "node skills/generate-web-ux-test-plan/scripts/scaffold-plan.mjs",
+    "validate:generate-plan": "node skills/generate-web-ux-test-plan/scripts/validate-plan.mjs",
+    "split:progress": "node skills/manage-web-ux-test-progress/scripts/split-plan-by-area.mjs",
+    "merge:progress": "node skills/manage-web-ux-test-progress/scripts/merge-area-plans.mjs",
+    "validate:review-plan": "node skills/review-web-ux-test-plan/scripts/validate-plan.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

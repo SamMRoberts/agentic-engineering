@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { validatePlanFile } from "../scripts/validate-plan.mjs";
+import { validatePlanFile } from "../lib/plan-validation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = (...parts) => path.join(__dirname, "fixtures", "plans", ...parts);

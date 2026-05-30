@@ -54,7 +54,7 @@ Example requests:
 
 ```bash
 npm install
-node scripts/validate-plan.mjs web-ux-test/plan.yaml
+node skills/generate-web-ux-test-plan/scripts/validate-plan.mjs web-ux-test/plan.yaml
 ```
 
 6. Run the plan with Playwright MCP by default, an agent browser when explicitly selected, or Playwright CLI only for generated or existing regression tests.
@@ -65,7 +65,7 @@ node scripts/validate-plan.mjs web-ux-test/plan.yaml
 For stable user-defined steps, add `executable_steps` to scenarios marked `convert_to_regression_test: true`, then generate Playwright specs:
 
 ```bash
-npm run generate:tests -- --plan web-ux-test/plan.yaml --out tests/web-ux
+node skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux
 ```
 
 Supported executable actions include `navigate`, `click`, `fill`, `select`, `press`, `assert_visible`, `assert_text`, `assert_url`, and `capture_evidence`.
@@ -97,7 +97,8 @@ web-ux-testing/
   templates/
   checklists/
   profiles/
-  scripts/
+  lib/
+  skills/<skill>/scripts/
 ```
 
 ## Agent architecture
@@ -157,14 +158,14 @@ Added ARIA resources:
 - `templates/aria-snapshot-baseline.template.aria.yml`
 - `checklists/aria-snapshot-testing.md`
 - `profiles/playwright-cli.aria-regression.yaml`
-- `scripts/scaffold-aria-snapshot-test.mjs`
-- `scripts/validate-aria-snapshots.mjs`
+- `skills/generate-aria-snapshot-tests/scripts/scaffold-aria-snapshot-test.mjs`
+- `skills/generate-aria-snapshot-tests/scripts/validate-aria-snapshots.mjs`
 
 Example commands:
 
 ```bash
-npm run scaffold:aria -- --scenario=ARIA-NAV-001 --title="Primary navigation ARIA snapshot" --route=/ --role=navigation --name="Primary navigation" --baseline=primary-navigation.aria.yml
-npm run validate:aria -- tests/aria
+node skills/generate-aria-snapshot-tests/scripts/scaffold-aria-snapshot-test.mjs --scenario=ARIA-NAV-001 --title="Primary navigation ARIA snapshot" --route=/ --role=navigation --name="Primary navigation" --baseline=primary-navigation.aria.yml
+node skills/generate-aria-snapshot-tests/scripts/validate-aria-snapshots.mjs tests/aria
 ```
 
 Recommended approach:

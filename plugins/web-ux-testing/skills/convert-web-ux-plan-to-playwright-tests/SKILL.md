@@ -27,9 +27,9 @@ If the scenario depends on manual login, production-only data, nondeterministic 
 
 ## Procedure
 
-1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` before conversion. Do not convert plans with validation errors.
+1. Run `node skills/convert-web-ux-plan-to-playwright-tests/scripts/validate-plan.mjs web-ux-test/plan.yaml` before conversion. Do not convert plans with validation errors.
 2. Select only scenarios marked stable or `convert_to_regression_test: true`, plus confirmed bugs with a minimal reproduction path.
-3. When scenarios include `executable_steps`, prefer `npm run generate:tests -- --plan web-ux-test/plan.yaml --out tests/web-ux` or `node scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux` so generated tests follow the shared compiler path.
+3. When scenarios include `executable_steps`, prefer `node skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs --plan web-ux-test/plan.yaml --out tests/web-ux` so generated tests follow the shared compiler path.
 4. Translate exploratory prose steps into deterministic arrange-act-assert flow only when no `executable_steps` are available. Replace observations like "check page works" with explicit assertions.
 5. Prefer locators in this order: role, label, text for stable visible names, configured test ID, then CSS only as a last resort.
 6. Isolate setup through fixtures, test users, mocked auth, or seeded data. Avoid production data and shared mutable state.

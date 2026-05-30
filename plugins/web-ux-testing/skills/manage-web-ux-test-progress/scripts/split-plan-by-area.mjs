@@ -9,7 +9,7 @@ const planPath = process.argv[2];
 const outDir = process.argv[3] ?? "web-ux-test/areas";
 
 if (!planPath) {
-  console.error("Usage: node scripts/split-plan-by-area.mjs <plan.yaml> [out-dir]");
+  console.error("Usage: node skills/manage-web-ux-test-progress/scripts/split-plan-by-area.mjs <plan.yaml> [out-dir]");
   process.exit(2);
 }
 

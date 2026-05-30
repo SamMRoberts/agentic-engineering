@@ -10,7 +10,7 @@ const areasDir = process.argv[3] ?? "web-ux-test/areas";
 const outPath = process.argv[4] ?? "web-ux-test/plan.merged.yaml";
 
 if (!basePlanPath) {
-  console.error("Usage: node scripts/merge-area-plans.mjs <base-plan.yaml> [areas-dir] [out-plan.yaml]");
+  console.error("Usage: node skills/manage-web-ux-test-progress/scripts/merge-area-plans.mjs <base-plan.yaml> [areas-dir] [out-plan.yaml]");
   process.exit(2);
 }
 

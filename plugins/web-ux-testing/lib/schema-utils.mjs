@@ -5,7 +5,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import { readYamlFile } from "./yaml-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const pluginRoot = path.resolve(__dirname, "..", "..");
+export const pluginRoot = path.resolve(__dirname, "..");
 
 function createAjv() {
   return new Ajv2020({

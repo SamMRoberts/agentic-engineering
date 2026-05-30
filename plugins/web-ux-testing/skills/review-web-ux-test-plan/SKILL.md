@@ -27,7 +27,7 @@ If the plan path is missing, ask for it or inspect the default `web-ux-test/plan
 
 ## Procedure
 
-1. Run `npm run validate:plan -- web-ux-test/plan.yaml` or `node scripts/validate-plan.mjs web-ux-test/plan.yaml` when a plan file is available. This performs schema validation and safety linting.
+1. Run `node skills/review-web-ux-test-plan/scripts/validate-plan.mjs web-ux-test/plan.yaml` when a plan file is available. This performs schema validation and safety linting.
 2. If the validation script is not found or fails to execute, note this in the output, skip automated validation, and proceed with manual schema review against the required fields.
 3. If the YAML cannot be parsed at all, report the parse error location, stop the review, and ask the user to fix syntax before resubmitting.
 4. Treat validation errors as blocking issues before qualitative review. Required workflow fields include scenario evidence, `stop_conditions`, and at least one of `steps` or `branches`.

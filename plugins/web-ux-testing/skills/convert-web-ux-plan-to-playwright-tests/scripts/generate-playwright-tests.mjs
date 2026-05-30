@@ -5,9 +5,9 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { collectScenarios } from "./lib/plan-lint.mjs";
-import { readYamlFile } from "./lib/yaml-utils.mjs";
-import { validatePlan } from "./validate-plan.mjs";
+import { collectScenarios } from "../../../lib/plan-lint.mjs";
+import { readYamlFile } from "../../../lib/yaml-utils.mjs";
+import { validatePlan } from "../../../lib/plan-validation.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(`--${name}`);
@@ -121,7 +121,7 @@ function runCli() {
   const outDir = arg("out", "tests/web-ux");
 
   if (!planPath) {
-    console.error("Usage: node scripts/generate-playwright-tests.mjs --plan <path-to-plan.yaml> [--out tests/web-ux]");
+    console.error("Usage: node skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs --plan <path-to-plan.yaml> [--out tests/web-ux]");
     process.exit(2);
   }
 

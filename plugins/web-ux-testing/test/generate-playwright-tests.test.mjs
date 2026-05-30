@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { generatePlaywrightTestsFromPlanFile } from "../scripts/generate-playwright-tests.mjs";
+import { generatePlaywrightTestsFromPlanFile } from "../skills/convert-web-ux-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = (...parts) => path.join(__dirname, "fixtures", "plans", ...parts);
