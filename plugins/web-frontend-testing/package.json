@@ -1,6 +1,6 @@
 {
     "name": "web-frontend-testing",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "description": "Copilot agent plugin for orchestrating Playwright web frontend testing workflows (CLI preferred, MCP for exploration, hybrid for discovery-then-regression).",
     "type": "module",
     "private": true,
@@ -9,7 +9,9 @@
         "validate:plan": "node skills/generate-web-frontend-test-plan/scripts/validate-plan.mjs",
         "generate:tests": "node skills/convert-web-frontend-plan-to-playwright-tests/scripts/generate-playwright-tests.mjs",
         "test:mcp-app": "npm --prefix mcp-app test",
-        "build:mcp-app": "npm --prefix mcp-app run build"
+        "build:mcp-app": "npm --prefix mcp-app run build",
+        "test:mcp-workflow": "npm --prefix mcp-workflow test",
+        "build:mcp-workflow": "npm --prefix mcp-workflow run build"
     },
     "dependencies": {
         "ajv": "^8.17.1",

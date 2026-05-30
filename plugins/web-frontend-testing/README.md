@@ -22,6 +22,7 @@ Playwright CLI is the preferred runner for execution and regression work. Playwr
   - `write-web-frontend-engineering-report`
   - `write-web-frontend-executive-report`
 - **Schemas, hooks, and validators** that enforce the plan contract, block credential literals, and require approval for `playwright/browser_evaluate`.
+- **MCP workflow gatekeeper**: `mcp-workflow/` registers `web-frontend-testing-workflow`, which lets default agents validate intake, validate/save plans, record plan approvals, request one approved execution target, record results, and check report readiness when a host cannot select the custom orchestrator agent.
 - **MCP report viewer app**: `mcp-app/` registers `web-frontend-report-viewer`, which exposes `view_executive_report` for interactive report triage and `update_test_plan` for confirmation-gated plan edits.
 
 ## Runner selection
@@ -64,6 +65,25 @@ Ask the orchestrator agent for one of:
 
 The orchestrator stops on missing intake details (URL, stage, auth, runner, destructive-action policy) rather than guessing.
 
+## Default-agent fallback
+
+Use the `web-frontend-testing` custom orchestrator agent when the host supports custom agent selection. If the host only exposes a default coding agent, start with `web-frontend-testing-workflow/start_workflow` and follow the returned runbook. The workflow MCP server is the portable safety gatekeeper; it does not run Playwright or shell commands itself.
+
+Fallback stage order:
+
+1. Call `web-frontend-testing-workflow/start_workflow`.
+2. Call `validate_intake` with target, stage, auth strategy, runner, scope, destructive-action policy, and CLI session preferences.
+3. Call `scan_surface_inventory` to collect routes, test files, package scripts, and Playwright config candidates.
+4. Draft or update `test-plan.yaml` using the same plan contract as the custom orchestrator path.
+5. Call `validate_test_plan` and `save_test_plan`; non-dry writes require `confirmedWrite: true` and valid plan content.
+6. Ask the user to review/edit or approve the plan as-is.
+7. Call `approve_test_plan` only after explicit user approval. Approval is bound to the current plan hash, so any plan edit requires re-approval.
+8. Call `get_next_execution_target`; execute only the returned target, using the host's normal shell or Playwright MCP tools.
+9. Call `record_execution_result` for that target before requesting another target.
+10. Generate reports, call `validate_report_ready`, then open `web-frontend-report-viewer/view_executive_report`.
+
+If the host exposes an `agent` tool, the default agent may delegate each stage to the existing private agents exactly as the custom orchestrator would. If nested agents are unavailable, the default agent should perform the stages inline and let `web-frontend-testing-workflow` enforce the safety gates. The fallback must not invoke private subagents directly as user-facing agents, skip plan approval, execute multiple targets at once, or run production/destructive scenarios without the required explicit approvals.
+
 ## Validation commands
 
 From `plugins/web-frontend-testing`:
@@ -83,6 +103,12 @@ npm run test:mcp-app
 
 # Build the MCP report viewer bundle
 npm run build:mcp-app
+
+# Run MCP workflow gatekeeper tests
+npm run test:mcp-workflow
+
+# Type-check the MCP workflow gatekeeper
+npm run build:mcp-workflow
 ```
 
 Exit codes for the validators and generator: `0` on success, `1` on validation errors, `2` on bad usage or missing files.
@@ -114,6 +140,7 @@ plugins/web-frontend-testing/
 ├── hooks/                          # block credentials, gate evaluate, validate plan
 ├── lib/                            # shared validators, schema utils, yaml utils
 ├── mcp-app/                        # MCP report viewer app and report-plan editor
+├── mcp-workflow/                   # MCP workflow gatekeeper for default-agent fallback
 ├── schemas/                        # JSON Schema (draft 2020-12) for test plans
 └── test/                           # node:test suites and fixtures
 ```
@@ -122,8 +149,11 @@ plugins/web-frontend-testing/
 
 The orchestrator agent owns request classification and stops on missing safety details. Every stage is delegated to a private subagent; the orchestrator does not edit files, run shell commands, or drive browser tools. The plan agent chooses the runner per the policy above and propagates it through every handoff. CLI execution is isolated in its own private agent so MCP and CLI tool surfaces stay separate. The results agent can open the registered MCP report viewer after both static report artifacts exist; the plan agent can use the viewer's plan update tool only after a passing dry run and explicit user confirmation.
 
+For default-agent-only hosts, `web-frontend-testing-workflow` preserves the same gates by storing workflow state in the report directory and tying approval to a plan hash. It returns one approved execution target at a time; the host agent still owns any shell, browser, or Playwright MCP execution permitted by that host.
+
 ## Known limitations
 
 - The CLI runner requires the consuming repository to have Playwright installed (typically via `@playwright/test`).
 - The plan validator does not currently lint generated `.spec.ts` files; CI in the consuming repo should run `npx playwright test --list` as a discovery sanity check.
+- The workflow MCP fallback gates compliant agents, but it cannot prevent a host from directly exposing shell or browser tools outside the workflow. Keep hooks enabled where the host supports them.
 - The MCP report viewer requires a host that supports MCP App resources for the interactive UI. Non-UI hosts still receive the tool's plain-text fallback summary.
