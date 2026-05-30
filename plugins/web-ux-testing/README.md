@@ -112,18 +112,10 @@ The orchestrator first checks whether the user's request is scoped clearly enoug
 
 When both sources are used, guided user requirements run first and become the baseline. Codebase inference can confirm, extend, or flag conflicts with that baseline, but it must not replace explicit user-stated requirements without confirmation.
 
-- `web-ux-requirements-gatekeeper` verifies that the user's request is scoped clearly enough to continue without downstream agent drift.
-- `web-ux-user-requirements` gathers missing user requirements.
-- `web-ux-codebase-requirements` infers requirements from repository evidence.
-- `web-ux-plan-curator` creates, reviews, extends, and validates plan files.
-- `web-ux-test-file-creator` creates Playwright specs and ARIA baselines.
-- `web-ux-progress-manager` maintains `web-ux-test/progress.md` for scenario queues, status, artifacts, blockers, and resume checkpoints.
-- `web-ux-playwright-mcp-executor` runs validated plans or scenarios with Playwright MCP.
-- `web-ux-playwright-mcp-explorer` performs exploratory discovery with Playwright MCP.
-- `web-ux-playwright-cli-executor` runs generated Playwright CLI tests.
-- `web-ux-results-analyst` analyzes findings, CLI output, and ARIA diffs.
-- `web-ux-report-writer` creates audience-specific reports.
-- `web-ux-safety-gatekeeper` reviews risky execution or conversion requests.
+- `web-ux-requirements-agent` handles scope gating, guided requirements questions, codebase requirement inference, requirement conflict checks, and non-execution safety checks.
+- `web-ux-plan-agent` creates/reviews plan artifacts, applies common scenarios, adds ARIA plan coverage, and generates Playwright CLI regression artifacts when explicitly requested.
+- `web-ux-execution-agent` handles MCP exploration, one-scenario MCP execution, one-target CLI execution, execution safety checks, and `web-ux-test/progress.md` checkpoint/resume behavior.
+- `web-ux-results-agent` analyzes findings and evidence, triages CLI/ARIA failures, classifies severity, and generates audience-specific reports or issue-ready summaries.
 
 Internal sub-agents are not meant to be invoked directly by users; they keep tool access narrow and make the orchestrator easier to reason about.
 
