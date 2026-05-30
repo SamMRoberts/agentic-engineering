@@ -33,10 +33,14 @@ You own the **intake gate** and the **codebase scan** stages. Decide if scope is
 2. Auth strategy: none | shared test account | per-test seed | storage-state file.
 3. In-scope routes, flows, or components.
 4. Out-of-scope areas and forbidden actions.
-5. Runner preference (default: `playwright-mcp`).
-6. Output preferences: report directory, executive audience, severity overrides.
+5. Runner preference (default: `playwright-cli`). Use `playwright-mcp` only for live exploration or MCP-specific evidence capture; use `hybrid` for MCP discovery followed by CLI regression.
+6. CLI session preferences when runner is `playwright-cli` or `hybrid`:
+   - `show_cli_session` (default `false`) — surface the running CLI session to the user.
+   - `pre_test_auth_session` (default disabled) — start/show the CLI session before tests so the user can authenticate manually; capture `mode`, `ready_signal`, and any storage-state path or command.
+7. Output preferences: report directory, executive audience, severity overrides.
 
 Block production targets unless the user explicitly confirms read-only execution.
+Block `pre_test_auth_session` when `auth_strategy` is `per_test_seed`.
 
 ## Skills
 
@@ -56,7 +60,8 @@ Return:
 - `auth_strategy`
 - `scope_summary`
 - `in_scope`, `out_of_scope`, `forbidden_actions`
-- `runner`
+- `runner`: `playwright-cli | playwright-mcp | hybrid`
+- `cli_session_preferences`: `{ show_cli_session, pre_test_auth_session: { enabled, mode?, ready_signal?, storage_state_path?, command? } }`
 - `surface_inventory`: `{ framework, routes[], interactive_flows[], auth_surfaces[], a11y_signals[], destructive_flows[], existing_tests[], coverage_gaps[] }`
 - `conflicts`: differences between user-stated scope and codebase evidence
 - `clarifying_questions`: only what is needed to reach `allow`

@@ -1,4 +1,4 @@
-# Standardized Playwright MCP test plan template.
+# Standardized Playwright test plan template.
 # Replace placeholders surrounded by <> and remove any unused optional fields.
 
 plan_version: 1
@@ -9,7 +9,27 @@ target:
   auth_strategy: none # none | shared | per_test_seed | storage_state
   # dev_command: <npm run dev>  # optional
 
-runner: playwright-mcp
+# playwright-cli is preferred for execution/regression. Use playwright-mcp for
+# live exploration only, or hybrid for MCP discovery followed by CLI regression.
+runner: playwright-cli
+
+# CLI execution defaults. Omit this block for runner: playwright-mcp.
+cli_session:
+  # Surface the running CLI session to the user (headed mode, visible stream).
+  show_cli_session: false
+  # Start the CLI session before tests so the user can authenticate manually.
+  # Pair with auth_strategy: storage_state when the auth flow needs to persist.
+  pre_test_auth_session:
+    enabled: false
+    mode: headed_browser # headed_browser | codegen | custom_command
+    ready_signal: user_confirmation # user_confirmation | storage_state_written | exit_code
+    # storage_state_path: <relative-path-to-storage-state.json>
+    # command: <custom auth command, required when ready_signal is exit_code>
+  # Optional plan-wide CLI defaults.
+  project: chromium
+  # base_url: <https://example.com>
+  # test_command: <npm run test:e2e>
+  # test_dir: tests/web-frontend
 
 safety:
   destructive_actions_allowed: false
@@ -42,6 +62,15 @@ scenarios:
     evidence_required:
       - snapshot
       - console
+    # CLI metadata: deterministic regression candidate.
+    convert_to_regression_test: true
+    executable_steps:
+      - action: navigate
+        path: /
+      - action: assert_visible
+        locator:
+          strategy: role
+          role: main
 
   - id: signin-form-validation
     title: Sign-in form rejects empty submission
@@ -64,3 +93,49 @@ scenarios:
       - snapshot
       - console
       - network
+    convert_to_regression_test: true
+    executable_steps:
+      - action: navigate
+        path: /signin
+      - action: click
+        locator:
+          strategy: role
+          role: button
+          name: Sign in
+      - action: assert_visible
+        locator:
+          strategy: text
+          value: Please enter your email
+
+  - id: authenticated-dashboard-smoke
+    title: Authenticated dashboard loads after manual sign-in
+    priority: P1
+    surface: route
+    preconditions:
+      - User completes sign-in in the visible CLI session
+    steps:
+      - action: navigate
+        target: /dashboard
+        expect: Dashboard widgets visible
+    success_criteria:
+      - Dashboard widgets render
+      - Storage state captured for reuse
+    evidence_required:
+      - snapshot
+      - console
+    convert_to_regression_test: true
+    # Override the plan-level CLI session settings for this scenario.
+    show_cli_session: true
+    pre_test_auth_session:
+      enabled: true
+      mode: headed_browser
+      ready_signal: storage_state_written
+      storage_state_path: .playwright/auth/dashboard.json
+    executable_steps:
+      - action: navigate
+        path: /dashboard
+      - action: assert_visible
+        locator:
+          strategy: test_id
+          value: dashboard-summary
+

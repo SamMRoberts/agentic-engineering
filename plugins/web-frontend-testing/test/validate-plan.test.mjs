@@ -114,13 +114,120 @@ test("validatePlan allows env var references for secrets", () => {
     assert.deepEqual(result.errors, []);
 });
 
-test("validatePlan warns when runner is not playwright-mcp", () => {
+test("validatePlan errors when playwright-cli plan has no CLI target", () => {
     const plan = basePlan({ runner: "playwright-cli" });
+    const result = validatePlan(plan);
+    assert.ok(
+        result.errors.some((e) => e.includes("no deterministic CLI target")),
+        `expected missing CLI target error, got: ${JSON.stringify(result.errors)}`
+    );
+});
+
+test("validatePlan accepts playwright-cli plan with cli_session.test_command", () => {
+    const plan = basePlan({
+        runner: "playwright-cli",
+        cli_session: { test_command: "npm run test:e2e -- --grep home" }
+    });
+    const result = validatePlan(plan);
+    assert.deepEqual(result.errors, []);
+});
+
+test("validatePlan accepts playwright-cli plan with scenario executable_steps", () => {
+    const plan = basePlan({ runner: "playwright-cli" });
+    plan.scenarios[0].convert_to_regression_test = true;
+    plan.scenarios[0].executable_steps = [
+        { action: "navigate", path: "/" },
+        { action: "assert_visible", locator: { strategy: "role", role: "main" } }
+    ];
+    const result = validatePlan(plan);
+    assert.deepEqual(result.errors, []);
+});
+
+test("validatePlan errors when executable_steps action lacks required fields", () => {
+    const plan = basePlan({
+        runner: "playwright-cli",
+        cli_session: { test_command: "npm test" }
+    });
+    plan.scenarios[0].convert_to_regression_test = true;
+    plan.scenarios[0].executable_steps = [
+        { action: "fill", locator: { strategy: "label", value: "Email" } } // missing value
+    ];
+    const result = validatePlan(plan);
+    assert.ok(
+        result.errors.some((e) => /executable_steps\/0/.test(e) || /must include required property/.test(e)),
+        `expected executable_steps validation error, got: ${JSON.stringify(result.errors)}`
+    );
+});
+
+test("validatePlan errors when hybrid runner lacks CLI target", () => {
+    const plan = basePlan({ runner: "hybrid" });
+    const result = validatePlan(plan);
+    assert.ok(
+        result.errors.some((e) => e.includes("hybrid") && e.includes("CLI")),
+        `expected hybrid CLI target error, got: ${JSON.stringify(result.errors)}`
+    );
+});
+
+test("validatePlan errors when pre_test_auth_session enabled with per_test_seed auth", () => {
+    const plan = basePlan({
+        runner: "playwright-cli",
+        cli_session: {
+            test_command: "npm test",
+            pre_test_auth_session: { enabled: true, mode: "headed_browser", ready_signal: "user_confirmation" }
+        },
+        target: { url: "https://example.com", stage: "local", auth_strategy: "per_test_seed" }
+    });
+    const result = validatePlan(plan);
+    assert.ok(
+        result.errors.some((e) => e.includes("pre_test_auth_session.enabled") && e.includes("per_test_seed")),
+        `expected pre_test_auth_session/per_test_seed error, got: ${JSON.stringify(result.errors)}`
+    );
+});
+
+test("validatePlan errors when pre_test_auth_session ready_signal storage_state_written has no path", () => {
+    const plan = basePlan({
+        runner: "playwright-cli",
+        cli_session: { test_command: "npm test" },
+        target: { url: "https://example.com", stage: "local", auth_strategy: "storage_state" }
+    });
+    plan.scenarios[0].pre_test_auth_session = {
+        enabled: true,
+        mode: "headed_browser",
+        ready_signal: "storage_state_written"
+    };
+    const result = validatePlan(plan);
+    assert.ok(
+        result.errors.some((e) => e.includes("storage_state_written") && e.includes("storage_state_path")),
+        `expected storage_state_path error, got: ${JSON.stringify(result.errors)}`
+    );
+});
+
+test("validatePlan accepts pre_test_auth_session with storage_state_path", () => {
+    const plan = basePlan({
+        runner: "playwright-cli",
+        cli_session: {
+            test_command: "npm test",
+            pre_test_auth_session: {
+                enabled: true,
+                mode: "headed_browser",
+                ready_signal: "storage_state_written",
+                storage_state_path: ".playwright/auth/dashboard.json"
+            }
+        },
+        target: { url: "https://example.com", stage: "local", auth_strategy: "storage_state" }
+    });
+    const result = validatePlan(plan);
+    assert.deepEqual(result.errors, []);
+});
+
+test("validatePlan warns when CLI metadata is present but runner is playwright-mcp", () => {
+    const plan = basePlan();
+    plan.cli_session = { test_command: "npm test" };
     const result = validatePlan(plan);
     assert.deepEqual(result.errors, []);
     assert.ok(
-        result.warnings.some((w) => w.includes('runner is "playwright-cli"')),
-        `expected runner warning, got: ${JSON.stringify(result.warnings)}`
+        result.warnings.some((w) => w.includes("cli_session") && w.includes("playwright-mcp")),
+        `expected CLI-on-MCP warning, got: ${JSON.stringify(result.warnings)}`
     );
 });
 

@@ -36,6 +36,45 @@ properties:
   runner:
     enum: [playwright-mcp, playwright-cli, hybrid]
 
+  cli_session:
+    # Defaults for Playwright CLI execution. Per-scenario overrides may
+    # set show_cli_session / pre_test_auth_session for individual scenarios.
+    type: object
+    additionalProperties: true
+    properties:
+      show_cli_session:
+        # When true, the CLI execution agent surfaces the running test
+        # session to the user (e.g. headed mode, terminal stream visible).
+        type: boolean
+      pre_test_auth_session:
+        type: object
+        additionalProperties: true
+        required: [enabled]
+        properties:
+          enabled:
+            type: boolean
+          mode:
+            # how the auth session is opened before tests run
+            enum: [headed_browser, codegen, custom_command]
+          ready_signal:
+            # how the agent decides the user finished authenticating
+            enum: [user_confirmation, storage_state_written, exit_code]
+          storage_state_path:
+            type: string
+          command:
+            type: string
+          notes:
+            type: string
+      project:
+        type: string
+      base_url:
+        type: string
+        format: uri
+      test_command:
+        type: string
+      test_dir:
+        type: string
+
   safety:
     type: object
     additionalProperties: true
@@ -115,6 +154,38 @@ $defs:
         minItems: 1
         items:
           enum: [snapshot, console, network, screenshot]
+      # CLI / regression metadata (optional). Required at the plan level only
+      # when runner is playwright-cli or hybrid; see plan-lint.mjs.
+      convert_to_regression_test:
+        type: boolean
+      test_file:
+        type: string
+      test_command:
+        type: string
+      executable_steps:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/executable_step"
+      show_cli_session:
+        type: boolean
+      pre_test_auth_session:
+        type: object
+        additionalProperties: true
+        required: [enabled]
+        properties:
+          enabled:
+            type: boolean
+          mode:
+            enum: [headed_browser, codegen, custom_command]
+          ready_signal:
+            enum: [user_confirmation, storage_state_written, exit_code]
+          storage_state_path:
+            type: string
+          command:
+            type: string
+          notes:
+            type: string
 
   step:
     type: object
@@ -140,3 +211,98 @@ $defs:
       expect:
         type: string
         minLength: 1
+
+  executable_step:
+    # Deterministic step shape used to generate Playwright CLI specs.
+    # Each action requires specific companion fields enforced below.
+    type: object
+    additionalProperties: true
+    required: [action]
+    properties:
+      action:
+        enum:
+          - navigate
+          - click
+          - fill
+          - select
+          - press
+          - assert_visible
+          - assert_text
+          - assert_url
+          - screenshot
+      path:
+        type: string
+      locator:
+        $ref: "#/$defs/locator"
+      value:
+        type: string
+      key:
+        type: string
+      expected:
+        type: string
+      note:
+        type: string
+    allOf:
+      - if:
+          properties:
+            action: { const: navigate }
+          required: [action]
+        then:
+          required: [path]
+      - if:
+          properties:
+            action: { enum: [click, assert_visible] }
+          required: [action]
+        then:
+          required: [locator]
+      - if:
+          properties:
+            action: { enum: [fill, select] }
+          required: [action]
+        then:
+          required: [locator, value]
+      - if:
+          properties:
+            action: { const: press }
+          required: [action]
+        then:
+          required: [locator, key]
+      - if:
+          properties:
+            action: { const: assert_text }
+          required: [action]
+        then:
+          required: [locator, expected]
+      - if:
+          properties:
+            action: { const: assert_url }
+          required: [action]
+        then:
+          required: [expected]
+
+  locator:
+    type: object
+    additionalProperties: false
+    required: [strategy]
+    properties:
+      strategy:
+        enum: [role, label, text, test_id, placeholder, css]
+      value:
+        type: string
+      role:
+        type: string
+      name:
+        type: string
+    allOf:
+      - if:
+          properties:
+            strategy: { const: role }
+          required: [strategy]
+        then:
+          required: [role]
+      - if:
+          properties:
+            strategy: { enum: [label, text, test_id, placeholder, css] }
+          required: [strategy]
+        then:
+          required: [value]
