@@ -28,11 +28,32 @@ Use the smallest primitive that fits the job:
 | External API, system, or data integration | MCP server tool |
 | Interactive UI over MCP tools | MCP app |
 
-Do not introduce a new primitive when an existing skill, agent, script, or schema can be extended cleanly.
+Do not introduce a new primitive when an existing skill, agent, script, or schema can be extended cleanly. When an existing artifact cannot be extended cleanly (e.g., incompatible schemas, conflicting ownership, or divergent workflows), create a new skill with a distinct scope and document the boundary between the two skills in the orchestrator agent.
+
+When extending an existing skill, agent, or schema, check for downstream dependents. Preserve backward compatibility in public interfaces or bump the version and update dependents.
+
+When a new skill overlaps with an existing skill in another plugin, branch on ownership:
+
+- Same owning plugin: extend the existing skill.
+- Different owning plugin: do not modify the other plugin's skill. Instead:
+  1. Ensure an orchestrator agent exists in your plugin. Create one following the Custom Agent Authoring section if none exists.
+  2. Document the overlap and routing criteria in that orchestrator agent.
+  3. Add a TODO comment in the orchestrator noting that the owning plugin maintainer should be consulted before merging.
+  4. Create a new skill in your plugin with a distinct scope rather than extending the other plugin's skill.
+
+Before acting under either branch, confirm the overlap by comparing skill scope, triggers, and outputs.
+
+Use semantic versioning (semver) for plugin versions. Document breaking changes in `CHANGELOG.md` under a new version heading. Bump the major version for breaking public interface changes, minor for new features, patch for fixes.
+
+## Deprecation and Removal
+- Mark deprecated skills/agents with a `deprecated: true` frontmatter field and a notice in the description.
+- Keep deprecated artifacts until at least one major version of the owning plugin has been released after the version in which the deprecation was introduced.
+- Update orchestrator routing and documentation to redirect users to replacements.
+- Remove entries from `plugin.json` only after dependents have migrated.
 
 ## Repository Shape
 
-For plugin-style packs, follow this structure unless the existing package has a stronger local convention:
+For plugin-style packs, follow this structure unless the existing package already has a documented directory layout in its README or contributing guide, in which case preserve that layout:
 
 ```text
 plugins/<plugin-name>/
@@ -76,7 +97,7 @@ Skill bodies should include:
 - Validation commands and expected success criteria.
 - Safety rules for credentials, destructive actions, production data, and external services.
 
-Keep `SKILL.md` concise enough to load quickly. Move large examples, templates, reference material, and executable logic into sibling folders such as `templates/`, `checklists/`, or `scripts/`.
+Keep the `SKILL.md` body to 200 lines or fewer (counting only lines in the `SKILL.md` file itself, after the YAML frontmatter closing `---` delimiter). Content moved to sibling folders does not count toward this limit. Move large examples, templates, reference material, and executable logic into sibling folders such as `templates/`, `checklists/`, or `scripts/`. If the 200-line limit cannot be met while covering all required sections, move procedure details and safety rules into sibling files (e.g., `checklists/safety.md`) and reference them from `SKILL.md`.
 
 When a skill generates structured artifacts:
 
@@ -108,6 +129,20 @@ Orchestrator agents must:
 - Preserve scope summary, assumptions, out-of-scope items, selected runner, auth policy, safety constraints, and known artifacts across handoffs.
 - Stop when required skills, agents, tools, credentials policy, or safety details are unavailable.
 - Summarize files changed, validation performed, blockers, and recommended next steps.
+
+Use this handoff context block when delegating between agents:
+
+```text
+Scope:
+Assumptions:
+Out of scope:
+Selected runner:
+Auth policy:
+Safety constraints:
+Known artifacts:
+Validation required:
+Blockers:
+```
 
 Private agents should not be user-invocable unless there is a clear, documented reason.
 
@@ -192,7 +227,7 @@ Every new or changed skill, agent, MCP tool, schema, or script should have enoug
 
 ## Implementation Workflow
 
-For non-trivial changes:
+A change is non-trivial if it modifies code, schemas, scripts, agent definitions, skill definitions, or any generated artifact. Documentation-only edits that do not change behavior are trivial.
 
 1. Define the expected behavior and out-of-scope behavior.
 2. Identify risks, dependencies, safety gates, and validation needs.
