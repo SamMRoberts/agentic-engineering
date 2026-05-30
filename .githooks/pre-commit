@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Repo-managed pre-commit hook.
+# Enable once with: git config core.hooksPath .githooks
+
+set -euo pipefail
+
+# Only run when files relevant to the marketplace changed.
+if git diff --cached --name-only \
+    | grep -Eq '^plugins/|^scripts/sync-marketplace\.mjs$'; then
+    if ! node scripts/sync-marketplace.mjs --check >/dev/null; then
+        echo "plugins/marketplace.json is out of date." >&2
+        echo "Run: node scripts/sync-marketplace.mjs && git add plugins/marketplace.json" >&2
+        exit 1
+    fi
+fi
