@@ -7,5 +7,14 @@
         "web-frontend-testing-plan",
         "web-frontend-testing-execution",
         "web-frontend-testing-results"
-    ]
+    ],
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest"
+            ]
+        }
+    }
 }
