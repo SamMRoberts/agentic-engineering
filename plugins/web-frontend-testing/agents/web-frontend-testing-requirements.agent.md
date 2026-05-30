@@ -38,17 +38,13 @@ You own the **intake gate** and the **codebase scan** stages. Decide if scope is
 
 Block production targets unless the user explicitly confirms read-only execution.
 
+## Skills
+
+- `scan-web-frontend-codebase` — required for the codebase scan stage. Confirm it is available before scanning; if missing, fail the stage and report the blocker. Forward its Surface Inventory verbatim.
+
 ## Codebase Scan Procedure
 
-Use `search` and `read` only:
-
-- **Framework**: `package.json` deps (`react`, `next`, `vue`, `svelte`, `angular`, `astro`, `remix`).
-- **Routes**: `app/**/page.*`, `pages/**/*.{ts,tsx,js,jsx,vue,svelte}`, `src/routes/**`, framework route manifests.
-- **Interactive surfaces**: `<form`, `onSubmit`, `useForm`, button handlers, file inputs, modals/dialogs.
-- **Auth surfaces**: `login`, `signin`, `signup`, `auth`, `session`, `cookie`, OAuth providers.
-- **A11y signals**: ARIA roles, `aria-*` attributes, `role=`, focus traps, skip links.
-- **Destructive flows**: payment, delete, send, transfer, admin verbs in handler names.
-- **Existing tests**: `**/*.spec.ts`, `**/*.test.ts`, `playwright.config.*`, `cypress.config.*`, `e2e/**`.
+Delegate the scan to the `scan-web-frontend-codebase` skill. Provide the repository root, in-scope and out-of-scope folders, and any user-stated framework hints. The skill returns a Surface Inventory covering framework, routes, interactive flows, auth surfaces, a11y signals, destructive flows, existing tests, and coverage gaps.
 
 ## Output
 

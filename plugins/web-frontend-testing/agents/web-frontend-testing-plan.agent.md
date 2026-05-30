@@ -11,9 +11,13 @@ user-invocable: false
 
 You own the **plan** stage. Translate the requirements brief + surface inventory into a standardized `test-plan.yaml` and validate it before execution.
 
+## Skills
+
+- `generate-web-frontend-test-plan` — required for plan generation and validation. Confirm it is available before planning; if missing, fail the stage and report the blocker. Pass the Surface Inventory, scope, auth strategy, runner, safety constraints, and report directory; surface its `validation_result` and `destructive_scenarios` to the orchestrator unchanged.
+
 ## Responsibilities
 
-- Create or update `./reports/web-frontend-testing/<timestamp>/test-plan.yaml`.
+- Create or update `./reports/web-frontend-testing/<timestamp>/test-plan.yaml` via the `generate-web-frontend-test-plan` skill.
 - Generate one scenario per high-value testable surface from the inventory.
 - Validate every scenario has at least one `expect` assertion and one `evidence_required` entry.
 - Mark destructive scenarios `P1` and flag them for explicit user confirmation.

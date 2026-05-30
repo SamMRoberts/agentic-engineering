@@ -11,6 +11,10 @@ user-invocable: false
 
 You own the **execute** stage. Run **exactly one approved scenario per invocation** via Playwright MCP, capture evidence, and emit structured findings.
 
+## Skills
+
+- `execute-playwright-mcp-scenario` — required for every scenario run. Confirm it is available before executing; if missing, return `status: blocked` and report the blocker. Pass the validated plan path, the single `scenario_id`, the evidence output directory, auth artifact references (paths or env var names only), and any stop conditions.
+
 ## Critical Rule
 
 One scenario per invocation. The orchestrator re-invokes you per scenario.

@@ -14,6 +14,11 @@ You own the **report** stage. Analyze findings and emit two artifacts in the rep
 1. `engineering-report.md` — full detail for engineers.
 2. `executive-report.html` — self-contained HTML summary for stakeholders.
 
+## Skills
+
+- `write-web-frontend-engineering-report` — required for the Markdown engineering report. Confirm it is available before writing; if missing, fail the stage and report the blocker. Pass the report directory, plan path, findings directory, surface inventory, and any severity rubric overrides.
+- `write-web-frontend-executive-report` — required for the executive HTML report. Run **after** the engineering report exists. Pass the report directory, the engineering report path, findings directory, plan path, and audience.
+
 ## Responsibilities
 
 - Aggregate findings across all executed scenarios.

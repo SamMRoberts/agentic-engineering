@@ -14,12 +14,13 @@ You are the only user-invocable agent in this plugin. You coordinate a five-stag
 
 ## Subagent Delegation Table
 
-| User intent | Delegate to |
-| --- | --- |
-| Intake gating, guided requirement questions, codebase scan / surface inventory | `web-frontend-testing-requirements` |
-| Generate or refine the standardized `test-plan.yaml`; validate scenarios | `web-frontend-testing-plan` |
-| Execute one approved Playwright MCP scenario and capture evidence/findings | `web-frontend-testing-execution` |
-| Produce the engineering Markdown report and the executive HTML report | `web-frontend-testing-results` |
+| User intent | Delegate to | Skill the subagent invokes |
+| --- | --- | --- |
+| Intake gating, guided requirement questions, codebase scan / surface inventory | `web-frontend-testing-requirements` | `scan-web-frontend-codebase` |
+| Generate or refine the standardized `test-plan.yaml`; validate scenarios | `web-frontend-testing-plan` | `generate-web-frontend-test-plan` |
+| Execute one approved Playwright MCP scenario and capture evidence/findings | `web-frontend-testing-execution` | `execute-playwright-mcp-scenario` |
+| Produce the engineering Markdown report | `web-frontend-testing-results` | `write-web-frontend-engineering-report` |
+| Produce the executive HTML report | `web-frontend-testing-results` | `write-web-frontend-executive-report` |
 
 ## Orchestration Flow
 

@@ -1,0 +1,66 @@
+# Standardized Playwright MCP test plan template.
+# Replace placeholders surrounded by <> and remove any unused optional fields.
+
+plan_version: 1
+
+target:
+  url: <https://example.com>
+  stage: local # local | staging | production
+  auth_strategy: none # none | shared | per_test_seed | storage_state
+  # dev_command: <npm run dev>  # optional
+
+runner: playwright-mcp
+
+safety:
+  destructive_actions_allowed: false
+  forbidden_selectors: []
+  forbidden_urls: []
+
+scope:
+  in_scope:
+    - <route or flow>
+  out_of_scope:
+    - <route or flow>
+
+scenarios:
+  - id: home-route-smoke
+    title: Home route renders without console errors
+    priority: P2
+    surface: route
+    preconditions:
+      - App reachable at target.url
+    steps:
+      - action: navigate
+        target: <url>
+        expect: HTTP 200 and DOM ready
+      - action: snapshot
+        target: body
+        expect: Page contains primary landmark (main / nav / footer)
+    success_criteria:
+      - No uncaught console errors
+      - Primary landmark visible
+    evidence_required:
+      - snapshot
+      - console
+
+  - id: signin-form-validation
+    title: Sign-in form rejects empty submission
+    priority: P2
+    surface: form
+    preconditions:
+      - Sign-in route reachable
+      - No active session
+    steps:
+      - action: navigate
+        target: <signin-url>
+        expect: Sign-in form visible
+      - action: click
+        target: button[type="submit"]
+        expect: Inline validation messages appear
+    success_criteria:
+      - Submit blocked without credentials
+      - Accessible error messaging present
+    evidence_required:
+      - snapshot
+      - console
+      - network
