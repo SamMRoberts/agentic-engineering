@@ -1,6 +1,6 @@
 # web-frontend-testing
 
-Orchestrated Playwright workflow for web frontend testing. The plugin coordinates intake, codebase scanning, plan generation, execution, and reporting through one user-facing orchestrator and a small set of private subagents.
+Orchestrated Playwright workflow for web frontend testing. The plugin coordinates intake, codebase scanning, plan generation, execution, reporting, and interactive report review through one user-facing orchestrator and a small set of private subagents.
 
 Playwright CLI is the preferred runner for execution and regression work. Playwright MCP remains available for live browser exploration, scenario discovery, and MCP-specific evidence capture. A `hybrid` runner supports MCP discovery followed by CLI regression.
 
@@ -22,6 +22,7 @@ Playwright CLI is the preferred runner for execution and regression work. Playwr
   - `write-web-frontend-engineering-report`
   - `write-web-frontend-executive-report`
 - **Schemas, hooks, and validators** that enforce the plan contract, block credential literals, and require approval for `playwright/browser_evaluate`.
+- **MCP report viewer app**: `mcp-app/` registers `web-frontend-report-viewer`, which exposes `view_executive_report` for interactive report triage and `update_test_plan` for confirmation-gated plan edits.
 
 ## Runner selection
 
@@ -59,6 +60,7 @@ Ask the orchestrator agent for one of:
 - "Convert approved scenarios into Playwright CLI specs under `tests/web-frontend`."
 - "Explore the frontend interactively with Playwright MCP and capture evidence."
 - "Generate the engineering and executive reports for the latest test run."
+- "Open the interactive report viewer for the latest web frontend test report."
 
 The orchestrator stops on missing intake details (URL, stage, auth, runner, destructive-action policy) rather than guessing.
 
@@ -75,6 +77,12 @@ npm run validate:plan -- ./reports/web-frontend-testing/<timestamp>/test-plan.ya
 
 # Generate Playwright CLI specs from a validated plan
 npm run generate:tests -- --plan ./reports/web-frontend-testing/<timestamp>/test-plan.yaml --out tests/web-frontend
+
+# Run MCP report viewer tests
+npm run test:mcp-app
+
+# Build the MCP report viewer bundle
+npm run build:mcp-app
 ```
 
 Exit codes for the validators and generator: `0` on success, `1` on validation errors, `2` on bad usage or missing files.
@@ -87,6 +95,7 @@ Exit codes for the validators and generator: `0` on success, `1` on validation e
 - CLI sessions must not log secrets; pre-test auth sessions never type, paste, or screenshot credentials.
 - `pre_test_auth_session` is incompatible with `auth_strategy: per_test_seed`.
 - `playwright/browser_evaluate` invocations require user approval via the `confirm-browser-evaluate` hook.
+- `web-frontend-report-viewer/update_test_plan` validates dry runs without writing. Non-dry writes require explicit `confirmedWrite: true` and still refuse invalid plans.
 
 ## Package structure
 
@@ -104,16 +113,17 @@ plugins/web-frontend-testing/
 ├── skills/                         # SKILL.md per workflow step
 ├── hooks/                          # block credentials, gate evaluate, validate plan
 ├── lib/                            # shared validators, schema utils, yaml utils
+├── mcp-app/                        # MCP report viewer app and report-plan editor
 ├── schemas/                        # JSON Schema (draft 2020-12) for test plans
 └── test/                           # node:test suites and fixtures
 ```
 
 ## Architecture and delegation
 
-The orchestrator agent owns request classification and stops on missing safety details. Every stage is delegated to a private subagent; the orchestrator does not edit files, run shell commands, or drive browser tools. The plan agent chooses the runner per the policy above and propagates it through every handoff. CLI execution is isolated in its own private agent so MCP and CLI tool surfaces stay separate.
+The orchestrator agent owns request classification and stops on missing safety details. Every stage is delegated to a private subagent; the orchestrator does not edit files, run shell commands, or drive browser tools. The plan agent chooses the runner per the policy above and propagates it through every handoff. CLI execution is isolated in its own private agent so MCP and CLI tool surfaces stay separate. The results agent can open the registered MCP report viewer after both static report artifacts exist; the plan agent can use the viewer's plan update tool only after a passing dry run and explicit user confirmation.
 
 ## Known limitations
 
 - The CLI runner requires the consuming repository to have Playwright installed (typically via `@playwright/test`).
 - The plan validator does not currently lint generated `.spec.ts` files; CI in the consuming repo should run `npx playwright test --list` as a discovery sanity check.
-- The optional MCP App under `mcp-app/` is independent of CLI workflow changes.
+- The MCP report viewer requires a host that supports MCP App resources for the interactive UI. Non-UI hosts still receive the tool's plain-text fallback summary.

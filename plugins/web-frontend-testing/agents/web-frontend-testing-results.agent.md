@@ -1,8 +1,8 @@
 ---
 name: web-frontend-testing-results
-description: 'Use when analyzing Playwright frontend findings and generating reports. Produces the engineering Markdown report and the self-contained executive HTML report. Owns severity triage, coverage gaps, and regression candidate recommendations.'
-argument-hint: 'Report directory, plan path, findings directory, target audience for the executive report, and any severity rubric overrides.'
-tools: [read, edit, search]
+description: 'Use when analyzing Playwright frontend findings, generating reports, and opening the interactive MCP report viewer. Produces the engineering Markdown report and the self-contained executive HTML report. Owns severity triage, coverage gaps, regression candidate recommendations, and optional report viewer handoff.'
+argument-hint: 'Report directory, plan path, findings directory, target audience for the executive report, severity rubric overrides, and whether to open the interactive MCP report viewer.'
+tools: [read, edit, search, web-frontend-report-viewer/view_executive_report]
 model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5.5 (copilot)']
 user-invocable: false
 ---
@@ -19,6 +19,10 @@ You own the **report** stage. Analyze findings and emit two artifacts in the rep
 - `write-web-frontend-engineering-report` — required for the Markdown engineering report. Confirm it is available before writing; if missing, fail the stage and report the blocker. Pass the report directory, plan path, findings directory, surface inventory, and any severity rubric overrides.
 - `write-web-frontend-executive-report` — required for the executive HTML report. Run **after** the engineering report exists. Pass the report directory, the engineering report path, findings directory, plan path, and audience.
 
+## MCP App Tool
+
+- `web-frontend-report-viewer/view_executive_report` — optional report viewer handoff. Use after `engineering-report.md` and `executive-report.html` exist, when the user requested an interactive report view or the orchestrator asks for viewer output. Pass the report directory. Return its text fallback and structured counts/paths unchanged. If the tool is unavailable and the viewer was requested, report a blocker; otherwise continue with static report paths.
+
 ## Responsibilities
 
 - Aggregate findings across all executed scenarios.
@@ -26,6 +30,7 @@ You own the **report** stage. Analyze findings and emit two artifacts in the rep
 - Classify severity (critical/high/medium/low/info) and category.
 - Identify coverage gaps from the plan vs. the surface inventory.
 - Recommend regression candidates worth promoting to Playwright CLI tests in a separate workflow.
+- Open the MCP report viewer for the report directory after both static reports exist when requested or explicitly routed by the orchestrator.
 
 ## Boundaries
 
@@ -34,6 +39,7 @@ You own the **report** stage. Analyze findings and emit two artifacts in the rep
 - DO NOT claim findings are confirmed without evidence references.
 - DO NOT include credentials, tokens, cookies, or PII in either report. Redact before writing.
 - DO NOT embed external assets (fonts, scripts, images via URL) in the executive HTML.
+- DO NOT call the report viewer before both report artifacts exist unless the caller explicitly asked for a partial viewer load.
 
 ## Engineering Report (`engineering-report.md`)
 
@@ -72,4 +78,5 @@ Return:
 - `missing_evidence` and `false_positive_candidates`
 - `coverage_gaps`
 - `regression_candidates`
+- `report_viewer`: `{ attempted, opened, report_dir, warnings }` when the MCP report viewer is used
 - `recommended_next_action`: e.g., "re-run scenario X with auth", "promote P1 candidates to Playwright CLI workflow"

@@ -74,7 +74,7 @@ Never type, store, log, or screenshot credentials.
 3. Run the pre-test auth session when configured; stop on blockers.
 4. Invoke `run-playwright-cli-frontend-test` with the resolved target, session visibility, and output directory.
 5. Collect: command run, exit code, Playwright HTML report path, screenshots, traces, videos, stdout/stderr excerpts (redacted), failing test titles, and mapped scenario IDs.
-6. Write findings (if any) to `<report_dir>/findings/<scenario-id>.yaml` using the existing finding schema in [../skills/execute-playwright-mcp-scenario/templates/finding.template.yaml](../skills/execute-playwright-mcp-scenario/templates/finding.template.yaml).
+6. Write findings (if any) to `<report_dir>/findings/<scenario-id>.yaml` using the shared finding schema currently stored at [../skills/execute-playwright-mcp-scenario/templates/finding.template.yaml](../skills/execute-playwright-mcp-scenario/templates/finding.template.yaml). The template is shared by CLI and MCP findings even though it lives under the MCP execution skill.
 
 ## Stop Immediately When
 

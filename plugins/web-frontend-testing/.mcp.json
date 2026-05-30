@@ -6,6 +6,15 @@
                 "-y",
                 "@playwright/mcp@latest"
             ]
+        },
+        "web-frontend-report-viewer": {
+            "command": "npm",
+            "args": [
+                "--prefix",
+                "./mcp-app",
+                "run",
+                "start:stdio"
+            ]
         }
     }
 }
