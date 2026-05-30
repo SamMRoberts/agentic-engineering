@@ -7,30 +7,68 @@ on:
       - 'plugins/**'
       - '.github/scripts/**/*.mjs'
       - 'scripts/**/*.mjs'
+      - '.github/workflows/validate-plugins.yml'
   pull_request:
     branches: [main]
     paths:
       - 'plugins/**'
       - '.github/scripts/**/*.mjs'
       - 'scripts/**/*.mjs'
+      - '.github/workflows/validate-plugins.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  validate:
+  structure:
+    name: Validate plugin structure
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        plugin: [web-ux-testing]
-
+    outputs:
+      plugins: ${{ steps.list.outputs.plugins }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate structure (every plugin)
+        run: node .github/scripts/validate-plugin-structure.mjs
+
+      - name: Discover plugin list for matrix
+        id: list
+        run: |
+          plugins=$(ls -1 plugins \
+            | while read -r entry; do
+                if [ -d "plugins/$entry" ]; then
+                  echo "$entry"
+                fi
+              done \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          if [ "$plugins" = "[]" ]; then
+            echo "ERROR: no plugins discovered in plugins/"
+            exit 1
+          fi
+          echo "plugins=$plugins" >> "$GITHUB_OUTPUT"
+          echo "Discovered plugins: $plugins"
+
+  test:
+    name: Test plugin
+    needs: structure
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJSON(needs.structure.outputs.plugins) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: plugins/${{ matrix.plugin }}/package-lock.json
 
       - name: Install dependencies
         working-directory: plugins/${{ matrix.plugin }}
@@ -40,27 +78,7 @@ jobs:
         working-directory: plugins/${{ matrix.plugin }}
         run: npm test
 
-      - name: Validate plugin structure
-        working-directory: plugins/${{ matrix.plugin }}
-        run: |
-          echo "=== Validating plugin structure ==="
-
-          # Check required files exist
-          for file in plugin.json package.json; do
-            if [ ! -f "$file" ]; then
-              echo "ERROR: Missing required file: $file"
-              exit 1
-            fi
-          done
-
-          # Check skills directory exists
-          if [ ! -d "skills" ]; then
-            echo "ERROR: Missing skills directory"
-            exit 1
-          fi
-
-          echo "Plugin structure OK"
-
       - name: Validate skill script references
         working-directory: plugins/${{ matrix.plugin }}
         run: node ../../.github/scripts/validate-skill-refs.mjs
+
