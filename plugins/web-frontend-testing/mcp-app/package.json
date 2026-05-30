@@ -1,12 +1,13 @@
 {
   "name": "web-frontend-report-viewer",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "MCP App that renders an interactive triage viewer for web-frontend-testing executive reports.",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc --noEmit && cross-env INPUT=mcp-app.html vite build",
+    "test": "node --import tsx --test test/**/*.test.ts",
     "watch": "cross-env INPUT=mcp-app.html vite build --watch",
     "serve": "tsx main.ts",
     "serve:stdio": "tsx main.ts --stdio",

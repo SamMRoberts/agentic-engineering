@@ -304,7 +304,7 @@ async function runUpdatePlan(dryRun: boolean) {
     try {
         const result = await app.callServerTool({
             name: "update_test_plan",
-            arguments: { planPath: payload.planPath, planYaml, dryRun }
+            arguments: { planPath: payload.planPath, planYaml, dryRun, confirmedWrite: !dryRun }
         });
         const structured = result.structuredContent as UpdatePlanPayload | undefined;
         if (!structured) {
@@ -398,7 +398,7 @@ function handleHostContextChanged(ctx: McpUiHostContext) {
 
 // ----- App lifecycle -----
 
-const app = new App({ name: "Web Frontend Report Viewer", version: "0.2.0" });
+const app = new App({ name: "Web Frontend Report Viewer", version: "0.3.0" });
 
 app.onteardown = async () => ({});
 app.onerror = (err) => {

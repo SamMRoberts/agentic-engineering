@@ -64,7 +64,20 @@ interface UpdatePlanPayload {
     planYaml: string;
     written: boolean;
     dryRun: boolean;
+    confirmationRequired: boolean;
     validation: PlanValidationResult;
+}
+
+interface UpdatePlanRequest {
+    planPath: string;
+    planYaml: string;
+    dryRun?: boolean;
+    confirmedWrite?: boolean;
+}
+
+interface UpdatePlanResult {
+    isError: boolean;
+    payload: UpdatePlanPayload;
 }
 
 async function readYamlIfPresent(filePath: string): Promise<unknown | null> {
@@ -237,6 +250,9 @@ function renderUpdateTextFallback(payload: UpdatePlanPayload): string {
         payload.dryRun ? "Plan validation (dry-run)" : payload.written ? "Plan updated" : "Plan validation"
     );
     lines.push(`Plan: ${payload.planPath}`);
+    if (payload.confirmationRequired) {
+        lines.push("Write refused: confirmedWrite=true is required for non-dry writes.");
+    }
     lines.push(`Errors: ${payload.validation.errors.length}`);
     lines.push(`Warnings: ${payload.validation.warnings.length}`);
     for (const e of payload.validation.errors) lines.push(`ERROR: ${e}`);
@@ -249,10 +265,63 @@ const validationSchema = z.object({
     warnings: z.array(z.string())
 });
 
+export async function updateTestPlan({
+    planPath,
+    planYaml,
+    dryRun,
+    confirmedWrite
+}: UpdatePlanRequest): Promise<UpdatePlanResult> {
+    const absolute = path.resolve(planPath);
+    const dry = dryRun === true;
+    const confirmationRequired = !dry && confirmedWrite !== true;
+
+    let parsed: unknown;
+    try {
+        parsed = YAML.parse(planYaml);
+    } catch (err) {
+        const validation: PlanValidationResult = {
+            errors: [`Could not parse YAML: ${String(err)}`],
+            warnings: []
+        };
+        return {
+            isError: true,
+            payload: {
+                planPath: absolute,
+                planYaml,
+                written: false,
+                dryRun: dry,
+                confirmationRequired,
+                validation
+            }
+        };
+    }
+
+    const validation = safeValidate(parsed);
+    const hasErrors = validation.errors.length > 0;
+    const written = !dry && !confirmationRequired && !hasErrors;
+
+    if (written) {
+        await fs.mkdir(path.dirname(absolute), { recursive: true });
+        await fs.writeFile(absolute, planYaml, "utf-8");
+    }
+
+    return {
+        isError: hasErrors || confirmationRequired,
+        payload: {
+            planPath: absolute,
+            planYaml,
+            written,
+            dryRun: dry,
+            confirmationRequired,
+            validation
+        }
+    };
+}
+
 export function createServer(): McpServer {
     const server = new McpServer({
         name: "Web Frontend Report Viewer",
-        version: "0.2.0"
+        version: "0.3.0"
     });
 
     const resourceUri = "ui://web-frontend-report-viewer/mcp-app.html";
@@ -316,7 +385,7 @@ export function createServer(): McpServer {
         {
             title: "Validate or save a test plan",
             description:
-                "Validate or write a test-plan.yaml. Set dryRun=true to validate without writing. Refuses to write when validation produces errors. Returns the validation result and (when written) confirmation.",
+                "Validate or write a test-plan.yaml. Set dryRun=true to validate without writing. Non-dry writes require confirmedWrite=true and refuse to write when validation produces errors. Returns the validation result and (when written) confirmation.",
             inputSchema: {
                 planPath: z
                     .string()
@@ -329,61 +398,26 @@ export function createServer(): McpServer {
                 dryRun: z
                     .boolean()
                     .optional()
-                    .describe("When true, only validate; do not write the file. Default false.")
+                    .describe("When true, only validate; do not write the file. Default false."),
+                confirmedWrite: z
+                    .boolean()
+                    .optional()
+                    .describe("Required as true for non-dry writes after explicit user confirmation.")
             },
             outputSchema: z.object({
                 planPath: z.string(),
                 planYaml: z.string(),
                 written: z.boolean(),
                 dryRun: z.boolean(),
+                confirmationRequired: z.boolean(),
                 validation: validationSchema
             }),
             _meta: { ui: { resourceUri } }
         },
-        async ({ planPath, planYaml, dryRun }): Promise<CallToolResult> => {
-            const absolute = path.resolve(planPath);
-            const dry = dryRun === true;
-
-            let parsed: unknown;
-            try {
-                parsed = YAML.parse(planYaml);
-            } catch (err) {
-                const validation: PlanValidationResult = {
-                    errors: [`Could not parse YAML: ${String(err)}`],
-                    warnings: []
-                };
-                const payload: UpdatePlanPayload = {
-                    planPath: absolute,
-                    planYaml,
-                    written: false,
-                    dryRun: dry,
-                    validation
-                };
-                return {
-                    isError: true,
-                    content: [{ type: "text", text: renderUpdateTextFallback(payload) }],
-                    structuredContent: payload as unknown as Record<string, unknown>
-                };
-            }
-
-            const validation = safeValidate(parsed);
-            const hasErrors = validation.errors.length > 0;
-            const written = !dry && !hasErrors;
-
-            if (written) {
-                await fs.mkdir(path.dirname(absolute), { recursive: true });
-                await fs.writeFile(absolute, planYaml, "utf-8");
-            }
-
-            const payload: UpdatePlanPayload = {
-                planPath: absolute,
-                planYaml,
-                written,
-                dryRun: dry,
-                validation
-            };
+        async ({ planPath, planYaml, dryRun, confirmedWrite }): Promise<CallToolResult> => {
+            const { isError, payload } = await updateTestPlan({ planPath, planYaml, dryRun, confirmedWrite });
             return {
-                isError: hasErrors,
+                isError,
                 content: [{ type: "text", text: renderUpdateTextFallback(payload) }],
                 structuredContent: payload as unknown as Record<string, unknown>
             };

@@ -1,7 +1,7 @@
 {
     "name": "web-frontend-testing",
-    "version": "0.2.0",
-    "description": "Orchestrated Playwright workflow for web frontend testing: guided requirements intake, codebase surface scan, standardized test plan, Playwright CLI execution (preferred) with optional visible session and pre-test manual authentication, Playwright MCP exploration, and dual engineering/executive reporting.",
+    "version": "0.3.0",
+    "description": "Orchestrated Playwright workflow for web frontend testing: guided requirements intake, codebase surface scan, standardized test plan, Playwright CLI execution (preferred) with optional visible session and pre-test manual authentication, Playwright MCP exploration, dual engineering/executive reporting, and an interactive MCP report viewer.",
     "author": {
         "name": "Sam Roberts"
     },
@@ -15,6 +15,8 @@
         "web-frontend",
         "ui-testing",
         "regression",
+        "report-viewer",
+        "mcp-app",
         "authentication",
         "accessibility",
         "testing"
@@ -32,7 +34,7 @@
     "interface": {
         "displayName": "Web Frontend Testing",
         "shortDescription": "Plan, run, and report Playwright CLI (preferred) or MCP tests for web frontends.",
-        "longDescription": "User-facing orchestrator that walks a five-stage Playwright workflow (intake → codebase scan → plan → execute → report). It auto-detects testable surfaces from the repository, generates a standardized test-plan.yaml, prefers Playwright CLI execution (existing specs, generated specs from the plan, plan commands, or grep targets) with optional visible CLI sessions and an optional pre-test manual authentication session so the user can sign in before tests run, falls back to Playwright MCP for live exploration or MCP evidence capture, and emits both an engineering Markdown report and a self-contained accessible executive HTML summary.",
+        "longDescription": "User-facing orchestrator that walks a five-stage Playwright workflow (intake → codebase scan → plan → execute → report). It auto-detects testable surfaces from the repository, generates a standardized test-plan.yaml, prefers Playwright CLI execution (existing specs, generated specs from the plan, plan commands, or grep targets) with optional visible CLI sessions and an optional pre-test manual authentication session so the user can sign in before tests run, falls back to Playwright MCP for live exploration or MCP evidence capture, emits both an engineering Markdown report and a self-contained accessible executive HTML summary, and can open those outputs in the bundled interactive MCP report viewer.",
         "developerName": "Sam Roberts",
         "category": "Testing",
         "capabilities": [
@@ -48,7 +50,8 @@
             "Start a visible Playwright CLI session so I can sign in manually before tests run.",
             "Convert approved scenarios into Playwright CLI specs under tests/web-frontend.",
             "Explore the frontend interactively with Playwright MCP and capture evidence.",
-            "Generate the engineering and executive reports for the latest test run."
+            "Generate the engineering and executive reports for the latest test run.",
+            "Open the interactive report viewer for the latest web frontend test report."
         ],
         "brandColor": "#1D4ED8",
         "screenshots": []

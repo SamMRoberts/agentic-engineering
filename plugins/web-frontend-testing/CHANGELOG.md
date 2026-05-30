@@ -2,6 +2,24 @@
 
 All notable changes to the `web-frontend-testing` plugin are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the plugin uses [semantic versioning](https://semver.org/).
 
+## 0.3.0 — 2026-05-30
+
+### Added
+
+- Registered the bundled `web-frontend-report-viewer` MCP app in the plugin MCP manifests.
+- Routed the results agent to `view_executive_report` after static report generation when an interactive report view is requested.
+- Added confirmation-gated `update_test_plan` support for validated plan edits through the MCP report viewer.
+- Added MCP app tests covering dry-run validation, refused unconfirmed writes, refused invalid writes, and confirmed valid writes.
+
+### Changed
+
+- The orchestrator, plan agent, results agent, and requirements agent now carry interactive report viewer preferences and state through the workflow.
+- Documentation now includes MCP report viewer usage, validation commands, safety defaults, and host registration guidance.
+
+### Validation
+
+- `npm --prefix mcp-app test` runs 4 MCP app tests for the plan update safety gate.
+
 ## 0.2.0 — 2026-05-30
 
 ### Added

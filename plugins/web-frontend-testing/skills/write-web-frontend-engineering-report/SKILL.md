@@ -7,7 +7,7 @@ user-invocable: false
 
 # Write Web Frontend Engineering Report
 
-Aggregate Playwright MCP findings into a single `engineering-report.md` for engineers.
+Aggregate Playwright CLI and MCP findings into a single `engineering-report.md` for engineers.
 
 ## When to Use
 
