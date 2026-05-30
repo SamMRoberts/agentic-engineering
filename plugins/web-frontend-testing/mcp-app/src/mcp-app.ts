@@ -1,7 +1,8 @@
 /**
  * MCP App client for the Web Frontend Report Viewer.
- * Receives a structured report payload via app.ontoolresult and renders an
- * interactive findings triage view.
+ *
+ * Renders an interactive findings triage view AND a plan editor with
+ * Validate/Save backed by the `update_test_plan` MCP tool.
  */
 import {
     App,
@@ -30,9 +31,16 @@ interface Finding {
     suggested_fix?: string;
 }
 
+interface ValidationResult {
+    errors: string[];
+    warnings: string[];
+}
+
 interface ReportPayload {
     reportDir: string;
     planPath: string | null;
+    planYaml: string | null;
+    planValidation: ValidationResult | null;
     run: {
         url?: string;
         stage?: string;
@@ -49,17 +57,57 @@ interface ReportPayload {
     warnings: string[];
 }
 
-const metaEl = document.getElementById("meta")!;
-const filterRow = document.getElementById("filter-row")!;
-const findingListEl = document.getElementById("finding-list")!;
-const emptyStateEl = document.getElementById("empty-state")!;
-const visibleCountEl = document.getElementById("visible-count")!;
-const openHtmlBtn = document.getElementById("open-html-btn") as HTMLButtonElement;
-const warningsEl = document.getElementById("warnings")!;
-const warningsListEl = document.getElementById("warnings-list")!;
+interface UpdatePlanPayload {
+    planPath: string;
+    planYaml: string;
+    written: boolean;
+    dryRun: boolean;
+    validation: ValidationResult;
+}
+
+// ----- Element refs -----
+
+function el<T extends HTMLElement = HTMLElement>(id: string): T {
+    const node = document.getElementById(id);
+    if (!node) throw new Error(`Missing #${id}`);
+    return node as T;
+}
+
+const metaEl = el("meta");
+const filterRow = el("filter-row");
+const findingListEl = el("finding-list");
+const emptyStateEl = el("empty-state");
+const visibleCountEl = el("visible-count");
+const openHtmlBtn = el<HTMLButtonElement>("open-html-btn");
+const warningsEl = el("warnings");
+const warningsListEl = el("warnings-list");
+
+const tabFindings = el<HTMLButtonElement>("tab-findings");
+const tabPlan = el<HTMLButtonElement>("tab-plan");
+const panelFindings = el("panel-findings");
+const panelPlan = el("panel-plan");
+
+const planPathEl = el("plan-path");
+const planEmptyEl = el("plan-empty");
+const planTextarea = el<HTMLTextAreaElement>("plan-textarea");
+const planActions = el("plan-actions");
+const planValidateBtn = el<HTMLButtonElement>("plan-validate-btn");
+const planSaveBtn = el<HTMLButtonElement>("plan-save-btn");
+const planResetBtn = el<HTMLButtonElement>("plan-reset-btn");
+const planDirtyEl = el("plan-dirty");
+const planStatusEl = el("plan-status");
+const planIssuesEl = el<HTMLDetailsElement>("plan-issues");
+const planIssuesSummary = el("plan-issues-summary");
+const planErrorsEl = el("plan-errors");
+const planWarningsEl = el("plan-warnings");
+
+// ----- State -----
 
 const activeFilters = new Set<Severity>(SEVERITIES);
 let currentPayload: ReportPayload | null = null;
+let lastLoadedPlanYaml: string | null = null;
+
+// ----- Helpers -----
 
 function escapeHtml(value: unknown): string {
     return String(value ?? "").replace(/[&<>"']/g, (ch) => {
@@ -78,6 +126,8 @@ function severityClass(sev: string): Severity {
     const s = sev.toLowerCase();
     return (SEVERITIES as readonly string[]).includes(s) ? (s as Severity) : "info";
 }
+
+// ----- Findings rendering -----
 
 function renderMeta(payload: ReportPayload) {
     const rows: Array<[string, string | undefined]> = [
@@ -182,10 +232,141 @@ function renderWarnings(payload: ReportPayload) {
         return;
     }
     warningsEl.hidden = false;
-    warningsListEl.innerHTML = payload.warnings
-        .map((w) => `<li>${escapeHtml(w)}</li>`)
-        .join("");
+    warningsListEl.innerHTML = payload.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join("");
 }
+
+// ----- Plan editor -----
+
+function setPlanStatus(message: string, kind: "" | "ok" | "error" = "") {
+    planStatusEl.textContent = message;
+    planStatusEl.className = "plan-status" + (kind ? ` ${kind}` : "");
+}
+
+function renderPlanIssues(validation: ValidationResult | null) {
+    if (!validation || (validation.errors.length === 0 && validation.warnings.length === 0)) {
+        planIssuesEl.hidden = true;
+        planErrorsEl.innerHTML = "";
+        planWarningsEl.innerHTML = "";
+        return;
+    }
+    planIssuesEl.hidden = false;
+    planIssuesEl.open = validation.errors.length > 0;
+    planIssuesSummary.textContent = `Validation — ${validation.errors.length} error(s), ${validation.warnings.length} warning(s)`;
+    planErrorsEl.innerHTML = validation.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("");
+    planWarningsEl.innerHTML = validation.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join("");
+}
+
+function updatePlanDirty() {
+    if (!currentPayload) return;
+    const dirty = planTextarea.value !== lastLoadedPlanYaml;
+    planDirtyEl.hidden = !dirty;
+    planSaveBtn.disabled = !dirty || !currentPayload.planPath;
+}
+
+function renderPlanEditor(payload: ReportPayload) {
+    if (!payload.planPath || payload.planYaml == null) {
+        planEmptyEl.hidden = false;
+        planTextarea.hidden = true;
+        planActions.hidden = true;
+        planPathEl.textContent = "—";
+        renderPlanIssues(null);
+        setPlanStatus("");
+        return;
+    }
+    planEmptyEl.hidden = true;
+    planTextarea.hidden = false;
+    planActions.hidden = false;
+    planPathEl.textContent = payload.planPath;
+
+    lastLoadedPlanYaml = payload.planYaml;
+    planTextarea.value = payload.planYaml;
+    renderPlanIssues(payload.planValidation);
+
+    if (payload.planValidation && payload.planValidation.errors.length > 0) {
+        setPlanStatus("Plan has validation errors.", "error");
+    } else if (payload.planValidation && payload.planValidation.warnings.length > 0) {
+        setPlanStatus("Plan is valid with warnings.", "");
+    } else {
+        setPlanStatus("Plan is valid.", "ok");
+    }
+    updatePlanDirty();
+}
+
+async function runUpdatePlan(dryRun: boolean) {
+    if (!currentPayload || !currentPayload.planPath) return;
+    const payload = currentPayload;
+    const planYaml = planTextarea.value;
+
+    setPlanStatus(dryRun ? "Validating…" : "Saving…");
+    planValidateBtn.disabled = true;
+    planSaveBtn.disabled = true;
+
+    try {
+        const result = await app.callServerTool({
+            name: "update_test_plan",
+            arguments: { planPath: payload.planPath, planYaml, dryRun }
+        });
+        const structured = result.structuredContent as UpdatePlanPayload | undefined;
+        if (!structured) {
+            setPlanStatus("Tool returned no structured content.", "error");
+            return;
+        }
+
+        renderPlanIssues(structured.validation);
+
+        if (structured.validation.errors.length > 0) {
+            setPlanStatus(
+                dryRun
+                    ? "Validation failed. See errors below."
+                    : "Save refused — fix validation errors first.",
+                "error"
+            );
+        } else if (structured.written) {
+            lastLoadedPlanYaml = structured.planYaml;
+            payload.planYaml = structured.planYaml;
+            payload.planValidation = structured.validation;
+            const warns = structured.validation.warnings.length;
+            setPlanStatus(
+                warns > 0 ? `Saved with ${warns} warning(s).` : "Saved.",
+                "ok"
+            );
+        } else {
+            setPlanStatus("Validation passed.", "ok");
+        }
+    } catch (err) {
+        setPlanStatus(`Tool call failed: ${String(err)}`, "error");
+        app.sendLog({ level: "error", data: { tool: "update_test_plan", error: String(err) } }).catch(() => { });
+    } finally {
+        planValidateBtn.disabled = false;
+        updatePlanDirty();
+    }
+}
+
+planTextarea.addEventListener("input", updatePlanDirty);
+planValidateBtn.addEventListener("click", () => runUpdatePlan(true));
+planSaveBtn.addEventListener("click", () => runUpdatePlan(false));
+planResetBtn.addEventListener("click", () => {
+    if (lastLoadedPlanYaml == null) return;
+    planTextarea.value = lastLoadedPlanYaml;
+    renderPlanIssues(currentPayload?.planValidation ?? null);
+    setPlanStatus("Reverted to last loaded plan.");
+    updatePlanDirty();
+});
+
+// ----- Tabs -----
+
+function selectTab(name: "findings" | "plan") {
+    const findings = name === "findings";
+    tabFindings.setAttribute("aria-selected", findings ? "true" : "false");
+    tabPlan.setAttribute("aria-selected", findings ? "false" : "true");
+    panelFindings.hidden = !findings;
+    panelPlan.hidden = findings;
+}
+
+tabFindings.addEventListener("click", () => selectTab("findings"));
+tabPlan.addEventListener("click", () => selectTab("plan"));
+
+// ----- Top-level render -----
 
 function render(payload: ReportPayload) {
     currentPayload = payload;
@@ -193,6 +374,7 @@ function render(payload: ReportPayload) {
     renderFilters(payload);
     renderFindings();
     renderWarnings(payload);
+    renderPlanEditor(payload);
 
     if (payload.executiveReportPath) {
         openHtmlBtn.hidden = false;
@@ -214,7 +396,9 @@ function handleHostContextChanged(ctx: McpUiHostContext) {
     if (ctx.styles?.css?.fonts) applyHostFonts(ctx.styles.css.fonts);
 }
 
-const app = new App({ name: "Web Frontend Report Viewer", version: "0.1.0" });
+// ----- App lifecycle -----
+
+const app = new App({ name: "Web Frontend Report Viewer", version: "0.2.0" });
 
 app.onteardown = async () => ({});
 app.onerror = (err) => {
@@ -223,12 +407,14 @@ app.onerror = (err) => {
 app.onhostcontextchanged = handleHostContextChanged;
 
 app.ontoolresult = (result: CallToolResult) => {
-    const structured = result.structuredContent as unknown as ReportPayload | undefined;
-    if (!structured || typeof structured !== "object") {
-        app.sendLog({ level: "warning", data: "Tool returned no structured content" }).catch(() => { });
-        return;
+    const structured = result.structuredContent as unknown;
+    if (!structured || typeof structured !== "object") return;
+
+    // Distinguish report payload from update payload by their shape.
+    if ("findings" in structured && "counts" in structured) {
+        render(structured as ReportPayload);
     }
-    render(structured);
+    // update_test_plan results are handled inline via callServerTool().
 };
 
 app.connect().then(() => {

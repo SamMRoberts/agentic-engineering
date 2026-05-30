@@ -18,15 +18,49 @@
             <dl class="meta" id="meta"></dl>
         </header>
 
-        <section class="risk" aria-labelledby="risk-heading">
-            <h2 id="risk-heading">Risk Overview</h2>
-            <ul class="filter-row" id="filter-row" role="group" aria-label="Filter findings by severity"></ul>
+        <nav class="tabs" role="tablist" aria-label="Report sections">
+            <button id="tab-findings" class="tab" type="button" role="tab" aria-selected="true"
+                aria-controls="panel-findings">Findings</button>
+            <button id="tab-plan" class="tab" type="button" role="tab" aria-selected="false"
+                aria-controls="panel-plan">Plan</button>
+        </nav>
+
+        <section id="panel-findings" class="panel" role="tabpanel" aria-labelledby="tab-findings">
+            <section class="risk" aria-labelledby="risk-heading">
+                <h2 id="risk-heading">Risk Overview</h2>
+                <ul class="filter-row" id="filter-row" role="group" aria-label="Filter findings by severity"></ul>
+            </section>
+
+            <section class="findings" aria-labelledby="findings-heading">
+                <h2 id="findings-heading">Findings (<span id="visible-count">0</span>)</h2>
+                <ul class="finding-list" id="finding-list"></ul>
+                <p class="empty" id="empty-state" hidden>No findings match the current filter.</p>
+            </section>
         </section>
 
-        <section class="findings" aria-labelledby="findings-heading">
-            <h2 id="findings-heading">Findings (<span id="visible-count">0</span>)</h2>
-            <ul class="finding-list" id="finding-list"></ul>
-            <p class="empty" id="empty-state" hidden>No findings match the current filter.</p>
+        <section id="panel-plan" class="panel" role="tabpanel" aria-labelledby="tab-plan" hidden>
+            <section class="plan-editor" aria-labelledby="plan-heading">
+                <div class="plan-header">
+                    <h2 id="plan-heading">Test Plan</h2>
+                    <p class="plan-path" id="plan-path">—</p>
+                </div>
+                <p class="plan-empty" id="plan-empty" hidden>No test-plan.yaml found in this report directory.</p>
+                <label for="plan-textarea" class="visually-hidden">test-plan.yaml content</label>
+                <textarea id="plan-textarea" class="plan-textarea" spellcheck="false" aria-describedby="plan-status"
+                    hidden></textarea>
+                <div class="plan-actions" id="plan-actions" hidden>
+                    <button id="plan-validate-btn" class="btn" type="button">Validate</button>
+                    <button id="plan-save-btn" class="btn btn-primary" type="button" disabled>Save</button>
+                    <button id="plan-reset-btn" class="btn btn-link" type="button">Reset to last loaded</button>
+                    <span id="plan-dirty" class="plan-dirty" hidden>Unsaved changes</span>
+                </div>
+                <div id="plan-status" class="plan-status" role="status" aria-live="polite"></div>
+                <details class="plan-issues" id="plan-issues" hidden>
+                    <summary><span id="plan-issues-summary">Validation</span></summary>
+                    <ul class="plan-issue-list" id="plan-errors"></ul>
+                    <ul class="plan-issue-list plan-warnings" id="plan-warnings"></ul>
+                </details>
+            </section>
         </section>
 
         <section class="warnings" id="warnings" hidden>

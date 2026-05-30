@@ -9,6 +9,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import YAML from "yaml";
+import { validatePlan, type PlanValidationResult } from "../lib/plan-validation.mjs";
 
 const DIST_DIR = import.meta.filename.endsWith(".ts")
     ? path.join(import.meta.dirname, "dist")
@@ -40,6 +41,8 @@ interface PlanScenario {
 interface ReportPayload {
     reportDir: string;
     planPath: string | null;
+    planYaml: string | null;
+    planValidation: PlanValidationResult | null;
     run: {
         url?: string;
         stage?: string;
@@ -56,10 +59,26 @@ interface ReportPayload {
     warnings: string[];
 }
 
+interface UpdatePlanPayload {
+    planPath: string;
+    planYaml: string;
+    written: boolean;
+    dryRun: boolean;
+    validation: PlanValidationResult;
+}
+
 async function readYamlIfPresent(filePath: string): Promise<unknown | null> {
     try {
         const raw = await fs.readFile(filePath, "utf-8");
         return YAML.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
+async function readTextIfPresent(filePath: string): Promise<string | null> {
+    try {
+        return await fs.readFile(filePath, "utf-8");
     } catch {
         return null;
     }
@@ -111,16 +130,33 @@ function tallyCounts(findings: Finding[]): Record<Severity, number> & { total: n
     return counts;
 }
 
+function safeValidate(plan: unknown): PlanValidationResult {
+    try {
+        return validatePlan(plan);
+    } catch (err) {
+        return { errors: [`Validator threw: ${String(err)}`], warnings: [] };
+    }
+}
+
 async function loadReport(rawReportDir: string): Promise<ReportPayload> {
     const reportDir = path.resolve(rawReportDir);
     const warnings: string[] = [];
 
     const planPath = path.join(reportDir, "test-plan.yaml");
-    const plan = (await readYamlIfPresent(planPath)) as
-        | { target?: Record<string, string>; runner?: string; scenarios?: PlanScenario[] }
-        | null;
-
-    if (!plan) warnings.push(`No test-plan.yaml found at ${planPath}`);
+    const planYaml = await readTextIfPresent(planPath);
+    let plan: { target?: Record<string, string>; runner?: string; scenarios?: PlanScenario[] } | null = null;
+    let planValidation: PlanValidationResult | null = null;
+    if (planYaml != null) {
+        try {
+            plan = YAML.parse(planYaml);
+            planValidation = safeValidate(plan);
+        } catch (err) {
+            warnings.push(`Could not parse test-plan.yaml: ${String(err)}`);
+            planValidation = { errors: [`Could not parse YAML: ${String(err)}`], warnings: [] };
+        }
+    } else {
+        warnings.push(`No test-plan.yaml found at ${planPath}`);
+    }
 
     const findingsDir = path.join(reportDir, "findings");
     const findings = await listFindings(findingsDir, warnings);
@@ -138,7 +174,9 @@ async function loadReport(rawReportDir: string): Promise<ReportPayload> {
 
     return {
         reportDir,
-        planPath: plan ? planPath : null,
+        planPath: planYaml != null ? planPath : null,
+        planYaml,
+        planValidation,
         run: {
             url: plan?.target?.url,
             stage: plan?.target?.stage,
@@ -163,7 +201,14 @@ function renderTextFallback(payload: ReportPayload): string {
     if (payload.run.url) lines.push(`Target: ${payload.run.url} (${payload.run.stage ?? "?"})`);
     lines.push(`Runner: ${payload.run.runner ?? "?"}`);
     lines.push(`Scenarios planned: ${payload.run.scenarioCount}`);
-    lines.push(`Findings: ${payload.counts.total} total — ${SEVERITY_ORDER.map((s) => `${s}: ${payload.counts[s]}`).join(", ")}`);
+    lines.push(
+        `Findings: ${payload.counts.total} total — ${SEVERITY_ORDER.map((s) => `${s}: ${payload.counts[s]}`).join(", ")}`
+    );
+    if (payload.planValidation) {
+        lines.push(
+            `Plan validation: ${payload.planValidation.errors.length} error(s), ${payload.planValidation.warnings.length} warning(s)`
+        );
+    }
     if (payload.executiveReportPath) lines.push(`Executive HTML: ${payload.executiveReportPath}`);
     if (payload.engineeringReportPath) lines.push(`Engineering report: ${payload.engineeringReportPath}`);
     if (payload.warnings.length > 0) lines.push(`Warnings: ${payload.warnings.join("; ")}`);
@@ -172,7 +217,11 @@ function renderTextFallback(payload: ReportPayload): string {
         lines.push("");
         lines.push("Top findings:");
         const top = [...payload.findings]
-            .sort((a, b) => SEVERITY_ORDER.indexOf(a.severity as Severity) - SEVERITY_ORDER.indexOf(b.severity as Severity))
+            .sort(
+                (a, b) =>
+                    SEVERITY_ORDER.indexOf(a.severity as Severity) -
+                    SEVERITY_ORDER.indexOf(b.severity as Severity)
+            )
             .slice(0, 5);
         for (const f of top) {
             lines.push(`- [${String(f.severity).toUpperCase()}] ${f.summary ?? f.id} (${f.scenario_id ?? f.id})`);
@@ -182,10 +231,28 @@ function renderTextFallback(payload: ReportPayload): string {
     return lines.join("\n");
 }
 
+function renderUpdateTextFallback(payload: UpdatePlanPayload): string {
+    const lines: string[] = [];
+    lines.push(
+        payload.dryRun ? "Plan validation (dry-run)" : payload.written ? "Plan updated" : "Plan validation"
+    );
+    lines.push(`Plan: ${payload.planPath}`);
+    lines.push(`Errors: ${payload.validation.errors.length}`);
+    lines.push(`Warnings: ${payload.validation.warnings.length}`);
+    for (const e of payload.validation.errors) lines.push(`ERROR: ${e}`);
+    for (const w of payload.validation.warnings) lines.push(`WARN: ${w}`);
+    return lines.join("\n");
+}
+
+const validationSchema = z.object({
+    errors: z.array(z.string()),
+    warnings: z.array(z.string())
+});
+
 export function createServer(): McpServer {
     const server = new McpServer({
         name: "Web Frontend Report Viewer",
-        version: "0.1.0"
+        version: "0.2.0"
     });
 
     const resourceUri = "ui://web-frontend-report-viewer/mcp-app.html";
@@ -196,17 +263,20 @@ export function createServer(): McpServer {
         {
             title: "View Web Frontend Executive Report",
             description:
-                "Loads a web-frontend-testing report directory (containing test-plan.yaml and findings/) and opens an interactive triage viewer.",
+                "Loads a web-frontend-testing report directory (test-plan.yaml + findings/) and opens the interactive viewer/editor.",
             inputSchema: {
                 reportDir: z
                     .string()
                     .min(1)
                     .describe(
-                        "Absolute or workspace-relative path to a report directory produced by the web-frontend-testing plugin, e.g. ./reports/web-frontend-testing/<timestamp>/"
+                        "Absolute or workspace-relative path to a report directory, e.g. ./reports/web-frontend-testing/<timestamp>/"
                     )
             },
             outputSchema: z.object({
                 reportDir: z.string(),
+                planPath: z.string().nullable(),
+                planYaml: z.string().nullable(),
+                planValidation: validationSchema.nullable(),
                 run: z.object({
                     url: z.string().optional(),
                     stage: z.string().optional(),
@@ -235,6 +305,86 @@ export function createServer(): McpServer {
             const payload = await loadReport(reportDir);
             return {
                 content: [{ type: "text", text: renderTextFallback(payload) }],
+                structuredContent: payload as unknown as Record<string, unknown>
+            };
+        }
+    );
+
+    registerAppTool(
+        server,
+        "update_test_plan",
+        {
+            title: "Validate or save a test plan",
+            description:
+                "Validate or write a test-plan.yaml. Set dryRun=true to validate without writing. Refuses to write when validation produces errors. Returns the validation result and (when written) confirmation.",
+            inputSchema: {
+                planPath: z
+                    .string()
+                    .min(1)
+                    .describe("Absolute or workspace-relative path to the test-plan.yaml file to write."),
+                planYaml: z
+                    .string()
+                    .min(1)
+                    .describe("Full YAML content for the test plan. Must parse as YAML and satisfy the plan schema/lint."),
+                dryRun: z
+                    .boolean()
+                    .optional()
+                    .describe("When true, only validate; do not write the file. Default false.")
+            },
+            outputSchema: z.object({
+                planPath: z.string(),
+                planYaml: z.string(),
+                written: z.boolean(),
+                dryRun: z.boolean(),
+                validation: validationSchema
+            }),
+            _meta: { ui: { resourceUri } }
+        },
+        async ({ planPath, planYaml, dryRun }): Promise<CallToolResult> => {
+            const absolute = path.resolve(planPath);
+            const dry = dryRun === true;
+
+            let parsed: unknown;
+            try {
+                parsed = YAML.parse(planYaml);
+            } catch (err) {
+                const validation: PlanValidationResult = {
+                    errors: [`Could not parse YAML: ${String(err)}`],
+                    warnings: []
+                };
+                const payload: UpdatePlanPayload = {
+                    planPath: absolute,
+                    planYaml,
+                    written: false,
+                    dryRun: dry,
+                    validation
+                };
+                return {
+                    isError: true,
+                    content: [{ type: "text", text: renderUpdateTextFallback(payload) }],
+                    structuredContent: payload as unknown as Record<string, unknown>
+                };
+            }
+
+            const validation = safeValidate(parsed);
+            const hasErrors = validation.errors.length > 0;
+            const written = !dry && !hasErrors;
+
+            if (written) {
+                await fs.mkdir(path.dirname(absolute), { recursive: true });
+                await fs.writeFile(absolute, planYaml, "utf-8");
+            }
+
+            const payload: UpdatePlanPayload = {
+                planPath: absolute,
+                planYaml,
+                written,
+                dryRun: dry,
+                validation
+            };
+            return {
+                isError: hasErrors,
+                content: [{ type: "text", text: renderUpdateTextFallback(payload) }],
                 structuredContent: payload as unknown as Record<string, unknown>
             };
         }
