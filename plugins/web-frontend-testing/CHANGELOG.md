@@ -2,6 +2,13 @@
 
 All notable changes to the `web-frontend-testing` plugin are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the plugin uses [semantic versioning](https://semver.org/).
 
+## 0.3.1 — 2026-05-30
+
+### Changed
+
+- Orchestrator now always prompts the user to provide edits/input or approve the plan as-is after every plan generation or modification, before execution. Approval remains explicit, and edits continue to route through `web-frontend-testing-plan` with dry-run validation and confirmed writes.
+- Final-response recommended next-step examples updated to reflect the review/edit option.
+
 ## 0.3.0 — 2026-05-30
 
 ### Added

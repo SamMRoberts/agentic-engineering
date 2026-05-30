@@ -1,6 +1,6 @@
 {
     "name": "web-frontend-testing",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Copilot agent plugin for orchestrating Playwright web frontend testing workflows (CLI preferred, MCP for exploration, hybrid for discovery-then-regression).",
     "type": "module",
     "private": true,
