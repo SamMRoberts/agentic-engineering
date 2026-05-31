@@ -184,5 +184,8 @@ export function renderMarkdown(report) {
 }
 
 function escapePipes(s) {
-  return String(s ?? "").replace(/\|/g, "\\|");
+  return String(s ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
 }

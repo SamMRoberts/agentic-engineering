@@ -12,7 +12,13 @@ export function valueExpr(value) {
   const exact = str.match(/^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/);
   if (exact) return `(process.env.${exact[1]} ?? "")`;
   if (/\$\{[A-Za-z_][A-Za-z0-9_]*\}/.test(str)) {
-    const tpl = str.replace(/`/g, "\\`").replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, "${process.env.$1 ?? \"\"}");
+    // Escape backslashes and backticks first so the value cannot break out of
+    // the template literal, then protect valid ${ENV} refs and neutralize any
+    // other ${...} sequence so it is never evaluated as embedded JS.
+    let tpl = str.replace(/\\/g, "\\\\").replace(/`/g, "\\`");
+    tpl = tpl.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_m, v) => `\u0000${v}\u0001`);
+    tpl = tpl.replace(/\$\{/g, "\\${");
+    tpl = tpl.replace(/\u0000([A-Za-z_][A-Za-z0-9_]*)\u0001/g, '${process.env.$1 ?? ""}');
     return "`" + tpl + "`";
   }
   return jsString(str);

@@ -55,16 +55,15 @@
 
       function render(report) {
         const sev = report.status === "passed" ? "passed" : "failed";
-        const s = report.summary || {};
         $("summary").innerHTML =
-          `<span class="pill ${sev}">${report.status}</span> ` +
-          `<b>${report.plan_title || report.plan_id}</b> — ` +
-          `${(report.steps || []).length} steps · run ${report.run_id || ""}`;
+          `<span class="pill ${sev}">${escapeHtml(report.status)}</span> ` +
+          `<b>${escapeHtml(report.plan_title || report.plan_id)}</b> — ` +
+          `${(report.steps || []).length} steps · run ${escapeHtml(report.run_id || "")}`;
         const rows = (report.steps || [])
           .map((st, i) => {
             const cls = st.status === "passed" ? "passed" : st.status === "skipped" ? "skipped" : "failed";
             return `<tr><td>${i + 1}</td><td>${escapeHtml(st.title || st.id)}</td>` +
-              `<td><span class="pill ${cls}">${st.status}</span></td><td>${st.duration_ms || 0}ms</td></tr>`;
+              `<td><span class="pill ${cls}">${escapeHtml(st.status)}</span></td><td>${Number(st.duration_ms) || 0}ms</td></tr>`;
           })
           .join("");
         const failed = (report.steps || []).filter((st) => st.status === "failed" || st.status === "timedout");
@@ -78,7 +77,7 @@
           ...(art.screenshots || []).map((s) => "Screenshot: " + s)
         ].filter(Boolean);
         const diag = report.diagnosis
-          ? `<h3>Diagnosis</h3><p>${report.diagnosis.category} (${report.diagnosis.confidence || "n/a"}) — ${escapeHtml(report.diagnosis.rationale || "")}</p>`
+          ? `<h3>Diagnosis</h3><p>${escapeHtml(report.diagnosis.category)} (${escapeHtml(report.diagnosis.confidence || "n/a")}) — ${escapeHtml(report.diagnosis.rationale || "")}</p>`
           : "";
         $("content").innerHTML =
           `<table><thead><tr><th>#</th><th>Step</th><th>Status</th><th>Duration</th></tr></thead><tbody>${rows}</tbody></table>` +

@@ -33,14 +33,20 @@ export function resolveAuth(env: Environment): ResolvedAuth {
       break;
     }
     case "env_credentials": {
-      for (const key of [auth.username_env, auth.password_env]) {
+      const creds: Array<[string, string | undefined]> = [
+        ["username", auth.username_env],
+        ["password", auth.password_env]
+      ];
+      for (const [label, key] of creds) {
         if (!key) {
           result.problems.push("env_credentials requires username_env and password_env to be named");
           continue;
         }
         result.requiredEnv.push(key);
         if (process.env[key] == null) {
-          result.problems.push(`required environment variable ${key} is not set`);
+          // Reference the credential role, not the configured env var name, so
+          // no potentially sensitive identifier is surfaced in logs/reports.
+          result.problems.push(`required ${label} environment variable is not set`);
         }
       }
       break;
