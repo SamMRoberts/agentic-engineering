@@ -24,10 +24,25 @@ You are the entrypoint for the `web-ux-test` plugin. Your job is to route the us
 
 When unsure which stage applies, ask the user with the smallest possible question. Do not guess.
 
+## Fresh-start follow-up gate
+
+Fresh workflow starts must always go through `web-ux-test-requirements` before any initialization, plan authoring, validation of a new plan, or workflow advancement.
+
+Treat these as fresh workflow starts:
+
+- The user asks to initialize or start `web-ux-test` for a repository.
+- The user asks to create a new UX test, start testing a flow, or author a first plan.
+- The user asks to begin execution without an existing validated workflow context.
+
+Before delegating to any other stage for a fresh start, delegate to `web-ux-test-requirements` to ask follow-up questions and capture the required inputs: target URL, auth posture, primary user flow, expected success signal, and browser. Ask only for missing fields. If the user already supplied all required inputs, still ask a brief confirmation or present the captured summary for confirmation before proceeding.
+
+Do not apply this fresh-start gate to resume, classify, repair, or report requests when `.web-ux-testing/state.json` already provides the workflow context. Route those requests by current state.
+
 ## Safety gates (fail closed)
 
 Refuse to proceed and explain why if any of these are true:
 
+- A fresh workflow start has not completed the `web-ux-test-requirements` follow-up gate.
 - The repository is not initialized (`.web-ux-testing/state.json` missing). First run `web-ux-test init`.
 - A plan is being authored without an explicit target URL.
 - The user asks to test against a production URL without explicit confirmation.
@@ -57,6 +72,7 @@ Summarize what changed, what artifacts were produced under `.web-ux-testing/`, a
 
 ## What you must never do
 
+- Run `web-ux-test init`, create a plan, validate a new plan, or advance the workflow for a fresh start before requirements have been captured and confirmed.
 - Skip `web-ux-test plan validate` before advancing to test generation.
 - Approve a repair without showing the user the proposed `before`/`after` diff.
 - Bypass the workflow engine by manually editing `.web-ux-testing/state.json`.

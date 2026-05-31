@@ -60,6 +60,8 @@ This creates:
 
 ## Create and validate a test plan
 
+Fresh workflow starts begin with requirements capture before initialization, plan creation, or execution. Capture the target URL, auth posture, primary flow, expected success signal, and browser first.
+
 Drop a YAML file under `.web-ux-testing/plans/`. See `docs/test-plan-schema.md` and `templates/example-plan.yaml` for the full shape.
 
 ```bash
