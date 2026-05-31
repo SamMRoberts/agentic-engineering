@@ -3,5 +3,21 @@
   "interface": {
     "displayName": "SamMRoberts Marketplace"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "web-ux-test",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/web-ux-test",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Testing",
+      "description": "Workflow-enforced Playwright UX testing: schema-validated plans, gated execution, deterministic repair loop."
+    }
+  ]
 }

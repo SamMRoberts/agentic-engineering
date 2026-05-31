@@ -1,0 +1,53 @@
+{
+    "name": "web-ux-test",
+    "version": "0.1.0",
+    "description": "Workflow-enforced Playwright UX testing. The web-ux-test CLI owns workflow state, plan validation, Playwright execution, failure classification, and gated repair. A thin MCP server exposes high-level workflow tools.",
+    "author": {
+        "name": "Sam Roberts"
+    },
+    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-test",
+    "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-test",
+    "license": "MIT",
+    "keywords": [
+        "playwright",
+        "ui-testing",
+        "workflow",
+        "state-machine",
+        "mcp",
+        "regression",
+        "test-plan",
+        "schema-validated"
+    ],
+    "agents": "./agents/",
+    "skills": "./skills/",
+    "entrypointAgent": "web-ux-test",
+    "privateAgents": [
+        "web-ux-test-requirements",
+        "web-ux-test-plan",
+        "web-ux-test-execute",
+        "web-ux-test-triage",
+        "web-ux-test-repair",
+        "web-ux-test-report"
+    ],
+    "interface": {
+        "displayName": "Web UX Test",
+        "shortDescription": "Workflow-enforced Playwright UX testing: schema-validated plans, gated execution, deterministic repair loop.",
+        "longDescription": "User-facing orchestrator for a strict, stateful Playwright UX testing workflow. The web-ux-test CLI is the authority: it owns the workflow state machine (14 phases), validates test-plan YAML against a JSON Schema, materializes plans into deterministic Playwright specs, executes them via the Playwright CLI, classifies failures, and gates repair proposals behind explicit approval. A thin MCP server exposes high-level workflow tools (create_test_plan, validate_test_plan, get_workflow_state, run_next_workflow_step, classify_latest_failure, propose_repair, approve_repair, apply_approved_repair, generate_report). State, runs, and reports persist under a project-local .web-ux-testing/ directory.",
+        "developerName": "Sam Roberts",
+        "category": "Testing",
+        "capabilities": [
+            "Interactive",
+            "Write"
+        ],
+        "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-test",
+        "defaultPrompt": [
+            "Initialize a web UX test project in this repository.",
+            "Create and validate a test plan for the dashboard login flow.",
+            "Run the next workflow step.",
+            "Classify the latest test failure and propose a repair.",
+            "Generate the report for the latest test run."
+        ],
+        "brandColor": "#0F766E",
+        "screenshots": []
+    }
+}

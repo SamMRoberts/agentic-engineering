@@ -1,0 +1,12 @@
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › specs/slow.spec.ts:5:1 › slow page
+==============
+1) [chromium] › specs/slow.spec.ts:5:1 › slow page
+
+  Error: Test timeout of 30000ms exceeded.
+
+      4 |   await page.goto('/slow');
+      5 |   await page.waitForLoadState('networkidle');
+
+  1 failed

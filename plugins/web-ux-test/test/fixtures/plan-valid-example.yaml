@@ -1,0 +1,69 @@
+id: create-page-flow
+name: Create Page Flow
+description: Validate that a user can create a new page from the UI.
+target:
+  baseUrl: http://localhost:3000
+  browser: chromium
+auth:
+  required: true
+  mode: storageState
+  storageStatePath: .web-ux-testing/auth/user.json
+execution:
+  timeoutMs: 60000
+  retries: 1
+  headless: true
+plan:
+  - id: goto-app
+    description: Go to the application URL
+    action: goto
+    target: /
+    expect:
+      - type: visible
+        selector: text=Dashboard
+  - id: open-menu
+    description: Click menu item
+    action: click
+    selector: "[data-testid='main-menu']"
+    expect:
+      - type: visible
+        selector: "[data-testid='menu-panel']"
+  - id: select-tab
+    description: Select tab
+    action: click
+    selector: "[data-testid='pages-tab']"
+    expect:
+      - type: visible
+        selector: "[data-testid='pages-view']"
+  - id: add-new
+    description: Click Add New
+    action: click
+    selector: "text=Add New"
+    expect:
+      - type: visible
+        selector: "[role='dialog']"
+  - id: choose-page
+    description: In the add new popup click Page
+    action: click
+    selector: "text=Page"
+  - id: fill-properties
+    description: Fill in all required page properties
+    action: fillForm
+    fields:
+      - selector: "[name='title']"
+        value: Automated Test Page
+      - selector: "[name='description']"
+        value: Created by web-ux-test
+    expect:
+      - type: formValid
+  - id: confirm-creation
+    description: Confirm creation
+    action: click
+    selector: text=Create
+  - id: wait-complete
+    description: Wait for creation to complete
+    action: waitFor
+    selector: text=Created successfully
+  - id: verify-success
+    description: Verify successful creation
+    action: assertVisible
+    selector: text=Automated Test Page

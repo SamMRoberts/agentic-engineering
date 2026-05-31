@@ -1,0 +1,2 @@
+Some unexpected output that does not match any known rule.
+The build pipeline produced output we have never seen before.

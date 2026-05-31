@@ -1,0 +1,23 @@
+{
+    "name": "web-ux-test-workflow",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Thin MCP server exposing web-ux-test workflow tools. Delegates to the plugin's lib/ for all logic.",
+    "type": "module",
+    "main": "src/main.ts",
+    "scripts": {
+        "build": "tsc --noEmit",
+        "test": "node --import tsx --test test/**/*.test.ts",
+        "start": "tsx src/main.ts",
+        "start:stdio": "tsx src/main.ts --stdio"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.29.0",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.0",
+        "tsx": "^4.22.3",
+        "typescript": "^5.7.2"
+    }
+}

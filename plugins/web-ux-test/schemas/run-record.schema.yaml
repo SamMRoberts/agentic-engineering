@@ -1,0 +1,92 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-test/schemas/run-record.schema.yaml
+title: WebUxTestRunRecord
+description: Persistent record of a single Playwright test run.
+type: object
+required: [runId, planId, startedAt, finishedAt, status, exitCode, browser, headless, steps]
+additionalProperties: false
+properties:
+  runId:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}-[a-z0-9][a-z0-9-]+$"
+  planId:
+    type: string
+  planPath:
+    type: string
+  specPath:
+    type: string
+  startedAt:
+    type: string
+    format: date-time
+  finishedAt:
+    type: string
+    format: date-time
+  status:
+    type: string
+    enum: [passed, failed]
+  exitCode:
+    type: integer
+  browser:
+    type: string
+    enum: [chromium, firefox, webkit]
+  headless:
+    type: boolean
+  authMode:
+    type: string
+    enum: [none, storageState]
+  steps:
+    type: array
+    items:
+      type: object
+      required: [id, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+          enum: [passed, failed, skipped]
+        durationMs:
+          type: integer
+          minimum: 0
+        errorMessage:
+          type: string
+  failure:
+    type: object
+    additionalProperties: false
+    properties:
+      category:
+        type: string
+        enum:
+          - selector_not_found
+          - timeout
+          - navigation_failure
+          - auth_failure
+          - assertion_failure
+          - network_failure
+          - application_error
+          - unknown
+      failingStepId:
+        type: string
+      errorSummary:
+        type: string
+      matchedRule:
+        type: string
+  artifacts:
+    type: object
+    additionalProperties: false
+    properties:
+      stdoutPath:
+        type: string
+      stderrPath:
+        type: string
+      playwrightJsonPath:
+        type: string
+      tracePath:
+        type: string
+      screenshotPaths:
+        type: array
+        items:
+          type: string
