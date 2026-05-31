@@ -86,6 +86,18 @@ function extractSteps(playwrightJson) {
     return steps;
 }
 
+export function buildPlaywrightArgs({ cwd = process.cwd(), specPath, browser = "chromium", runDir, headless = true } = {}) {
+    if (!specPath) throw new Error("buildPlaywrightArgs requires specPath");
+    if (!runDir) throw new Error("buildPlaywrightArgs requires runDir");
+    return [
+        path.relative(cwd, specPath),
+        "--reporter=json",
+        `--browser=${browser}`,
+        `--output=${path.join(runDir, "trace")}`,
+        ...(headless ? [] : ["--headed"])
+    ];
+}
+
 /**
  * Execute a single Playwright spec and persist artifacts.
  *
@@ -108,13 +120,7 @@ export async function executeSpec({
 
     const startedAt = new Date().toISOString();
     const jsonReporterPath = path.join(runDir, "playwright-report.json");
-    const args = [
-        path.relative(cwd, specPath),
-        "--reporter=json",
-        `--project=${browser}`,
-        `--output=${path.join(runDir, "trace")}`,
-        ...(headless ? [] : ["--headed"])
-    ];
+    const args = buildPlaywrightArgs({ cwd, specPath, browser, runDir, headless });
     const env = {
         ...process.env,
         PLAYWRIGHT_JSON_OUTPUT_NAME: jsonReporterPath
