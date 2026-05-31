@@ -1,0 +1,15 @@
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › specs/dashboard.spec.ts:5:1 › menu opens
+==============
+2) [chromium] › specs/dashboard.spec.ts:5:1 › menu opens
+
+  Error: locator.click: Test timeout of 30000ms exceeded while waiting for selector
+  Call log:
+    - waiting for locator('[data-testid="main-menu"]') to be visible
+    - no element matches selector '[data-testid="main-menu"]'
+
+      4 |   await page.goto('/');
+      5 |   await page.locator('[data-testid="main-menu"]').click();
+
+  1 failed

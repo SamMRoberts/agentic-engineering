@@ -1,0 +1,3 @@
+  page error: Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'map')
+    at Dashboard.render (app.js:42:18)
+  uncaught exception in the application under test

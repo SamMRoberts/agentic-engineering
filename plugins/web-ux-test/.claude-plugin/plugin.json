@@ -1,0 +1,28 @@
+{
+    "name": "web-ux-test",
+    "version": "0.1.0",
+    "description": "Workflow-enforced Playwright UX testing: CLI/app authority, MCP adapter, schema-validated plans, gated repair loop.",
+    "author": {
+        "name": "Sam Roberts",
+        "url": "https://github.com/SamMRoberts"
+    },
+    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-test",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/SamMRoberts/agentic-engineering"
+    },
+    "license": "MIT",
+    "keywords": [
+        "playwright",
+        "ui-testing",
+        "workflow",
+        "state-machine",
+        "mcp",
+        "regression",
+        "test-plan"
+    ],
+    "agents": "./agents/",
+    "skills": "./skills/",
+    "hooks": "./hooks.json",
+    "mcpServers": "./.mcp.json"
+}

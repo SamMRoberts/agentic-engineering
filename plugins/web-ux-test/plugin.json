@@ -1,0 +1,25 @@
+{
+    "name": "web-ux-test",
+    "agents": "agents",
+    "skills": "skills",
+    "entrypointAgent": "web-ux-test",
+    "privateAgents": [
+        "web-ux-test-requirements",
+        "web-ux-test-plan",
+        "web-ux-test-execute",
+        "web-ux-test-triage",
+        "web-ux-test-repair",
+        "web-ux-test-report"
+    ],
+    "mcpServers": {
+        "web-ux-test-workflow": {
+            "command": "npx",
+            "args": [
+                "--yes",
+                "tsx",
+                "./mcp-workflow/src/main.ts",
+                "--stdio"
+            ]
+        }
+    }
+}
