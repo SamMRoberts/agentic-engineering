@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "Unsafe implementation example",
+    "goal": "Show a gate that must fail validation.",
+    "scope": "Example only.",
+    "non_goals": []
+  },
+  "assumptions": [
+    {
+      "id": "A1",
+      "statement": "The repository already uses this exact hook event name.",
+      "category": "tooling_behavior",
+      "risk_level": "critical",
+      "verification_method": "Not checked.",
+      "evidence": [],
+      "status": "unknown",
+      "files_checked": [],
+      "commands_run": [],
+      "impact_if_wrong": "The hook would not run and enforcement would be bypassed.",
+      "decision": "Implementation is blocked until the hook contract is verified."
+    }
+  ],
+  "final_verification": {
+    "commands_run": [],
+    "tests_run": [],
+    "result": "not_run",
+    "notes": "This example is intentionally invalid."
+  }
+}

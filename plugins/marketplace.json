@@ -18,6 +18,21 @@
       },
       "category": "Productivity",
       "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents."
+    },
+    {
+      "name": "assumption-killer",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/assumption-killer",
+        "ref": "develop"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Force agents to identify, verify, and record assumptions before implementation."
     }
   ]
 }

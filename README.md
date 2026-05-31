@@ -9,6 +9,7 @@ agentic-engineering/
 ├── plugins/                  # Installable plugins (this is what the marketplace serves)
 │   ├── marketplace.json      # Auto-generated marketplace descriptor
 │   ├── agent-compat/         # Copilot custom agent compatibility for Codex/Claude
+│   ├── assumption-killer/    # Assumption-gate workflow enforcement
 │   └── web-ux-test/          # Workflow-enforced Playwright UX testing pack
 ├── agents/                   # Standalone custom agents (not packaged as plugins)
 ├── instructions/             # Repository-scoped AGENTS.md instructions
@@ -39,6 +40,7 @@ Current plugins:
 | Plugin | Purpose |
 | --- | --- |
 | [agent-compat](plugins/agent-compat/) | Convert Copilot `*.agent.md` custom agents into Codex `AGENTS.md` and Claude `custom-instructions.md` overlays. |
+| [assumption-killer](plugins/assumption-killer/) | Enforce assumption discovery, evidence, and blocking checks before implementation work. |
 | [web-ux-test](plugins/web-ux-test/) | Plan, run, classify, repair, and report structured web UX tests with a stateful CLI and MCP workflow server. |
 
 ## Using the marketplace

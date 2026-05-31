@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "",
+    "goal": "",
+    "scope": "",
+    "non_goals": []
+  },
+  "assumptions": [],
+  "final_verification": {
+    "commands_run": [],
+    "tests_run": [],
+    "result": "not_run",
+    "notes": ""
+  }
+}
