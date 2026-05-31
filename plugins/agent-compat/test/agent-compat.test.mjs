@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 
 import { FrontmatterError } from "../lib/frontmatter.mjs";
 import { upsertManagedSection, START_MARKER, END_MARKER } from "../lib/install.mjs";
+import { LineLimitError } from "../lib/render.mjs";
 import { generate, install, scan, validate } from "../lib/workflow.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,6 +29,10 @@ function copyFixture(name) {
     const dst = mktmp();
     fs.cpSync(src, dst, { recursive: true });
     return dst;
+}
+
+function countLines(filePath) {
+    return fs.readFileSync(filePath, "utf8").trimEnd().split("\n").length;
 }
 
 test("scan discovers standalone and plugin agents", () => {
@@ -70,18 +75,29 @@ test("invalid frontmatter fails closed", () => {
     );
 });
 
-test("generate writes Codex and Claude overlays", () => {
+test("generate writes compact host stubs and reference files", () => {
     const root = copyFixture("sample-repo");
     const result = generate({ root, target: "all" });
     assert.equal(result.ok, true);
     const codexPath = path.join(root, ".agent-compat", "codex", "AGENTS.md");
     const claudePath = path.join(root, ".agent-compat", "claude", "custom-instructions.md");
+    const pluginRefPath = path.join(root, ".agent-compat", "codex", "references", "plugins", "sample-plugin", "agents", "sample-plugin.md");
+    const standaloneRefPath = path.join(root, ".agent-compat", "codex", "references", "standalone", "general", "agents", "review-helper.md");
     assert.ok(fs.existsSync(codexPath));
     assert.ok(fs.existsSync(claudePath));
+    assert.ok(fs.existsSync(pluginRefPath));
+    assert.ok(fs.existsSync(standaloneRefPath));
     const codex = fs.readFileSync(codexPath, "utf8");
     assert.match(codex, /Copilot Agent Compatibility for Codex/);
     assert.match(codex, /sample-plugin/);
-    assert.match(codex, /Compatibility notes/);
+    assert.match(codex, /references\/plugins\/sample-plugin\/agents\/sample-plugin\.md/);
+    assert.doesNotMatch(codex, /You are the sample plugin orchestrator/);
+    const pluginRef = fs.readFileSync(pluginRefPath, "utf8");
+    assert.match(pluginRef, /Compatibility Notes/);
+    assert.match(pluginRef, /You are the sample plugin orchestrator/);
+    assert.ok(countLines(codexPath) <= 100);
+    assert.ok(countLines(pluginRefPath) <= 100);
+    assert.ok(countLines(standaloneRefPath) <= 100);
 });
 
 test("managed section upsert preserves user content", () => {
@@ -103,6 +119,17 @@ test("install writes managed sections without deleting user content", () => {
     assert.match(installed, /Keep this/);
     assert.match(installed, /<!-- agent-compat:start -->/);
     assert.match(installed, /Copilot Agent Compatibility for Codex/);
+    assert.match(installed, /references\/plugins\/sample-plugin\/agents\/sample-plugin\.md/);
+    assert.doesNotMatch(installed, /You are the sample plugin orchestrator/);
+    assert.ok(fs.existsSync(path.join(root, ".agent-compat", "codex", "references", "plugins", "sample-plugin", "agents", "sample-plugin.md")));
+});
+
+test("generate fails when a reference file exceeds the 100 line limit", () => {
+    const root = copyFixture("long-reference-repo");
+    assert.throws(
+        () => generate({ root, target: "codex" }),
+        LineLimitError
+    );
 });
 
 test("CLI validate exits non-zero on invalid frontmatter", () => {

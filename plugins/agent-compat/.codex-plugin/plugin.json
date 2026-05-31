@@ -1,6 +1,6 @@
 {
   "name": "agent-compat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Compatibility layer that converts Copilot *.agent.md custom agents into Codex AGENTS.md and Claude custom-instructions.md overlays.",
   "author": {
     "name": "Sam Roberts"
@@ -23,8 +23,8 @@
   "privateAgents": [],
   "interface": {
     "displayName": "Agent Compat",
-    "shortDescription": "Generate Codex and Claude instruction overlays from Copilot *.agent.md custom agents.",
-    "longDescription": "Agent Compat scans standalone and plugin-owned Copilot custom agents, validates frontmatter and safety constraints, then generates managed Codex AGENTS.md and Claude custom-instructions.md sections that preserve routing, scope, tools, subagent references, handoffs, and body instructions as host-readable guidance.",
+    "shortDescription": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents.",
+    "longDescription": "Agent Compat scans standalone and plugin-owned Copilot custom agents, validates frontmatter and safety constraints, then generates compact managed Codex AGENTS.md and Claude custom-instructions.md routing sections plus host-specific reference files. Stubs route by explicit agent name or trigger description, while reference files preserve scope, tools, subagent references, handoffs, and body instructions without bloating default context.",
     "developerName": "Sam Roberts",
     "category": "Productivity",
     "capabilities": [

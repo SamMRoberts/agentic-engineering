@@ -33,7 +33,7 @@ const program = new Command();
 program
     .name("agent-compat")
     .description("Convert Copilot *.agent.md custom agents into Codex and Claude instruction overlays.")
-    .version("0.1.0");
+    .version("0.2.0");
 
 program
     .command("scan")
@@ -90,6 +90,7 @@ program
             }
             for (const output of result.outputs) {
                 console.log(`Wrote ${output.target}: ${output.filePath}`);
+                console.log(`Wrote ${output.references.length} ${output.target} reference file(s).`);
             }
         } catch (err) {
             handleFailure(err);
@@ -120,6 +121,7 @@ program
             for (const output of result.outputs) {
                 const state = output.changed ? "Updated" : "Unchanged";
                 console.log(`${state} ${output.target}: ${output.filePath}`);
+                console.log(`Wrote ${output.references.length} ${output.target} reference file(s).`);
             }
         } catch (err) {
             handleFailure(err);

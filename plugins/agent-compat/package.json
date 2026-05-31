@@ -1,6 +1,6 @@
 {
   "name": "agent-compat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Convert Copilot *.agent.md custom agents into Codex and Claude instruction overlays.",
   "type": "module",
   "private": true,
