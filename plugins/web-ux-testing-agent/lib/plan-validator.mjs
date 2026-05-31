@@ -121,8 +121,9 @@ export function validatePlan(plan) {
 }
 
 function looksLikeSecretValue(id, value) {
+  // ${ENV} indirection is always safe — no literal secret is stored.
+  if (/^\$\{[^}]+\}$/.test(String(value).trim())) return false;
   if (SECRET_KEYS.test(String(id ?? ""))) return true;
-  // Bare ${ENV} references are fine; literal long opaque strings near secret ids are not.
   return false;
 }
 

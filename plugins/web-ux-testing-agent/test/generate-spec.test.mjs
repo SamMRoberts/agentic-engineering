@@ -49,3 +49,19 @@ test("generateSpec marks needs_discovery steps with a TODO", () => {
   const spec = generateSpec(plan);
   assert.match(spec, /TODO\(discovery\): resolve selector for step "mystery"/);
 });
+
+test("generateSpec reads ${ENV} values from process.env, never literal secrets", () => {
+  const plan = {
+    id: "p",
+    title: "p",
+    environment: { base_url: "${BASE_URL}" },
+    steps: [
+      { id: "nav", action: "navigate", url: "${BASE_URL}/login" },
+      { id: "pw", action: "fill", target: { label: "Password" }, value: "${APP_PASSWORD}" }
+    ]
+  };
+  const spec = generateSpec(plan);
+  assert.match(spec, /process\.env\.APP_PASSWORD/);
+  assert.doesNotMatch(spec, /"\$\{APP_PASSWORD\}"/);
+  assert.match(spec, /process\.env\.BASE_URL/);
+});

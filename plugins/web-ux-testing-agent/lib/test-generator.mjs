@@ -2,6 +2,22 @@
 // Every logical step becomes a test.step(); locators are accessible-first.
 import { buildLocator, jsString } from "./selectors.mjs";
 
+/**
+ * Render a plan string value as a JS expression. Values that are exactly an
+ * ${ENV_VAR} reference become a process.env read so secrets never get written
+ * into generated spec files. Values that embed ${VAR} become template literals.
+ */
+export function valueExpr(value) {
+  const str = String(value);
+  const exact = str.match(/^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/);
+  if (exact) return `(process.env.${exact[1]} ?? "")`;
+  if (/\$\{[A-Za-z_][A-Za-z0-9_]*\}/.test(str)) {
+    const tpl = str.replace(/`/g, "\\`").replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, "${process.env.$1 ?? \"\"}");
+    return "`" + tpl + "`";
+  }
+  return jsString(str);
+}
+
 /** Generate the full .spec.ts source for a plan. */
 export function generateSpec(plan) {
   const lines = [];
@@ -78,7 +94,7 @@ function* stepBody(step, baseUrl) {
   switch (step.action) {
     case "navigate": {
       const url = resolveUrl(step.url, baseUrl);
-      yield `${guardOpen}await page.goto(${jsString(url)})${guardClose}`;
+      yield `${guardOpen}await page.goto(${valueExpr(url)})${guardClose}`;
       return;
     }
     case "click":
@@ -88,10 +104,10 @@ function* stepBody(step, baseUrl) {
       yield `${guardOpen}await ${loc(step)}.dblclick(${stripComma(withTimeout(step))})${guardClose}`;
       return;
     case "fill":
-      yield `${guardOpen}await ${loc(step)}.fill(${jsString(String(step.value))})${guardClose}`;
+      yield `${guardOpen}await ${loc(step)}.fill(${valueExpr(step.value)})${guardClose}`;
       return;
     case "select":
-      yield `${guardOpen}await ${loc(step)}.selectOption(${jsString(String(step.value))})${guardClose}`;
+      yield `${guardOpen}await ${loc(step)}.selectOption(${valueExpr(step.value)})${guardClose}`;
       return;
     case "check":
       yield `${guardOpen}await ${loc(step)}.check()${guardClose}`;
@@ -103,10 +119,10 @@ function* stepBody(step, baseUrl) {
       yield `${guardOpen}await ${loc(step)}.hover()${guardClose}`;
       return;
     case "press":
-      yield `${guardOpen}await ${loc(step)}.press(${jsString(String(step.value))})${guardClose}`;
+      yield `${guardOpen}await ${loc(step)}.press(${valueExpr(step.value)})${guardClose}`;
       return;
     case "upload":
-      yield `${guardOpen}await ${loc(step)}.setInputFiles(${jsString(String(step.value))})${guardClose}`;
+      yield `${guardOpen}await ${loc(step)}.setInputFiles(${valueExpr(step.value)})${guardClose}`;
       return;
     case "wait_for": {
       const state = step.state ?? "visible";
@@ -122,17 +138,17 @@ function* stepBody(step, baseUrl) {
       yield `await expect(${loc(step)}).toBeHidden(${stripComma(withTimeout(step))})`;
       return;
     case "assert_text":
-      yield `await expect(${loc(step)}).toContainText(${jsString(String(step.value))})`;
+      yield `await expect(${loc(step)}).toContainText(${valueExpr(step.value)})`;
       return;
     case "assert_value":
-      yield `await expect(${loc(step)}).toHaveValue(${jsString(String(step.value))})`;
+      yield `await expect(${loc(step)}).toHaveValue(${valueExpr(step.value)})`;
       return;
     case "assert_count":
       yield `await expect(${loc(step)}).toHaveCount(${Number(step.value)})`;
       return;
     case "assert_url": {
       const expected = step.url ?? step.value;
-      yield `await expect(page).toHaveURL(${jsString(String(expected))})`;
+      yield `await expect(page).toHaveURL(${valueExpr(expected)})`;
       return;
     }
     case "capture": {
