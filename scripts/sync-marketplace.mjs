@@ -151,10 +151,6 @@ function formatJson(value) {
 function main() {
     const args = parseArgs(process.argv);
     const plugins = discoverPlugins();
-    if (plugins.length === 0) {
-        console.error("ERROR: no plugins discovered in plugins/");
-        process.exit(2);
-    }
     const next = formatJson(buildMarketplace(plugins));
 
     const existing = fs.existsSync(args.out) ? fs.readFileSync(args.out, "utf-8") : "";
