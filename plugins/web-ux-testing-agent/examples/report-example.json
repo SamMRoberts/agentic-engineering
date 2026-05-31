@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "create-page",
+  "plan_title": "Create a new page from the content menu",
+  "run_id": "2026-05-31T01-00-00",
+  "status": "failed",
+  "started_at": "2026-05-31T01:00:00.000Z",
+  "finished_at": "2026-05-31T01:00:04.200Z",
+  "duration_ms": 4200,
+  "environment": {
+    "base_url": "https://staging.example.com",
+    "stage": "staging",
+    "browser": "chromium"
+  },
+  "steps": [
+    {
+      "id": "go-to-the-application",
+      "title": "Go to the application",
+      "status": "passed",
+      "duration_ms": 800
+    },
+    {
+      "id": "click-the-content-menu-item",
+      "title": "Click the Content menu item",
+      "status": "passed",
+      "duration_ms": 400
+    },
+    {
+      "id": "select-the-pages-tab",
+      "title": "Select the Pages tab",
+      "status": "failed",
+      "duration_ms": 3000,
+      "error": {
+        "message": "locator.click: Timeout 3000ms exceeded waiting for getByRole('tab', { name: 'Pages' })"
+      }
+    }
+  ],
+  "artifacts": {
+    "trace": "trace.zip",
+    "playwright_json": "results.json",
+    "screenshots": [
+      "select-pages-tab-failure.png"
+    ]
+  },
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "flaky": 0
+  },
+  "diagnosis": {
+    "category": "timing_issue",
+    "confidence": "medium",
+    "rationale": "Matched failure signature for timing_issue in step \"Select the Pages tab\".",
+    "recommended_repairs": [
+      "Add or increase a wait_for step before the failing action, or raise timeout_ms; avoid fixed sleeps."
+    ]
+  }
+}

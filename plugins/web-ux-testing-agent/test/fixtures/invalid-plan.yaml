@@ -1,0 +1,24 @@
+schema_version: "1.0"
+id: invalid-plan
+title: Intentionally invalid plan for tests
+environment:
+  base_url: ${BASE_URL}
+  stage: staging
+steps:
+  - id: nav
+    action: navigate
+    # missing url -> error
+  - id: click-missing-target
+    action: click
+    # missing target and not needs_discovery -> error
+  - id: fill-no-value
+    action: fill
+    target: { label: Title }
+    # missing value -> error
+  - id: dup
+    action: assert_visible
+    target: { role: heading, name: X }
+  - id: dup
+    action: assert_visible
+    target: { role: heading, name: Y }
+    # duplicate id -> error

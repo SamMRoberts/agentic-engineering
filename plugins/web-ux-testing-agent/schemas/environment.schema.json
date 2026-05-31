@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-testing-agent/schemas/environment.schema.json",
+  "title": "Web UX Test Environment",
+  "description": "Environment and runtime configuration for a web UX test plan. Never contains credentials or secrets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["base_url"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Logical environment name, e.g. local, dev, staging."
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Base URL the plan runs against. May be ${ENV_VAR} for indirection."
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["local", "dev", "test", "staging", "preview", "production"],
+      "description": "Deployment stage. production gates destructive actions."
+    },
+    "test_id_attribute": {
+      "type": "string",
+      "default": "data-testid",
+      "description": "Attribute Playwright getByTestId resolves against."
+    },
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 200 },
+        "height": { "type": "integer", "minimum": 200 }
+      }
+    },
+    "browsers": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["chromium", "firefox", "webkit"] },
+      "default": ["chromium"]
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Authentication policy. Credentials themselves are supplied out-of-band (env vars / secret manager) and must never appear here.",
+      "properties": {
+        "required": { "type": "boolean", "default": false },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "storage_state",
+            "manual_login_pause",
+            "env_credentials",
+            "secret_manager"
+          ],
+          "description": "How auth is established. storage_state reuses a saved Playwright session."
+        },
+        "storage_state_path": {
+          "type": "string",
+          "description": "Path to a Playwright storageState JSON file (gitignored). Used when strategy is storage_state."
+        },
+        "username_env": {
+          "type": "string",
+          "description": "Name of the environment variable holding the username (not the value)."
+        },
+        "password_env": {
+          "type": "string",
+          "description": "Name of the environment variable holding the password (not the value)."
+        }
+      }
+    },
+    "destructive_actions_allowed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the plan may perform create/update/delete against this environment."
+    }
+  }
+}

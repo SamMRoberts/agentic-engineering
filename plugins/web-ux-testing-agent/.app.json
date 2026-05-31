@@ -1,0 +1,12 @@
+{
+  "apps": {
+    "plan-editor": {
+      "title": "Web UX Plan Editor",
+      "entry": "mcp/src/apps/plan-editor/index.html"
+    },
+    "report-viewer": {
+      "title": "Web UX Report Viewer",
+      "entry": "mcp/src/apps/report-viewer/index.html"
+    }
+  }
+}

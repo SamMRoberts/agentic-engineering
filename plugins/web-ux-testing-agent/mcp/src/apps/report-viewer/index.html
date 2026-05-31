@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web UX Report Viewer</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; padding: 1rem; }
+      h1 { font-size: 1.1rem; margin: 0 0 .5rem; }
+      .row { display: flex; gap: .5rem; align-items: center; margin: .5rem 0; flex-wrap: wrap; }
+      input { padding: .35rem; }
+      button { background: #1d4ed8; color: #fff; border: 0; border-radius: 6px; padding: .45rem .8rem; cursor: pointer; }
+      table { border-collapse: collapse; width: 100%; font-size: 13px; }
+      th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #8884; }
+      .pill { padding: .1rem .45rem; border-radius: 999px; font-size: 11px; }
+      .passed { background: #dcfce7; color: #166534; }
+      .failed { background: #fee2e2; color: #991b1b; }
+      .skipped { background: #e5e7eb; color: #374151; }
+      .meta { opacity: .8; font-size: 12px; }
+      pre { background: #1118; color: #eee; padding: .5rem; border-radius: 6px; overflow:auto; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>Web UX Report Viewer</h1>
+    <div class="row">
+      <input id="runName" placeholder="run directory (timestamp)" size="28" />
+      <button id="loadBtn">Load report</button>
+      <span id="reportsDir" class="meta"></span>
+    </div>
+    <div id="summary" class="meta"></div>
+    <div id="content"></div>
+
+    <script type="module">
+      const bridge = window.mcpApp || window.openai || window.mcp || null;
+      const $ = (id) => document.getElementById(id);
+
+      async function callTool(name, args) {
+        if (bridge && typeof bridge.callTool === "function") return await bridge.callTool(name, args);
+        throw new Error("No MCP host bridge available (standalone preview).");
+      }
+
+      function applyInitial(data) {
+        if (!data) return;
+        if (data.reportsDir) $("reportsDir").textContent = data.reportsDir;
+        if (data.run) $("runName").value = data.run;
+        if (data.report) render(data.report);
+      }
+      applyInitial(bridge && bridge.toolOutput);
+      window.addEventListener("message", (e) => {
+        if (e.data && (e.data.structuredContent || e.data.toolOutput)) {
+          applyInitial(e.data.structuredContent || e.data.toolOutput);
+        }
+      });
+
+      function render(report) {
+        const sev = report.status === "passed" ? "passed" : "failed";
+        $("summary").innerHTML =
+          `<span class="pill ${sev}">${escapeHtml(report.status)}</span> ` +
+          `<b>${escapeHtml(report.plan_title || report.plan_id)}</b> — ` +
+          `${(report.steps || []).length} steps · run ${escapeHtml(report.run_id || "")}`;
+        const rows = (report.steps || [])
+          .map((st, i) => {
+            const cls = st.status === "passed" ? "passed" : st.status === "skipped" ? "skipped" : "failed";
+            return `<tr><td>${i + 1}</td><td>${escapeHtml(st.title || st.id)}</td>` +
+              `<td><span class="pill ${cls}">${escapeHtml(st.status)}</span></td><td>${Number(st.duration_ms) || 0}ms</td></tr>`;
+          })
+          .join("");
+        const failed = (report.steps || []).filter((st) => st.status === "failed" || st.status === "timedout");
+        const errs = failed
+          .map((st) => `<h3>❌ ${escapeHtml(st.title || st.id)}</h3><pre>${escapeHtml((st.error && st.error.message) || "")}</pre>`)
+          .join("");
+        const art = report.artifacts || {};
+        const artList = [
+          art.trace ? `Trace: ${art.trace}` : "",
+          art.video ? `Video: ${art.video}` : "",
+          ...(art.screenshots || []).map((s) => "Screenshot: " + s)
+        ].filter(Boolean);
+        const diag = report.diagnosis
+          ? `<h3>Diagnosis</h3><p>${escapeHtml(report.diagnosis.category)} (${escapeHtml(report.diagnosis.confidence || "n/a")}) — ${escapeHtml(report.diagnosis.rationale || "")}</p>`
+          : "";
+        $("content").innerHTML =
+          `<table><thead><tr><th>#</th><th>Step</th><th>Status</th><th>Duration</th></tr></thead><tbody>${rows}</tbody></table>` +
+          (errs ? `<h2>Failed steps</h2>${errs}` : "") +
+          (artList.length ? `<h3>Artifacts</h3><ul>${artList.map((a) => "<li>" + escapeHtml(a) + "</li>").join("")}</ul>` : "") +
+          diag;
+      }
+
+      function escapeHtml(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+        );
+      }
+
+      $("loadBtn").addEventListener("click", async () => {
+        try {
+          const res = await callTool("get_report", { run: $("runName").value.trim() });
+          const sc = res.structuredContent || res;
+          if (sc.report) render(sc.report);
+          else $("content").textContent = "No report found.";
+        } catch (err) {
+          $("content").textContent = String(err.message || err);
+        }
+      });
+    </script>
+  </body>
+</html>

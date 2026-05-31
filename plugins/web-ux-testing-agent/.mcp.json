@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "web-ux-testing-agent": {
+      "command": "npx",
+      "args": ["-y", "tsx", "mcp/src/server.ts", "--stdio"],
+      "env": {}
+    }
+  }
+}

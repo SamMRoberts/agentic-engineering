@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-testing-agent/schemas/test-step.schema.json",
+  "title": "Web UX Test Step",
+  "description": "A single deterministic step in a web UX test plan. Steps map 1:1 to Playwright test.step() blocks at generation time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "action"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Stable kebab-case identifier, unique within the plan."
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable description used as the test.step() label."
+    },
+    "action": {
+      "type": "string",
+      "description": "The deterministic action this step performs.",
+      "enum": [
+        "navigate",
+        "click",
+        "dblclick",
+        "fill",
+        "select",
+        "check",
+        "uncheck",
+        "press",
+        "hover",
+        "upload",
+        "wait_for",
+        "assert_visible",
+        "assert_hidden",
+        "assert_text",
+        "assert_value",
+        "assert_url",
+        "assert_count",
+        "capture"
+      ]
+    },
+    "target": {
+      "$ref": "#/definitions/selector",
+      "description": "How to locate the element this action operates on. Required for all DOM-interacting actions."
+    },
+    "value": {
+      "type": ["string", "number", "boolean", "array"],
+      "description": "Action payload: text to fill, option to select, key(s) to press, expected text/value/count, or file path(s) to upload."
+    },
+    "url": {
+      "type": "string",
+      "description": "Absolute URL or path used by navigate / assert_url."
+    },
+    "state": {
+      "type": "string",
+      "enum": ["visible", "hidden", "attached", "detached", "enabled", "disabled"],
+      "description": "Element/page state to wait for when action is wait_for."
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120000,
+      "description": "Per-step timeout override in milliseconds."
+    },
+    "optional": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, a failure of this step is reported but does not fail the test (e.g. dismiss-if-present)."
+    },
+    "needs_discovery": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marks a step whose selector is unknown and must be resolved via Playwright MCP discovery before CLI execution."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form authoring notes; never executed."
+    }
+  },
+  "definitions": {
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Accessible-first locator. Exactly one primary strategy should be set; css/xpath are discouraged fallbacks.",
+      "properties": {
+        "role": {
+          "type": "string",
+          "description": "ARIA role for getByRole (e.g. button, tab, dialog, textbox)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Accessible name used with role, or label/text/testid value depending on strategy."
+        },
+        "exact": {
+          "type": "boolean",
+          "description": "Whether name/text matching is exact."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label text for getByLabel."
+        },
+        "text": {
+          "type": "string",
+          "description": "Visible text for getByText."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder for getByPlaceholder."
+        },
+        "test_id": {
+          "type": "string",
+          "description": "Value for getByTestId."
+        },
+        "css": {
+          "type": "string",
+          "description": "Discouraged CSS fallback; only when no accessible locator exists."
+        },
+        "xpath": {
+          "type": "string",
+          "description": "Strongly discouraged XPath fallback."
+        },
+        "nth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based index when the locator resolves to multiple elements."
+        },
+        "within": {
+          "$ref": "#/definitions/selector",
+          "description": "Scopes this locator inside a parent locator (e.g. a dialog)."
+        }
+      }
+    }
+  }
+}

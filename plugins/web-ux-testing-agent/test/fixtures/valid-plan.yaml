@@ -1,0 +1,103 @@
+schema_version: "1.0"
+id: create-page
+title: Create a new page from the content menu
+description: >
+  Validates the end-to-end "create page" workflow: open the content area,
+  start a new page, fill required fields, confirm, and verify creation.
+tags: [smoke, content, create]
+
+environment:
+  name: staging
+  base_url: ${BASE_URL}
+  stage: staging
+  test_id_attribute: data-testid
+  browsers: [chromium]
+  auth:
+    required: true
+    strategy: storage_state
+    storage_state_path: .auth/staging.json
+  destructive_actions_allowed: true
+
+preconditions:
+  - The authenticated user has permission to create pages.
+  - The "Content" workspace exists.
+
+steps:
+  - id: go-to-app
+    title: Go to the application
+    action: navigate
+    url: ${BASE_URL}/content
+
+  - id: open-content-menu
+    title: Click the Content menu item
+    action: click
+    target: { role: link, name: Content }
+
+  - id: select-pages-tab
+    title: Select the Pages tab
+    action: click
+    target: { role: tab, name: Pages }
+
+  - id: click-add-new
+    title: Click Add New
+    action: click
+    target: { role: button, name: Add New }
+
+  - id: choose-page-type
+    title: In the Add New popup, click Page
+    action: click
+    target:
+      role: menuitem
+      name: Page
+      within: { role: dialog, name: Add New }
+
+  - id: fill-title
+    title: Fill in the page title
+    action: fill
+    target: { label: Title }
+    value: QA Automated Page
+
+  - id: fill-slug
+    title: Fill in the page slug
+    action: fill
+    target: { label: Slug }
+    value: qa-automated-page
+
+  - id: click-next
+    title: Click Next on the page properties
+    action: click
+    target: { role: button, name: Next }
+
+  - id: confirm-creation
+    title: Confirm creation
+    action: click
+    target: { role: button, name: Create }
+
+  - id: wait-for-toast
+    title: Wait for the creation toast to appear
+    action: wait_for
+    state: visible
+    target: { role: status }
+
+assertions:
+  - id: verify-success-toast
+    title: Verify the success message
+    action: assert_text
+    target: { role: status }
+    value: Page created
+
+  - id: verify-page-heading
+    title: Verify the new page heading is shown
+    action: assert_visible
+    target: { role: heading, name: QA Automated Page }
+
+cleanup:
+  - id: delete-created-page
+    title: Delete the page created during the test
+    action: click
+    optional: true
+    target: { role: button, name: Delete page }
+
+metadata:
+  author: web-ux-planner
+  source_workflow: "Go to URL → Content → Pages → Add New → Page → fill → Next → Confirm → verify"
