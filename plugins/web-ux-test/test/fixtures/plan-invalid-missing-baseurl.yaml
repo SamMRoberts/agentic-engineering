@@ -1,8 +1,0 @@
-id: missing-baseurl
-name: Missing baseUrl
-target:
-  browser: chromium
-plan:
-  - id: step1
-    action: goto
-    target: /

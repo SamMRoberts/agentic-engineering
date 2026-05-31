@@ -1,5 +1,5 @@
 {
-  "name": "SamMRoberts Marketplace",
+  "name": "sammroberts-marketplace",
   "interface": {
     "displayName": "SamMRoberts Marketplace"
   },
@@ -10,7 +10,7 @@
         "source": "git-subdir",
         "url": "https://github.com/SamMRoberts/agentic-engineering.git",
         "path": "plugins/agent-compat",
-        "ref": "main"
+        "ref": "develop"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -18,21 +18,6 @@
       },
       "category": "Productivity",
       "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents."
-    },
-    {
-      "name": "web-ux-test",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/web-ux-test",
-        "ref": "main"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Testing",
-      "description": "Workflow-enforced Playwright UX testing: schema-validated plans, gated execution, deterministic repair loop."
     }
   ]
 }
