@@ -3,51 +3,5 @@
   "interface": {
     "displayName": "SamMRoberts Marketplace"
   },
-  "plugins": [
-    {
-      "name": "web-frontend-testing",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/web-frontend-testing",
-        "ref": "main"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Testing",
-      "description": "Plan, run, and report Playwright CLI (preferred) or MCP tests for web frontends."
-    },
-    {
-      "name": "web-ux-testing",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/web-ux-testing",
-        "ref": "main"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Testing",
-      "description": "Plan, run, and report structured web UX tests."
-    },
-    {
-      "name": "web-ux-testing-agent",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/web-ux-testing-agent",
-        "ref": "main"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Testing",
-      "description": "Plan, run, debug, and report Playwright web UX validation tests across Codex, Claude, and Copilot."
-    }
-  ]
+  "plugins": []
 }
