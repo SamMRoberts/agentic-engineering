@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Change generated host instruction files into compact routing stubs.
+- Add per-agent reference file generation under host-specific `references/` folders.
+- Enforce a 100-line limit for generated stubs and reference files.
+
 ## 0.1.0
 
 - Add the initial `agent-compat` plugin.

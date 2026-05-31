@@ -1,5 +1,5 @@
 {
-  "name": "sammroberts-marketplace",
+  "name": "SamMRoberts Marketplace",
   "interface": {
     "displayName": "SamMRoberts Marketplace"
   },
@@ -17,7 +17,7 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity",
-      "description": "Generate Codex and Claude instruction overlays from Copilot *.agent.md custom agents."
+      "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents."
     },
     {
       "name": "web-ux-test",

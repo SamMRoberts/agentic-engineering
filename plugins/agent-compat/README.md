@@ -2,7 +2,7 @@
 
 `agent-compat` converts Copilot `*.agent.md` custom agents into instruction overlays that Codex and Claude can read.
 
-Copilot supports user-selectable custom agents. Codex and Claude commonly rely on repository instructions instead. This plugin keeps agent plugins, skills, MCP tools, instruction files, CLI/TUI workflows, web pages, and MCP Apps more consistent across hosts by generating managed `AGENTS.md` and `custom-instructions.md` sections from the same agent source files.
+Copilot supports user-selectable custom agents. Codex and Claude commonly rely on repository instructions instead. This plugin keeps agent plugins, skills, MCP tools, instruction files, CLI/TUI workflows, web pages, and MCP Apps more consistent across hosts by generating compact managed `AGENTS.md` and `custom-instructions.md` routing stubs from the same agent source files.
 
 ## Scope
 
@@ -39,8 +39,8 @@ agent-compat install [--root <path>] [--target codex|claude|all] [--codex-file A
 
 Defaults:
 
-- `generate` writes `.agent-compat/codex/AGENTS.md`.
-- `generate` writes `.agent-compat/claude/custom-instructions.md`.
+- `generate` writes `.agent-compat/codex/AGENTS.md` plus Codex references under `.agent-compat/codex/references/`.
+- `generate` writes `.agent-compat/claude/custom-instructions.md` plus Claude references under `.agent-compat/claude/references/`.
 - `install` updates managed sections in `AGENTS.md` and `custom-instructions.md`.
 
 Managed sections use these markers:
@@ -69,9 +69,19 @@ It also emits warnings for host-specific Copilot or VS Code fields that cannot b
 Generated instructions tell Codex and Claude to:
 
 - Prefer an explicit agent name from the user over trigger matching.
-- Otherwise match the `description` trigger text.
-- Preserve scope, constraints, safety rules, tool expectations, subagent delegation, handoffs, and body instructions as host-readable guidance.
+- Otherwise match the `description` trigger text or argument hint.
+- Read only the matching reference file before acting.
+- Preserve scope, constraints, safety rules, tool expectations, subagent delegation, handoffs, and body instructions in host-readable reference files.
 - Treat unsupported host-specific fields as compatibility notes rather than executable guarantees.
+
+Generated host instruction files are capped at 100 lines to avoid token bloat. Reference files are also capped at 100 lines. If a converted agent would exceed that limit, generation fails with the offending path and line count so the source agent can be split or shortened deliberately.
+
+Reference paths are organized by source:
+
+```text
+.agent-compat/<host>/references/plugins/<plugin-name>/agents/<agent-name>.md
+.agent-compat/<host>/references/standalone/<topic>/agents/<agent-name>.md
+```
 
 ## Testing
 
