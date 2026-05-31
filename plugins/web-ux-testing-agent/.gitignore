@@ -1,0 +1,8 @@
+node_modules/
+.auth/
+storage-state*.json
+test-results/
+reports/
+playwright-report/
+dist/
+*.log

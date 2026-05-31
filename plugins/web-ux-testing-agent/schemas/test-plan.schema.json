@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-testing-agent/schemas/test-plan.schema.json",
+  "title": "Web UX Test Plan",
+  "description": "A human-readable, structured web UX validation plan. Plans are authored in YAML, validated against this schema, and compiled to deterministic Playwright CLI tests.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "environment", "steps"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Plan schema version for forward compatibility."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Stable kebab-case plan identifier; also used as the spec file base name."
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable plan title used as the Playwright test() name."
+    },
+    "description": {
+      "type": "string",
+      "description": "What this plan validates and why."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Freeform labels (e.g. smoke, regression, accessibility) for filtering."
+    },
+    "environment": {
+      "$ref": "environment.schema.json",
+      "description": "Target environment and runtime configuration."
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Human-readable preconditions that must hold before the plan runs (data, feature flags, roles)."
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "test-step.schema.json" },
+      "description": "Ordered deterministic steps. Each compiles to a Playwright test.step()."
+    },
+    "assertions": {
+      "type": "array",
+      "items": { "$ref": "test-step.schema.json" },
+      "description": "Optional trailing success-criteria assertions appended after steps. Each item should use an assert_* action."
+    },
+    "cleanup": {
+      "type": "array",
+      "items": { "$ref": "test-step.schema.json" },
+      "description": "Steps run in an afterEach/finally block to undo side effects (e.g. delete created entity)."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Authoring metadata (author, source workflow, related issue).",
+      "additionalProperties": true
+    }
+  }
+}

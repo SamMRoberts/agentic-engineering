@@ -1,0 +1,37 @@
+{
+  "config": { "version": "1.49.0" },
+  "suites": [
+    {
+      "title": "create-page.spec.ts",
+      "specs": [
+        {
+          "title": "Create a new page from the content menu",
+          "tests": [
+            {
+              "status": "unexpected",
+              "results": [
+                {
+                  "status": "failed",
+                  "startTime": "2026-05-31T01:00:00.000Z",
+                  "duration": 4200,
+                  "steps": [
+                    { "category": "test.step", "title": "Go to the application", "duration": 800 },
+                    { "category": "test.step", "title": "Click the Content menu item", "duration": 400 },
+                    {
+                      "category": "test.step",
+                      "title": "Select the Pages tab",
+                      "duration": 3000,
+                      "error": {
+                        "message": "locator.click: Timeout 3000ms exceeded waiting for getByRole('tab', { name: 'Pages' })"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
