@@ -1,0 +1,39 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/SamMRoberts/agentic-engineering/plugins/agent-compat/schemas/agent-compat.schema.yaml"
+title: Agent Compat Overlay Metadata
+type: object
+required:
+  - agents
+properties:
+  agents:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - relativePath
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 1
+        relativePath:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        kind:
+          enum:
+            - plugin
+            - standalone
+            - other
+        tools:
+          type: array
+          items:
+            type: string
+        agents:
+          type: array
+          items:
+            type: string
+additionalProperties: true

@@ -1,0 +1,43 @@
+{
+  "name": "agent-compat",
+  "version": "0.1.0",
+  "description": "Compatibility layer that converts Copilot *.agent.md custom agents into Codex AGENTS.md and Claude custom-instructions.md overlays.",
+  "author": {
+    "name": "Sam Roberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-compat",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-compat",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "copilot",
+    "codex",
+    "claude",
+    "compatibility",
+    "instructions",
+    "custom-agents"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "entrypointAgent": "agent-compat",
+  "privateAgents": [],
+  "interface": {
+    "displayName": "Agent Compat",
+    "shortDescription": "Generate Codex and Claude instruction overlays from Copilot *.agent.md custom agents.",
+    "longDescription": "Agent Compat scans standalone and plugin-owned Copilot custom agents, validates frontmatter and safety constraints, then generates managed Codex AGENTS.md and Claude custom-instructions.md sections that preserve routing, scope, tools, subagent references, handoffs, and body instructions as host-readable guidance.",
+    "developerName": "Sam Roberts",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-compat",
+    "defaultPrompt": [
+      "Scan this repository for Copilot custom agents.",
+      "Validate agent compatibility for Codex and Claude.",
+      "Generate Codex and Claude instruction overlays.",
+      "Install managed agent compatibility sections into this repository."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

@@ -8,8 +8,8 @@ A personal collection of agent customizations: plugins, instructions, custom age
 agentic-engineering/
 ├── plugins/                  # Installable plugins (this is what the marketplace serves)
 │   ├── marketplace.json      # Auto-generated marketplace descriptor
-│   ├── web-ux-testing/       # Web UX testing pack
-│   └── web-frontend-testing/ # Playwright MCP frontend testing pack (incl. MCP App)
+│   ├── agent-compat/         # Copilot custom agent compatibility for Codex/Claude
+│   └── web-ux-test/          # Workflow-enforced Playwright UX testing pack
 ├── agents/                   # Standalone custom agents (not packaged as plugins)
 ├── instructions/             # Repository-scoped AGENTS.md instructions
 │   ├── general-coding/       # Always-on coding discipline
@@ -38,8 +38,8 @@ Current plugins:
 
 | Plugin | Purpose |
 | --- | --- |
-| [web-ux-testing](plugins/web-ux-testing/) | Plan, run, and report structured web UX tests with Playwright MCP and CLI runners. |
-| [web-frontend-testing](plugins/web-frontend-testing/) | Five-stage Playwright frontend testing workflow (intake → scan → plan → execute → report), plus an MCP App for triage and plan editing. |
+| [agent-compat](plugins/agent-compat/) | Convert Copilot `*.agent.md` custom agents into Codex `AGENTS.md` and Claude `custom-instructions.md` overlays. |
+| [web-ux-test](plugins/web-ux-test/) | Plan, run, classify, repair, and report structured web UX tests with a stateful CLI and MCP workflow server. |
 
 ## Using the marketplace
 
