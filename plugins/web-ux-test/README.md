@@ -21,6 +21,7 @@ From this repository:
 ```bash
 cd plugins/web-ux-test
 npm install
+npm run ensure:playwright-cli
 ```
 
 Optionally install Playwright browsers (the runner expects them):

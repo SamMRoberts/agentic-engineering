@@ -8,6 +8,7 @@
     "web-ux-test": "./bin/web-ux-test.mjs"
   },
   "scripts": {
+    "ensure:playwright-cli": "node scripts/ensure-playwright-cli.mjs",
     "test": "node --test test/**/*.test.mjs",
     "validate:plan": "node bin/web-ux-test.mjs plan validate",
     "validate:state": "node bin/web-ux-test.mjs state validate"
@@ -28,5 +29,8 @@
     "playwright": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "@playwright/cli": "^0.1.13"
   }
 }

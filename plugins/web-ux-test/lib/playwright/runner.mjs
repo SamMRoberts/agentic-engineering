@@ -9,8 +9,13 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+import { ensurePlaywrightCli } from "./ensure-cli.mjs";
 import { validateAgainstSchema } from "../schema-utils.mjs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PACKAGE_ROOT = path.resolve(__dirname, "../..");
 
 function pad2(n) {
     return String(n).padStart(2, "0");
@@ -119,12 +124,16 @@ export async function executeSpec({
     let stdout = "";
     let stderr = "";
     try {
+        const cli = ensurePlaywrightCli({ packageRoot: PACKAGE_ROOT });
+        if (!cli.ok) {
+            throw new Error((cli.errors ?? ["Unable to ensure @playwright/cli."]).join(" "));
+        }
         const result = await spawnPlaywright(args, { cwd, env });
         exitCode = result.exitCode;
         stdout = result.stdout;
         stderr = result.stderr;
     } catch (err) {
-        stderr = `Failed to spawn Playwright: ${err.message}\nIs @playwright/test installed? Run \`npm install @playwright/test\` and \`npx playwright install\`.`;
+        stderr = `Failed to spawn Playwright: ${err.message}\nThe runner checks for @playwright/cli and installs it with \`npm install -D @playwright/cli\` when missing. If browser binaries are missing, run \`npx playwright install\`.`;
     }
     const finishedAt = new Date().toISOString();
 

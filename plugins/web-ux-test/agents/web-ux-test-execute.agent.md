@@ -27,5 +27,5 @@ After execution, report:
 
 Stop conditions:
 
-- Playwright is not installed → instruct the user to run `npx playwright install` and stop.
+- `@playwright/cli` is missing → run `npm run ensure:playwright-cli` from the plugin root, then continue. If browser binaries are missing, instruct the user to run `npx playwright install` and stop.
 - A required input (planPath, generatedTestPath) is missing → return to `web-ux-test-plan`.
