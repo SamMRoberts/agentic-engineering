@@ -11,7 +11,8 @@
     "ensure:playwright-cli": "node scripts/ensure-playwright-cli.mjs",
     "test": "node --test test/**/*.test.mjs",
     "validate:plan": "node bin/web-ux-test.mjs plan validate",
-    "validate:state": "node bin/web-ux-test.mjs state validate"
+    "validate:state": "node bin/web-ux-test.mjs state validate",
+    "setup:playwright": "npm install && npx playwright install chromium"
   },
   "engines": {
     "node": ">=20"
@@ -20,7 +21,8 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "commander": "^12.1.0",
-    "yaml": "^2.6.1"
+    "yaml": "^2.6.1",
+    "@playwright/cli": "^0.1.13"
   },
   "peerDependencies": {
     "playwright": ">=1.40.0"
@@ -30,7 +32,5 @@
       "optional": true
     }
   },
-  "devDependencies": {
-    "@playwright/cli": "^0.1.13"
-  }
+  "devDependencies": {}
 }
