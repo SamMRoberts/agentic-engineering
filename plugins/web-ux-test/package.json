@@ -22,7 +22,8 @@
     "ajv-formats": "^3.0.1",
     "commander": "^12.1.0",
     "yaml": "^2.6.1",
-    "@playwright/cli": "^0.1.13"
+    "@playwright/cli": "^0.1.13",
+    "@playwright/test": "^1.56.0"
   },
   "peerDependencies": {
     "playwright": ">=1.40.0"
