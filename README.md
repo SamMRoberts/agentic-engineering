@@ -10,6 +10,7 @@ agentic-engineering/
 │   ├── marketplace.json      # Auto-generated marketplace descriptor
 │   ├── agent-compat/         # Copilot custom agent compatibility for Codex/Claude
 │   ├── assumption-killer/    # Assumption-gate workflow enforcement
+│   ├── change-control-compiler/ # Scope contract and drift-control enforcement
 │   └── web-ux-test/          # Workflow-enforced Playwright UX testing pack
 ├── agents/                   # Standalone custom agents (not packaged as plugins)
 ├── instructions/             # Repository-scoped AGENTS.md instructions
@@ -41,6 +42,7 @@ Current plugins:
 | --- | --- |
 | [agent-compat](plugins/agent-compat/) | Convert Copilot `*.agent.md` custom agents into Codex `AGENTS.md` and Claude `custom-instructions.md` overlays. |
 | [assumption-killer](plugins/assumption-killer/) | Enforce assumption discovery, evidence, and blocking checks before implementation work. |
+| [change-control-compiler](plugins/change-control-compiler/) | Compile vague change requests into enforceable scope, verification, and drift-control contracts. |
 | [web-ux-test](plugins/web-ux-test/) | Plan, run, classify, repair, and report structured web UX tests with a stateful CLI and MCP workflow server. |
 
 ## Using the marketplace

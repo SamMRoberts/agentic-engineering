@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "Add Change Control Compiler plugin",
+    "request": "Create a plugin that compiles vague requests into enforceable contracts before implementation.",
+    "problem_statement": "Agents can drift from vague requests unless scope, forbidden areas, verification, and stop conditions are explicit before edits."
+  },
+  "goal": "Create a Change Control Compiler plugin that validates scope contracts and detects modified files outside allowed areas before final response.",
+  "success_criteria": [
+    "The contract validator accepts this valid example.",
+    "The drift command checks git status against allowed and forbidden paths.",
+    "The plugin documents Codex, Copilot, Claude, hooks, and CI usage."
+  ],
+  "scope": {
+    "summary": "Add a bounded plugin with docs, skill, schema, templates, examples, hooks, CI example, and validation script.",
+    "in_scope": [
+      "plugins/change-control-compiler/"
+    ],
+    "out_of_scope": [
+      "Changing unrelated plugins",
+      "Creating a backend service",
+      "Adding external dependencies"
+    ]
+  },
+  "non_goals": [
+    "Do not create a desktop app.",
+    "Do not introduce runtime dependencies.",
+    "Do not modify unrelated plugin behavior."
+  ],
+  "allowed_change_areas": [
+    "plugins/change-control-compiler/",
+    "plugins/marketplace.json",
+    "README.md"
+  ],
+  "forbidden_change_areas": [
+    "plugins/agent-compat/",
+    "plugins/assumption-killer/",
+    ".github/workflows/"
+  ],
+  "files_to_inspect": [
+    "plugins/AGENTS.md",
+    "scripts/sync-marketplace.mjs",
+    "plugins/assumption-killer/"
+  ],
+  "files_allowed_to_modify": [
+    "plugins/change-control-compiler/plugin.json",
+    "plugins/change-control-compiler/package.json",
+    "plugins/change-control-compiler/skills/change-control-compiler/scripts/change-control.mjs"
+  ],
+  "files_forbidden_to_modify": [
+    "plugins/agent-compat/plugin.json"
+  ],
+  "expected_behavior": "The plugin blocks implementation until a valid contract exists and flags modified files outside allowed scope.",
+  "current_behavior": "No Change Control Compiler plugin exists in the repository.",
+  "test_requirements": [
+    "Validator accepts the valid contract example.",
+    "Validator rejects the invalid contract example.",
+    "Drift check passes in a clean git repository."
+  ],
+  "verification_commands": [
+    "node bin/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json",
+    "node bin/change-control.mjs check --contract skills/change-control-compiler/examples/invalid-contract.json",
+    "npm test"
+  ],
+  "risk_level": "medium",
+  "rollback_plan": "Remove plugins/change-control-compiler/ and regenerate plugins/marketplace.json.",
+  "stop_conditions": [
+    "Stop if implementation requires external dependencies.",
+    "Stop if plugin metadata requires unsupported manifest fields.",
+    "Stop if drift detection cannot be implemented with git status --short."
+  ],
+  "open_questions": [],
+  "implementation_plan": [
+    "Create plugin manifests and documentation.",
+    "Add skill templates, schema, examples, and script.",
+    "Add tests and run validation.",
+    "Regenerate marketplace."
+  ],
+  "final_acceptance_checklist": [
+    "Valid example passes.",
+    "Invalid example fails.",
+    "Drift test covers clean, allowed, forbidden, and out-of-scope changes.",
+    "Marketplace is up to date."
+  ]
+}

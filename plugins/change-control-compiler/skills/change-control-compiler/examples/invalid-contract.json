@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "Bad contract",
+    "request": "Fix it.",
+    "problem_statement": ""
+  },
+  "goal": "Improve parser behavior.",
+  "success_criteria": [],
+  "scope": {
+    "summary": "",
+    "in_scope": [],
+    "out_of_scope": []
+  },
+  "non_goals": [],
+  "allowed_change_areas": [],
+  "forbidden_change_areas": [],
+  "files_to_inspect": [],
+  "files_allowed_to_modify": [],
+  "files_forbidden_to_modify": [],
+  "expected_behavior": "",
+  "current_behavior": "",
+  "test_requirements": [],
+  "verification_commands": [
+    "cargo test parser_signature_bounds"
+  ],
+  "risk_level": "high",
+  "rollback_plan": "",
+  "stop_conditions": [],
+  "open_questions": [],
+  "implementation_plan": [],
+  "final_acceptance_checklist": []
+}
