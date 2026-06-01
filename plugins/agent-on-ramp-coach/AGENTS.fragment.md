@@ -46,3 +46,13 @@ For levels 0 through 3, also run:
 ```bash
 node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits
 ```
+
+Prefer the driveable commands over hand-editing the session JSON:
+
+```bash
+node skills/agent-on-ramp-coach/scripts/onramp.mjs menu
+node skills/agent-on-ramp-coach/scripts/onramp.mjs start --task "<task>" --workflow <type> --risk <level> --selected-level <level>
+node skills/agent-on-ramp-coach/scripts/onramp.mjs record --inspected <file> --command "<cmd>" --finding "<text>"
+node skills/agent-on-ramp-coach/scripts/onramp.mjs status
+node skills/agent-on-ramp-coach/scripts/onramp.mjs complete
+```

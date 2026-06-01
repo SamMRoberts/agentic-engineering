@@ -1,0 +1,104 @@
+{
+  "version": "1.0",
+  "description": "Machine-readable safe task menu for Agent On-Ramp Coach. Source of truth for the `onramp.mjs menu` command and the markdown menu in templates/safe-task-menu.md.",
+  "workflows": [
+    {
+      "name": "explain_code",
+      "category": "Read-Only Understanding",
+      "description": "Explain a file, function, module, error, or workflow in plain engineering terms.",
+      "recommended_confidence_level": "level_0_explain_only",
+      "example_prompt": "Explain how this module handles retries without changing anything."
+    },
+    {
+      "name": "summarize_file",
+      "category": "Read-Only Understanding",
+      "description": "Summarize one file or a small set of files before editing them.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Summarize this file for me before I edit it."
+    },
+    {
+      "name": "find_risky_areas",
+      "category": "Read-Only Understanding",
+      "description": "Identify likely risk points before a human changes code.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Where is this change likely to break behavior?"
+    },
+    {
+      "name": "map_change_impact",
+      "category": "Read-Only Understanding",
+      "description": "Map callers, tests, and contracts affected by a proposed change.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "What would be affected if I rename this API field?"
+    },
+    {
+      "name": "create_debug_plan",
+      "category": "Debugging Support",
+      "description": "Turn a symptom or failure into a stepwise debug plan.",
+      "recommended_confidence_level": "level_2_plan_only",
+      "example_prompt": "Help me debug this failure without changing code."
+    },
+    {
+      "name": "explain_test_failure",
+      "category": "Debugging Support",
+      "description": "Explain why a test failed and what evidence supports the explanation.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Explain this test failure and what I should inspect next."
+    },
+    {
+      "name": "suggest_tests",
+      "category": "Testing Support",
+      "description": "Suggest meaningful tests for a planned change.",
+      "recommended_confidence_level": "level_2_plan_only",
+      "example_prompt": "Suggest tests for this change before I implement it."
+    },
+    {
+      "name": "summarize_pr",
+      "category": "Review Support",
+      "description": "Summarize a PR or branch diff for human review.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Summarize this PR so I can review it faster."
+    },
+    {
+      "name": "review_diff",
+      "category": "Review Support",
+      "description": "Review a diff for bugs, regressions, missing tests, and safety issues.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Review this diff, but do not edit anything."
+    },
+    {
+      "name": "review_agent_output",
+      "category": "Review Support",
+      "description": "Review another agent's changes or plan for correctness and scope drift.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "Check whether this agent output is safe to accept."
+    },
+    {
+      "name": "draft_handoff_notes",
+      "category": "Documentation Support",
+      "description": "Draft concise notes for another engineer.",
+      "recommended_confidence_level": "level_2_plan_only",
+      "example_prompt": "Draft handoff notes for what I learned here."
+    },
+    {
+      "name": "generate_readme_update_plan",
+      "category": "Documentation Support",
+      "description": "Plan README updates without editing documentation.",
+      "recommended_confidence_level": "level_2_plan_only",
+      "example_prompt": "Tell me how the README should change for this feature."
+    },
+    {
+      "name": "identify_missing_docs",
+      "category": "Documentation Support",
+      "description": "Find documentation gaps for a feature or workflow.",
+      "recommended_confidence_level": "level_1_analyze_only",
+      "example_prompt": "What documentation is missing for this workflow?"
+    },
+    {
+      "name": "create_small_refactor_plan",
+      "category": "Small Controlled Implementation",
+      "description": "Plan a small refactor with scope, risk, and verification.",
+      "recommended_confidence_level": "level_2_plan_only",
+      "example_prompt": "Plan a small refactor, but do not edit yet."
+    }
+  ]
+}

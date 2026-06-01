@@ -44,12 +44,39 @@ These workflows are useful even when no code is changed.
 
 ## Manual Usage
 
-From the target repository root:
+From the target repository root, drive the whole session with composable commands instead of editing JSON by hand:
+
+```bash
+# Discover a safe starting workflow
+node skills/agent-on-ramp-coach/scripts/onramp.mjs menu
+
+# Start and populate a session in one step
+node skills/agent-on-ramp-coach/scripts/onramp.mjs start \
+  --task "Explain how retries work" \
+  --workflow explain_code \
+  --risk low \
+  --selected-level level_1_analyze_only
+
+# Record evidence incrementally as you work (repeatable flags)
+node skills/agent-on-ramp-coach/scripts/onramp.mjs record \
+  --inspected src/retry-service.ts \
+  --command "rg retry src" \
+  --finding "Retries are bounded by maxAttempts"
+
+# Update scalar fields and see what is still missing
+node skills/agent-on-ramp-coach/scripts/onramp.mjs set --status read_only_complete
+node skills/agent-on-ramp-coach/scripts/onramp.mjs status
+
+# Validate, then record the session in the team adoption log
+node skills/agent-on-ramp-coach/scripts/onramp.mjs check
+node skills/agent-on-ramp-coach/scripts/onramp.mjs complete
+```
+
+The session JSON is the single source of truth; `start`, `set`, and `record` regenerate the markdown mirror automatically. The lower-level commands are still available:
 
 ```bash
 node skills/agent-on-ramp-coach/scripts/onramp.mjs init
 node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check
 node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits
 node skills/agent-on-ramp-coach/scripts/onramp.mjs summary
 ```
@@ -60,6 +87,23 @@ When running from this plugin package, use the full path:
 node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/valid-adoption-session.json
 ```
 
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `init` | Create empty session artifacts. |
+| `start` | Create and populate a session in one step from flags. |
+| `set` | Update scalar fields (workflow, risk, levels, status, approval, next step). |
+| `record` | Append evidence to list fields (files, commands, findings, etc.). |
+| `status` | Show the session plus a readiness checklist for the selected level. |
+| `menu` | List safe starter workflows (`--json` for machine-readable output). |
+| `check` | Validate the session and the git boundary when a snapshot exists. |
+| `no-edits` | Fail if read-only levels changed files outside `.agent/session/`. |
+| `snapshot` | Record current git state for no-edit checks. |
+| `summary` | Print a scan-friendly session summary. |
+| `complete` | Validate, then append the session to the adoption history log. |
+| `history` | Summarize the adoption history log for a team. |
+
 ## Session Artifacts
 
 The workflow creates:
@@ -68,9 +112,16 @@ The workflow creates:
 .agent/session/onramp-session.json
 .agent/session/onramp-session.md
 .agent/session/onramp-git-snapshot.json
+.agent/session/onramp-history.jsonl
 ```
 
 The JSON artifact records task, request, workflow type, risk level, recommended and selected confidence levels, explicit edit approval, allowed and forbidden actions, files inspected, commands run, files modified, findings, recommendations, human review items, verification commands, final status, and next suggested step.
+
+## Adoption History
+
+`complete` validates the session and then appends one JSON line to `.agent/session/onramp-history.jsonl` recording the timestamp, task title, workflow type, risk level, recommended and selected confidence levels, final status, and inspected/modified file counts. Each entry matches `schemas/adoption-history-entry.schema.json`.
+
+`history` summarizes the log: total sessions and breakdowns by selected confidence level, workflow type, and final status. Teams can use this append-only ledger to see real adoption, build trust with evidence, and decide when engineers are ready to graduate to a higher confidence level. The log is commit-friendly so adoption progress can be reviewed in a PR.
 
 ## No-Edit Checks
 

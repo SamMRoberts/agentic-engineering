@@ -5,7 +5,7 @@
   "entrypointAgent": "agent-on-ramp-coach",
   "privateAgents": [],
   "metadata": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Helps hesitant engineers adopt AI coding agents through safe confidence levels, read-only workflows, approval gates, and reviewable summaries.",
     "skills": [
       "skills/agent-on-ramp-coach/SKILL.md"
@@ -14,7 +14,11 @@
       "skills/agent-on-ramp-coach/scripts/onramp.mjs"
     ],
     "schemas": [
-      "skills/agent-on-ramp-coach/schemas/adoption-session.schema.json"
+      "skills/agent-on-ramp-coach/schemas/adoption-session.schema.json",
+      "skills/agent-on-ramp-coach/schemas/adoption-history-entry.schema.json"
+    ],
+    "data": [
+      "skills/agent-on-ramp-coach/data/safe-task-menu.json"
     ],
     "templates": [
       "skills/agent-on-ramp-coach/templates/adoption-session.md",
@@ -31,7 +35,8 @@
     "outputs": [
       ".agent/session/onramp-session.json",
       ".agent/session/onramp-session.md",
-      ".agent/session/onramp-git-snapshot.json"
+      ".agent/session/onramp-git-snapshot.json",
+      ".agent/session/onramp-history.jsonl"
     ]
   }
 }
