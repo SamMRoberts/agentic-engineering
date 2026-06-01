@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "Explain retry handling",
+    "user_request": "Help me understand how this service retries failed requests without changing code.",
+    "summary": "Read-only explanation of retry behavior for a skeptical engineer."
+  },
+  "workflow_type": "explain_code",
+  "risk_level": "low",
+  "recommended_confidence_level": "level_1_analyze_only",
+  "selected_confidence_level": "level_1_analyze_only",
+  "explicit_edit_approval": false,
+  "allowed_actions": [
+    "Read the named service file",
+    "Read directly related tests",
+    "Summarize behavior and uncertainty"
+  ],
+  "forbidden_actions": [
+    "Modify source files",
+    "Run package installs",
+    "Run destructive commands"
+  ],
+  "files_inspected": [
+    "src/retry-service.ts",
+    "test/retry-service.test.ts"
+  ],
+  "commands_run": [
+    "rg \"retry\" src test"
+  ],
+  "files_modified": [],
+  "agent_findings": [
+    "Retries are bounded by maxAttempts and stop on non-retryable errors.",
+    "The test suite covers timeout retry but not rate-limit retry."
+  ],
+  "agent_recommendations": [
+    "Review whether rate-limit responses should be considered retryable.",
+    "Add a targeted test only if the team confirms that behavior."
+  ],
+  "human_review_items": [
+    "Confirm whether the retry policy matches production expectations."
+  ],
+  "verification_commands": [],
+  "final_status": "read_only_complete",
+  "next_suggested_step": "Ask for a level_2_plan_only test plan if the missing rate-limit case matters."
+}

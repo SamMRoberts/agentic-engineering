@@ -1,0 +1,41 @@
+{
+  "name": "agent-on-ramp-coach",
+  "version": "1.0.0",
+  "description": "Helps hesitant engineers adopt AI coding agents through safe confidence levels, read-only workflows, approval gates, and reviewable summaries.",
+  "author": {
+    "name": "Sam Roberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-on-ramp-coach",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-on-ramp-coach",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "adoption",
+    "confidence",
+    "codex",
+    "copilot",
+    "claude",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent On-Ramp Coach",
+    "shortDescription": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions.",
+    "longDescription": "Agent On-Ramp Coach provides cross-agent adoption workflows that default to read-only analysis, classify risk, select the lowest useful confidence level, require explicit approval before edits, and record what was read, suggested, changed, and verified.",
+    "developerName": "Sam Roberts",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-on-ramp-coach",
+    "defaultPrompt": [
+      "Use Agent On-Ramp Coach for this engineering task.",
+      "Start read-only and recommend the lowest useful confidence level.",
+      "Create the on-ramp session artifacts before meaningful work.",
+      "Ask for explicit approval before edits."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

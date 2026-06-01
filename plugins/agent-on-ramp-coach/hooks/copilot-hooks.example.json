@@ -1,0 +1,25 @@
+{
+  "description": "Example Copilot-style hook wiring for Agent On-Ramp Coach. This is illustrative syntax, not a universal Copilot hook contract. Hooks do not force skill selection.",
+  "hooks": {
+    "prompt_start": [
+      {
+        "name": "initialize-on-ramp-session",
+        "run": "node skills/agent-on-ramp-coach/scripts/onramp.mjs init"
+      },
+      {
+        "name": "snapshot-git-state",
+        "run": "node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot"
+      }
+    ],
+    "session_end": [
+      {
+        "name": "check-session-artifact",
+        "run": "node skills/agent-on-ramp-coach/scripts/onramp.mjs check"
+      },
+      {
+        "name": "check-read-only-boundary",
+        "run": "node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits"
+      }
+    ]
+  }
+}

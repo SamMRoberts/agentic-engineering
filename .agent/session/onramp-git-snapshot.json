@@ -1,0 +1,15 @@
+{
+  "current_branch": "develop",
+  "current_commit": "e3fd4d5fcff997e9141b080d916c3142e0eae3c8",
+  "git_status_short": [
+    "M .agent/session/assumption-gate.json",
+    " M .agent/session/assumptions.md",
+    " M .agent/session/change-control-contract.json",
+    " M .agent/session/change-control-contract.md",
+    " M plugins/marketplace.json",
+    "?? .agent/session/onramp-session.json",
+    "?? .agent/session/onramp-session.md",
+    "?? plugins/agent-on-ramp-coach/"
+  ],
+  "timestamp": "2026-06-01T03:22:10.245Z"
+}

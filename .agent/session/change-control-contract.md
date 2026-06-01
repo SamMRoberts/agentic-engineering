@@ -1,124 +1,118 @@
 # Change Control Contract
 
 ## Task
-UX Gremlin enhanced report generation.
+Create the Agent On-Ramp Coach plugin.
 
 ## Problem Statement
-The existing `ux-gremlin report` command only writes a static Markdown skeleton from the plan. It cannot consume execution results, preserve evidence, summarize status/severity, or produce machine-readable report data.
+Engineering teams need a reusable plugin that defaults to read-only agent workflows, makes agent work inspectable, gates edits behind explicit confidence levels and approvals, and produces deterministic session artifacts rather than relying on agent self-reporting.
 
 ## Goal
-Add backward-compatible enhanced UX Gremlin reports from optional structured results input with deterministic tests and documentation.
+Add a production-usable `agent-on-ramp-coach` plugin with skill instructions, templates, schema, deterministic Node validation script, examples, hook samples, CI sample, manifests, docs, and tests.
 
 ## Success Criteria
-- Existing plan-only report command still succeeds.
-- `report` accepts `--results` and `--out-dir`.
-- `report` writes `report.md`, `report.json`, and `report.html`.
-- Results template, schema, and example fixture exist.
-- Reports include scenario status, findings, bugs, accessibility issues, console errors, evidence, recovery notes, commands, and risks.
-- HTML is self-contained and escaped.
-- Version and changelog reflect a non-breaking minor release.
-- Verification commands pass.
+- New plugin lives under `plugins/agent-on-ramp-coach`.
+- Skill defines read-only defaults, confidence levels, risk rules, approval gates, file and command rules, review summaries, anti-patterns, and cross-agent guidance.
+- Session templates, examples, and schema match the requested adoption-session structure.
+- `onramp.mjs` uses only Node built-in modules and implements `init`, `check`, `summary`, `snapshot`, and `no-edits`.
+- Valid example passes validation and invalid example fails validation.
+- Snapshot and no-edit checks pass and fail in the expected cases.
+- README, fragments, hook examples, and CI sample are copy-ready.
+- Package tests, plugin validation, and marketplace sync checks pass.
 
 ## Scope
-Bounded enhancement to the `plugins/ux-gremlin` report-generation surface.
+Bounded creation of a new plugin package for safe AI agent adoption workflows.
 
 ### In Scope
-- UX Gremlin CLI report behavior.
-- UX Gremlin result schemas, templates, examples, and report example.
-- UX Gremlin README, `SKILL.md`, version metadata, changelog, and tests.
+- New files under `plugins/agent-on-ramp-coach`.
+- Generated marketplace metadata for the new plugin.
+- Local `.agent/session` change-control and assumption-gate artifacts.
 
 ### Out of Scope
-- Playwright reporter JSON parsing.
-- New runtime dependencies.
-- Interactive report UI.
-- Plan schema redesign.
-- Unrelated plugins or generated marketplace output.
+- Changing existing plugin behavior.
+- Adding external dependencies.
+- Creating a backend service, MCP server, MCP app, or desktop app.
+- Installing the plugin into a personal marketplace.
+- Changing global or repo instructions outside requested fragment files.
 
 ## Non-goals
-- Do not infer results from Playwright output.
-- Do not add JavaScript, remote assets, or external CSS to HTML reports.
-- Do not modify unrelated plugin infrastructure.
+- Do not make autonomous coding the default.
+- Do not create vague placeholder docs or examples.
+- Do not add runtime dependencies.
+- Do not hard-code credentials, local absolute paths, tenant IDs, or production secrets.
+- Do not modify existing plugin packages except generated marketplace output if required by repo conventions.
 
 ## Allowed Change Areas
 - `.agent`
-- `plugins/ux-gremlin`
+- `plugins/agent-on-ramp-coach`
+- `plugins/marketplace.json`
 
 ## Forbidden Change Areas
-- `plugins/marketplace.json`
-- Other plugin directories.
+- Existing plugin directories.
 - `instructions`
 - `agents`
 
 ## Files to Inspect
-- `plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs`
-- `plugins/ux-gremlin/test/ux-gremlin.test.mjs`
-- `plugins/ux-gremlin/skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json`
-- `plugins/ux-gremlin/skills/ux-gremlin/examples/valid-plan.yaml`
-- `plugins/ux-gremlin/README.md`
-- `plugins/ux-gremlin/skills/ux-gremlin/SKILL.md`
-- `plugins/ux-gremlin/package.json`
-- `plugins/ux-gremlin/.codex-plugin/plugin.json`
-- `plugins/ux-gremlin/CHANGELOG.md`
-
-## Files Allowed to Modify
-- `.agent/session/change-control-contract.json`
-- `.agent/session/change-control-contract.md`
-- `.agent/session/assumption-gate.json`
-- `.agent/session/assumptions.md`
-- Files under `plugins/ux-gremlin` needed for the planned report feature.
-
-## Files Forbidden to Modify
-- `plugins/marketplace.json`
+- `AGENTS.md`
+- `plugins/AGENTS.md`
+- Existing plugin manifests and package files.
+- `scripts/sync-marketplace.mjs`
+- Plugin Creator skill and validator.
 
 ## Current Behavior
-`report` reads only the plan and writes one static Markdown report to `.agent/reports/ux-gremlin/report.md`.
+No `agent-on-ramp-coach` plugin exists in this repository.
 
 ## Expected Behavior
-`report` validates the plan, optionally reads structured YAML or JSON results, normalizes report data, and writes synchronized Markdown, JSON, and static escaped HTML artifacts to the selected report directory.
+The plugin provides a safe Agent On-Ramp workflow with read-only defaults, confidence levels, risk classification, explicit edit approvals, deterministic adoption-session checks, git snapshot/no-edit enforcement, copy-ready docs, and validation examples.
 
 ## Test Requirements
-- Preserve existing tests.
-- Add results-backed report output coverage.
-- Verify status/severity/category rollups.
-- Verify Markdown sections sourced from results.
-- Verify HTML escaping.
-- Verify missing or malformed results errors.
-- Verify `--out-dir`.
+- Validate the plugin manifest with the plugin-creator validator.
+- Run the valid adoption-session example through `onramp.mjs check`.
+- Run the invalid adoption-session example and confirm `check` fails.
+- Run `snapshot` and `no-edits` in a git repository and confirm `no-edits` passes with no out-of-session changes.
+- Simulate a file change outside `.agent/session` for a read-only level and confirm `no-edits` fails.
+- Run `npm test` from the new plugin package.
+- Run repository marketplace sync check.
 
 ## Verification Commands
-- `npm test` from `plugins/ux-gremlin`
-- `npm run validate` from `plugins/ux-gremlin`
-- `node ../../scripts/sync-marketplace.mjs --check` from `plugins/ux-gremlin`
-- `node plugins/assumption-killer/bin/assumption-gate.mjs check` from repo root
-- `node plugins/change-control-compiler/skills/change-control-compiler/scripts/change-control.mjs drift` from repo root
+- `npm test` from `plugins/agent-on-ramp-coach`
+- `node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/valid-adoption-session.json`
+- `node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/invalid-adoption-session.json`
+- `node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot`
+- `node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits`
+- `python3 /Users/samroberts/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/agent-on-ramp-coach`
+- `node scripts/sync-marketplace.mjs --check`
+- `node plugins/assumption-killer/bin/assumption-gate.mjs check`
+- `node plugins/change-control-compiler/bin/change-control.mjs check`
+- `node plugins/change-control-compiler/bin/change-control.mjs drift`
 
 ## Risk Level
 Medium.
 
 ## Rollback Plan
-Revert changes under `plugins/ux-gremlin` and local `.agent/session` guard artifacts.
+Remove `plugins/agent-on-ramp-coach`, restore generated `plugins/marketplace.json` if changed, and restore local `.agent/session` gate artifacts if needed.
 
 ## Stop Conditions
 - A new runtime dependency becomes necessary.
-- Existing plan-only report compatibility cannot be preserved.
-- Scope expands outside `plugins/ux-gremlin` and `.agent/session`.
-- Required verification fails for a code-related reason that cannot be fixed within scope.
+- Repo manifest or plugin validation contracts cannot be satisfied without changing existing infrastructure.
+- No-edit enforcement cannot be made deterministic using git state.
+- Validation requires modifying existing plugins or repository instructions outside allowed scope.
+- A generated example or schema fails validation and cannot be fixed within scope.
 
 ## Open Questions
 None.
 
 ## Implementation Plan
-- Extend CLI argument parsing for `--results` and `--out-dir`.
-- Add result parsing, validation, normalization, rollup, Markdown, JSON, and HTML helpers.
-- Add results schema, template, and example fixture.
-- Update tests for legacy and enhanced reports.
-- Update docs, report example, changelog, and version metadata.
-- Run verification and drift checks.
+- Scaffold the plugin directory using the Plugin Creator flow where applicable.
+- Add repo-compatible manifests, package metadata, changelog, license, and orchestrator agent.
+- Implement the skill, templates, schema, examples, hook samples, CI sample, and documentation fragments.
+- Implement `onramp.mjs` with built-in Node modules and deterministic validation/no-edit checks.
+- Add `node:test` coverage for valid, invalid, init, snapshot, no-edits pass, and no-edits fail behavior.
+- Run validation and marketplace sync checks.
 
 ## Final Acceptance Checklist
-- All report artifacts are generated in default and custom output directories.
-- Plan-only report remains backward compatible.
-- Results-backed reports include grouped findings, suspected bugs, evidence, and recovery notes.
-- HTML content is escaped and self-contained.
-- Tests and validation commands pass.
-- Drift check passes.
+- Plugin content is copy-ready and avoids hype, placeholders, and autonomous defaults.
+- Skill body stays under the repository line-count guidance.
+- Script has clear errors and no external dependencies.
+- Read-only sessions fail when files outside `.agent/session` change after a snapshot.
+- Docs explain hooks as enforcement aids, not universal skill-selection mechanisms.
+- Required validation commands are run or any unrun command is clearly reported.
