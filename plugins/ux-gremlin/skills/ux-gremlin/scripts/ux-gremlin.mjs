@@ -938,6 +938,12 @@ function incrementCount(counts, key) {
   counts[normalized] = (counts[normalized] ?? 0) + 1;
 }
 
+function displayPath(absPath) {
+  const rel = path.relative(process.cwd(), absPath);
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return absPath;
+  return rel;
+}
+
 function buildArtifactPaths(outDir) {
   return {
     markdown: path.join(outDir, "report.md"),
@@ -1362,7 +1368,7 @@ ${formatList(allConsoleErrors, "- Pending execution.")}
 
 ## Screenshots / Traces
 
-- Output directory: ${path.dirname(report.artifacts.markdown)}
+- Output directory: ${displayPath(path.dirname(report.artifacts.markdown))}
 ${formatList([...report.evidence.screenshots, ...report.evidence.traces], "- Pending execution.")}
 
 ## Recovery Behavior

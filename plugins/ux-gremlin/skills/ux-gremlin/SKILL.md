@@ -36,6 +36,19 @@ Ask for clarification when auth, destructive actions, production data, or mutati
 - `.agent/reports/ux-gremlin/report.md`
 - `.agent/reports/ux-gremlin/report.json`
 - `.agent/reports/ux-gremlin/report.html`
+- `.agent/reports/ux-gremlin/report.junit.xml`
+- `.agent/reports/ux-gremlin/report.pr.md`
+
+## Commands
+
+- `init`, `check`, `summary`: create and validate the plan.
+- `coverage`: report missing mandatory categories for the declared `flow_type` and declared-but-uncovered conditions.
+- `generate-playwright`: emit a runnable, failing-by-default spec annotated with scenario id and risk.
+- `ingest --input <playwright.json> [--axe <axe.json>]`: convert executed Playwright JSON results into a results file, mapping specs to scenarios and blocking mutations when the baseline fails.
+- `report [--results <file>] [--fail-on <severity>] [--no-history]`: render all report artifacts with an executive summary, risk score, Top Issues table, and trend.
+- `gate --results <file> [--fail-on <severity>]`: exit non-zero when the highest open severity meets or exceeds the threshold.
+
+Set `flow_type` in the plan (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`) so `check` and `coverage` can enforce the mandatory scenario categories below.
 
 ## Gremlin Scenario Categories
 
@@ -71,9 +84,9 @@ Prefer role-based locators and accessible names. Use placeholders when selectors
 
 ## Reporting Requirements
 
-Reports must separate observed findings from suspected bugs, accessibility issues, console errors, screenshots/traces, recovery behavior, follow-up tests, and open risks.
+Reports must separate observed findings from suspected bugs, accessibility issues, console errors, screenshots/traces, recovery behavior, follow-up tests, and open risks. Every report opens with an executive summary (verdict, pass rate, severity-weighted risk score, highest open severity, suspected-bug and accessibility counts, run metadata) and a ranked Top Issues & Recommended Actions table for leadership and product reviewers.
 
-Use plan-only report generation when execution has not happened yet. After execution, pass a structured results YAML or JSON file with `--results`. Results must record scenario status (`passed`, `failed`, `blocked`, `not_run`, or `needs_review`), severity, outcome, evidence, commands, recovery notes, and risks where known. Static HTML reports must remain self-contained and escaped.
+Use plan-only report generation when execution has not happened yet. After execution, pass a structured results YAML or JSON file with `--results`, or produce one with `ingest`. Results must record scenario status (`passed`, `failed`, `blocked`, `not_run`, or `needs_review`), severity, outcome, evidence, commands, recovery notes, and risks where known. Static HTML reports must remain self-contained and escaped. Use `gate` or `report --fail-on <severity>` in CI to block merges on suspected regressions.
 
 ## Anti-Patterns
 

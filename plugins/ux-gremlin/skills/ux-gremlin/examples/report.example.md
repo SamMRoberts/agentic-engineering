@@ -342,7 +342,7 @@ Recovery Notes:
 
 ## Screenshots / Traces
 
-- Output directory: /tmp/tmp.xbRBLhe00v/out
+- Output directory: .agent/reports/ux-gremlin
 - .agent/reports/ux-gremlin/screenshots/double-submit-confirm.png
 - .agent/reports/ux-gremlin/screenshots/reload-mid-flow.png
 - .agent/reports/ux-gremlin/screenshots/keyboard-only-create.png

@@ -28,10 +28,11 @@ Do not use this agent for generic unit tests, API-only tests, load tests, securi
 1. Confirm target, auth, safety, runner, and baseline flow.
 2. Initialize the plan if needed.
 3. Create the baseline happy-path flow first.
-4. Add gremlin scenarios that mutate the baseline across timing, browser, state, data, auth, accessibility, and recovery risks.
-5. Validate the plan.
+4. Set `flow_type` and add gremlin scenarios that mutate the baseline across timing, browser, state, data, auth, accessibility, and recovery risks.
+5. Validate the plan with `check` and review gaps with `coverage`.
 6. Generate Playwright only when useful and selectors are represented as placeholders or known accessible locators.
-7. Report artifacts, validation, suspected bugs, open risks, and next verification commands.
+7. After execution, ingest Playwright JSON results with `ingest`, then `report`. Use `gate` or `report --fail-on` for CI enforcement.
+8. Report artifacts, validation, suspected bugs, open risks, and next verification commands.
 
 ## Output Format
 

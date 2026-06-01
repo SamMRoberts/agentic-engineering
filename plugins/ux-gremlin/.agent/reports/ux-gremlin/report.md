@@ -331,7 +331,7 @@ Recovery Notes:
 
 ## Screenshots / Traces
 
-- Output directory: /tmp/workspace/SamMRoberts/agentic-engineering/plugins/ux-gremlin/.agent/reports/ux-gremlin
+- Output directory: .agent/reports/ux-gremlin
 - Pending execution.
 
 ## Recovery Behavior
