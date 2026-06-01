@@ -1,0 +1,27 @@
+{
+  "description": "Example Copilot-style hook wiring for UX Gremlin. Hook syntax is not universal across all versions.",
+  "hooks": {
+    "PromptStart": [
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs init",
+        "timeoutSeconds": 10
+      }
+    ],
+    "SessionEnd": [
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs check",
+        "timeoutSeconds": 10
+      },
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs report",
+        "timeoutSeconds": 10,
+        "optional": true
+      }
+    ]
+  },
+  "notes": [
+    "Initialize the plan early in a session.",
+    "Validate the plan at session end.",
+    "Generate the report only after a valid plan exists."
+  ]
+}

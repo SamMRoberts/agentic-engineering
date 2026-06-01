@@ -1,0 +1,20 @@
+name: UX Gremlin
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ux-gremlin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate UX Gremlin plan
+        run: node skills/ux-gremlin/scripts/ux-gremlin.mjs check
+      # CI is the stronger enforcement layer. After replacing placeholder locators,
+      # uncomment the Playwright command below.
+      # - name: Run UX Gremlin Playwright spec
+      #   run: npx playwright test .agent/generated/ux-gremlin.spec.ts

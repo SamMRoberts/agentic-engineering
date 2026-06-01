@@ -48,6 +48,21 @@
       },
       "category": "Productivity",
       "description": "Turn vague change requests into enforceable scope, verification, and drift-control contracts."
+    },
+    {
+      "name": "ux-gremlin",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/ux-gremlin",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs."
     }
   ]
 }

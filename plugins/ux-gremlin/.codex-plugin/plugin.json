@@ -1,0 +1,39 @@
+{
+  "name": "ux-gremlin",
+  "version": "1.0.0",
+  "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
+  "author": {
+    "name": "Sam Roberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/ux-gremlin",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/ux-gremlin",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "ux",
+    "playwright",
+    "resilience",
+    "accessibility",
+    "testing"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "UX Gremlin",
+    "shortDescription": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
+    "longDescription": "UX Gremlin helps coding agents and QA workflows discover fragile web UX behavior by mutating normal happy-path flows into hostile-but-realistic scenarios for timing issues, reloads, stale state, auth edge cases, accessibility paths, interrupted flows, browser navigation, and recovery behavior.",
+    "developerName": "Sam Roberts",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/ux-gremlin",
+    "defaultPrompt": [
+      "Create a UX Gremlin plan for this web flow.",
+      "Validate the plan before generating Playwright.",
+      "Report suspected UX resilience bugs and recovery risks."
+    ],
+    "brandColor": "#B45309",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "ux-gremlin",
+  "agents": "agents",
+  "skills": "skills",
+  "entrypointAgent": "ux-gremlin",
+  "privateAgents": [],
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
+    "scripts": [
+      "skills/ux-gremlin/scripts/ux-gremlin.mjs"
+    ],
+    "schemas": [
+      "skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json"
+    ],
+    "recommended_hooks": [
+      "hooks/codex-hooks.example.json",
+      "hooks/copilot-hooks.example.json"
+    ],
+    "outputs": [
+      ".agent/session/ux-gremlin-plan.yaml",
+      ".agent/generated/ux-gremlin.spec.ts",
+      ".agent/reports/ux-gremlin/report.md"
+    ]
+  }
+}
