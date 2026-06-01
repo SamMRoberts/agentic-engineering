@@ -71,15 +71,18 @@ Final summaries must be short and evidence-based. Use `templates/review-summary.
 ## Procedure
 
 1. Understand the task.
-2. Classify workflow type and risk.
+2. Classify workflow type and risk. Use `node skills/agent-on-ramp-coach/scripts/onramp.mjs menu` to pick a safe starting workflow.
 3. Recommend a confidence level.
-4. Initialize or update the session artifacts.
+4. Start the session in one step, for example: `onramp.mjs start --task "<task>" --workflow <type> --risk <level> --selected-level <level>`.
 5. State the intended inspection plan.
 6. Perform read-only analysis by default.
-7. Record files, commands, findings, recommendations, and review items.
-8. Ask for approval before edits.
+7. Record evidence as you go with `onramp.mjs record --inspected <file> --command <cmd> --finding <text>` and update fields with `onramp.mjs set`.
+8. Ask for approval before edits. Record it with `onramp.mjs set --approval true`.
 9. Run `node skills/agent-on-ramp-coach/scripts/onramp.mjs check`.
 10. For no-edit levels, run `node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits`.
+11. Run `node skills/agent-on-ramp-coach/scripts/onramp.mjs complete` to log the session for team adoption tracking.
+
+Prefer the `start`, `set`, and `record` commands over hand-editing the session JSON. They keep the JSON and its markdown mirror in sync and validate enums on the way in. Use `onramp.mjs status` at any time to see what is still missing before completing.
 
 ## Anti-Patterns
 

@@ -1,5 +1,7 @@
 # Safe Task Menu
 
+The machine-readable source for these workflows is `../data/safe-task-menu.json`. Run `node skills/agent-on-ramp-coach/scripts/onramp.mjs menu` to list them (add `--json` for structured output, or `--workflow <name>` for one).
+
 Each workflow should record its `name`, `description`, `recommended_confidence_level`, `allowed_actions`, `forbidden_actions`, `expected_output`, and `example_prompt` in the session artifact.
 
 ## Read-Only Understanding

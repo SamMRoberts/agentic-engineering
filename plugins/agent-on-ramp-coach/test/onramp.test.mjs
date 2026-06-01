@@ -175,7 +175,14 @@ test("menu lists all workflow types and supports json output", () => {
   const json = run(["menu", "--json"], { cwd: pluginRoot });
   assert.equal(json.status, 0, json.stderr);
   const parsed = JSON.parse(json.stdout);
-  assert.equal(parsed.workflows.length, 14);
+  const menuData = JSON.parse(
+    readFileSync(
+      join(pluginRoot, "skills", "agent-on-ramp-coach", "data", "safe-task-menu.json"),
+      "utf8"
+    )
+  );
+  assert.equal(parsed.workflows.length, menuData.workflows.length);
+  assert.ok(parsed.workflows.length > 0);
 
   const unknown = run(["menu", "--workflow", "nope"], { cwd: pluginRoot });
   assert.equal(unknown.status, 2);
