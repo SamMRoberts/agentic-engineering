@@ -27,30 +27,22 @@
             ]
         },
         {
-            "name": "assumption-killer",
-            "source": "./plugins/assumption-killer",
-            "description": "Force agents to identify, verify, and record assumptions before implementation.",
-            "version": "0.1.0",
-            "skills": [
-                "./plugins/assumption-killer/skills/assumption-killer"
-            ]
-        },
-        {
-            "name": "change-control-compiler",
-            "source": "./plugins/change-control-compiler",
-            "description": "Turn vague change requests into enforceable scope, verification, and drift-control contracts.",
-            "version": "0.1.0",
-            "skills": [
-                "./plugins/change-control-compiler/skills/change-control-compiler"
-            ]
-        },
-        {
             "name": "ux-gremlin",
             "source": "./plugins/ux-gremlin",
             "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
             "version": "1.4.0",
             "skills": [
                 "./plugins/ux-gremlin/skills/ux-gremlin"
+            ]
+        },
+        {
+            "name": "vibe-sentinel",
+            "source": "./plugins/vibe-sentinel",
+            "description": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation.",
+            "version": "1.0.0",
+            "skills": [
+                "./plugins/vibe-sentinel/skills/assumption-killer",
+                "./plugins/vibe-sentinel/skills/change-control-compiler"
             ]
         }
     ]

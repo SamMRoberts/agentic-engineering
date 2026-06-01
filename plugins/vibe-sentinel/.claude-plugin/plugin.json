@@ -1,0 +1,32 @@
+{
+    "name": "vibe-sentinel",
+    "version": "1.0.0",
+    "description": "Sentinel for vibe-coding: enforce assumption verification and change-control scope before implementation.",
+    "author": {
+        "name": "Sam Roberts",
+        "url": "https://github.com/SamMRoberts"
+    },
+    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/SamMRoberts/agentic-engineering"
+    },
+    "license": "MIT",
+    "keywords": [
+        "agents",
+        "assumptions",
+        "change-control",
+        "scope",
+        "drift",
+        "vibe-coding",
+        "guardrails",
+        "validation",
+        "codex",
+        "copilot",
+        "claude",
+        "workflow"
+    ],
+    "agents": "./agents/",
+    "skills": "./skills/",
+    "hooks": "./hooks.json"
+}
