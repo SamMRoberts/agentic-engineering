@@ -7,10 +7,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const legacyCli = path.join(root, 'skills/ux-gremlin/scripts/ux-gremlin.mjs');
 const args = process.argv.slice(2);
 const inputIndex = args.indexOf('--input');
+const inputPath = inputIndex >= 0 && inputIndex + 1 < args.length ? args[inputIndex + 1].trim() : '';
 
-if (inputIndex >= 0 && args[inputIndex + 1]) {
+if (inputPath) {
   for (const command of [
-    ['workflow-status', '--phase', 'ingest', '--input', args[inputIndex + 1]],
+    ['workflow-status', '--phase', 'ingest', '--input', inputPath],
     ['ingest', ...args]
   ]) {
     const result = spawnSync(process.execPath, [legacyCli, ...command], {

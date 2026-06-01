@@ -12,6 +12,7 @@ const validPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/valid-plan.y
 const invalidPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/invalid-plan.yaml");
 const resultsExample = path.join(pluginRoot, "skills/ux-gremlin/examples/results.example.yaml");
 const playwrightExample = path.join(pluginRoot, "skills/ux-gremlin/examples/playwright-report.example.json");
+const expectedVersion = "2.0.0";
 const focusedSkills = [
   "test-strategy-advisor",
   "baseline-recorder",
@@ -784,6 +785,17 @@ test("focused skill scaffolding includes metadata, sections, and scripts", () =>
   }
 });
 
+test("focused skill scripts parse as valid Node.js modules", () => {
+  for (const skill of focusedSkills) {
+    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", `${skill}.mjs`);
+    const result = spawnSync(process.execPath, ["--check", scriptPath], {
+      cwd: pluginRoot,
+      encoding: "utf-8"
+    });
+    assert.equal(result.status, 0, result.stderr);
+  }
+});
+
 test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
   const plugin = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf-8"));
   const codex = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".codex-plugin/plugin.json"), "utf-8"));
@@ -793,9 +805,9 @@ test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
   const claudeFragment = fs.readFileSync(path.join(pluginRoot, "custom-instructions.fragment.md"), "utf-8");
   const legacySkill = fs.readFileSync(path.join(pluginRoot, "skills/ux-gremlin/SKILL.md"), "utf-8");
 
-  assert.equal(plugin.metadata.version, "2.0.0");
-  assert.equal(codex.version, "2.0.0");
-  assert.equal(claude.version, "2.0.0");
+  assert.equal(plugin.metadata.version, expectedVersion);
+  assert.equal(codex.version, expectedVersion);
+  assert.equal(claude.version, expectedVersion);
   assert.equal(plugin.metadata.skills.length, focusedSkills.length + 1);
   assert.match(JSON.stringify(plugin.metadata.skills), /skills\/ux-gremlin-auto\/SKILL\.md/);
   assert.match(JSON.stringify(plugin.metadata.scripts), /scripts\/ux-gremlin\.mjs/);

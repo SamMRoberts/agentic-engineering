@@ -47,7 +47,8 @@ function detectNextSkill(cwd) {
     };
   }
 
-  if (statMtime(marker) < statMtime(plan)) {
+  const markerMtime = statMtime(marker);
+  if (markerMtime === -1 || markerMtime < statMtime(plan)) {
     return {
       skill: 'validate-plan',
       reason: 'The plan exists but there is no fresh validation success marker.'

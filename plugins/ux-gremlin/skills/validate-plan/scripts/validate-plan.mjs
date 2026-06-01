@@ -8,6 +8,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const legacyCli = path.join(root, 'skills/ux-gremlin/scripts/ux-gremlin.mjs');
 const args = process.argv.slice(2);
 const markerPath = path.join(process.cwd(), '.agent/session/ux-gremlin-plan.check.ok');
+const planArgIndex = args.indexOf('--plan');
+const plan = planArgIndex >= 0 && planArgIndex + 1 < args.length
+  ? args[planArgIndex + 1]
+  : '.agent/session/ux-gremlin-plan.yaml';
 const commands = [
   ['workflow-status', '--phase', 'plan', ...args],
   ['check', ...args],
@@ -26,7 +30,5 @@ for (const command of commands) {
 }
 
 fs.mkdirSync(path.dirname(markerPath), { recursive: true });
-const planArgIndex = args.indexOf('--plan');
-const plan = planArgIndex >= 0 ? args[planArgIndex + 1] : '.agent/session/ux-gremlin-plan.yaml';
 fs.writeFileSync(markerPath, `${JSON.stringify({ validated_at: new Date().toISOString(), plan }, null, 2)}\n`, 'utf-8');
 console.log(`Wrote ${path.relative(process.cwd(), markerPath)}`);
