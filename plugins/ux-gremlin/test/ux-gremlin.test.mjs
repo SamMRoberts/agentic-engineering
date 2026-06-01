@@ -8,30 +8,15 @@ import test from "node:test";
 const pluginRoot = path.resolve(import.meta.dirname, "..");
 const script = path.join(pluginRoot, "skills/ux-gremlin/scripts/ux-gremlin.mjs");
 const routerScript = path.join(pluginRoot, "scripts/ux-gremlin.mjs");
+const pluginManifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf-8"));
 const validPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/valid-plan.yaml");
 const invalidPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/invalid-plan.yaml");
 const resultsExample = path.join(pluginRoot, "skills/ux-gremlin/examples/results.example.yaml");
 const playwrightExample = path.join(pluginRoot, "skills/ux-gremlin/examples/playwright-report.example.json");
-const expectedVersion = "2.0.0";
-const focusedSkills = [
-  "test-strategy-advisor",
-  "baseline-recorder",
-  "plan-gremlins",
-  "validate-plan",
-  "generate-playwright",
-  "selector-discovery",
-  "execute-tests",
-  "report-gremlins",
-  "triage-failures",
-  "fix-suggestions",
-  "regression-guard",
-  "accessibility-audit",
-  "plan-from-pr",
-  "ci-integration",
-  "convert-existing",
-  "explain-scenario",
-  "ux-gremlin-auto"
-];
+const expectedVersion = pluginManifest.metadata.version;
+const focusedSkills = pluginManifest.metadata.skills
+  .map((skillPath) => path.basename(path.dirname(skillPath)))
+  .filter((skill) => skill !== "ux-gremlin");
 
 // Minimal but schema-complete plan used to exercise coverage enforcement.
 function minimalFormPlan(extra = {}) {
@@ -797,7 +782,6 @@ test("focused skill scripts parse as valid Node.js modules", () => {
 });
 
 test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
-  const plugin = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf-8"));
   const codex = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".codex-plugin/plugin.json"), "utf-8"));
   const claude = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".claude-plugin/plugin.json"), "utf-8"));
   const agent = fs.readFileSync(path.join(pluginRoot, "agents/ux-gremlin.agent.md"), "utf-8");
@@ -805,13 +789,13 @@ test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
   const claudeFragment = fs.readFileSync(path.join(pluginRoot, "custom-instructions.fragment.md"), "utf-8");
   const legacySkill = fs.readFileSync(path.join(pluginRoot, "skills/ux-gremlin/SKILL.md"), "utf-8");
 
-  assert.equal(plugin.metadata.version, expectedVersion);
+  assert.equal(pluginManifest.metadata.version, expectedVersion);
   assert.equal(codex.version, expectedVersion);
   assert.equal(claude.version, expectedVersion);
-  assert.equal(plugin.metadata.skills.length, focusedSkills.length + 1);
-  assert.match(JSON.stringify(plugin.metadata.skills), /skills\/ux-gremlin-auto\/SKILL\.md/);
-  assert.match(JSON.stringify(plugin.metadata.scripts), /scripts\/ux-gremlin\.mjs/);
-  assert.match(JSON.stringify(plugin.metadata.outputs), /ux-gremlin-plan\.check\.ok/);
+  assert.equal(pluginManifest.metadata.skills.length, focusedSkills.length + 1);
+  assert.match(JSON.stringify(pluginManifest.metadata.skills), /skills\/ux-gremlin-auto\/SKILL\.md/);
+  assert.match(JSON.stringify(pluginManifest.metadata.scripts), /scripts\/ux-gremlin\.mjs/);
+  assert.match(JSON.stringify(pluginManifest.metadata.outputs), /ux-gremlin-plan\.check\.ok/);
 
   assert.match(agent, /If the intent is ambiguous, ask exactly one clarifying question/);
   assert.match(agent, /do everything end-to-end/);
