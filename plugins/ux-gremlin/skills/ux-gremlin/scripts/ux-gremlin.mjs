@@ -716,7 +716,8 @@ const destructiveActionsAllowed = ${plan.safety?.destructive_actions_allowed ===
 // in CI. Implement the assertions, then delete the matching requireImplementation
 // call. Set UX_GREMLIN_ALLOW_TODO=true to soft-skip while iterating locally.
 function requireImplementation(scenarioId, assertions) {
-  if (process.env.UX_GREMLIN_ALLOW_TODO === 'true') {
+  const allowTodo = ['1', 'true', 'yes'].includes((process.env.UX_GREMLIN_ALLOW_TODO || '').toLowerCase());
+  if (allowTodo) {
     test.skip(true, \`UX Gremlin: \${scenarioId} not implemented yet\`);
     return;
   }
@@ -801,7 +802,11 @@ function severityForStatus(status, risk) {
 
 function loadAxeIssues(axePath) {
   if (!axePath) return { byScenario: new Map(), global: [] };
-  const data = readJsonFile(path.resolve(axePath), "axe");
+  const resolved = path.resolve(axePath);
+  if (!fs.existsSync(resolved)) {
+    throw new Error(`optional --axe file could not be read: ${resolved}. Omit --axe if axe-core results are unavailable.`);
+  }
+  const data = readJsonFile(resolved, "axe");
   const byScenario = new Map();
   const global = [];
   const formatViolation = (violation) => {
@@ -1056,7 +1061,7 @@ function computeExecutiveSummary(scenarios, hasResults, suspectedBugCount, acces
     const weight = severityWeights[scenario.severity] ?? 0;
     return sum + weight * (statusFactor[scenario.status] ?? 0);
   }, 0);
-  const maxScore = scenarios.reduce((sum) => sum + severityWeights.critical, 0);
+  const maxScore = scenarios.length * severityWeights.critical;
   const riskScore = maxScore > 0 ? Math.round((rawScore / maxScore) * 100) : 0;
   let riskBand = "low";
   if (riskScore >= 60) riskBand = "critical";
@@ -1198,7 +1203,7 @@ function normalizeReport(plan, results, outDir) {
 }
 
 function mdCell(value) {
-  return stringOrEmpty(value).replace(/\|/g, "\\|").replace(/\n/g, " ");
+  return stringOrEmpty(value).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
 
 function mdTable(headers, rows, emptyMessage) {
