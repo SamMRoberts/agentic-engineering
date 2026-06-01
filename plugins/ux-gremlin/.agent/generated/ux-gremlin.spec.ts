@@ -7,7 +7,7 @@ const destructiveActionsAllowed = false;
 // in CI. Implement the assertions, then delete the matching requireImplementation
 // call. Set UX_GREMLIN_ALLOW_TODO=true to soft-skip while iterating locally.
 function requireImplementation(scenarioId, assertions) {
-  const allowTodo = ['1', 'true', 'yes'].includes((process.env.UX_GREMLIN_ALLOW_TODO || '').toLowerCase());
+  const allowTodo = ['1', 'true', 'yes'].includes((process.env.UX_GREMLIN_ALLOW_TODO || '').trim().toLowerCase());
   if (allowTodo) {
     test.skip(true, `UX Gremlin: ${scenarioId} not implemented yet`);
     return;
