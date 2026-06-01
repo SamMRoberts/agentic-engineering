@@ -14,6 +14,7 @@ const defaultIngestOut = ".agent/session/ux-gremlin-results.json";
 const baselineTestTitle = "baseline happy path";
 
 const allowedModes = new Set(["playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"]);
+const allowedWorkflowPhases = new Set(["plan", "generate", "execute", "ingest", "report"]);
 const allowedRiskLevels = new Set(["low", "medium", "high", "critical"]);
 const allowedResultStatuses = new Set(["passed", "failed", "blocked", "not_run", "needs_review"]);
 const allowedResultSeverities = new Set(["info", "low", "medium", "high", "critical"]);
@@ -92,6 +93,7 @@ Commands:
   check                Validate a UX Gremlin plan (includes coverage enforcement).
   coverage             Report flow-type category gaps and declared-condition warnings.
   summary              Print a concise markdown summary.
+  workflow-status      Check whether required artifacts are ready for a workflow phase.
   generate-playwright  Generate runnable .agent/generated/ux-gremlin.spec.ts.
   ingest               Convert a Playwright JSON report (+optional axe) into a results file.
   report               Create or update report.md, report.json, report.html, report.junit.xml, and report.pr.md.
@@ -104,6 +106,7 @@ Options:
   --input <path>       Playwright JSON report consumed by ingest.
   --axe <path>         Optional axe-core JSON consumed by ingest.
   --out <path>         Output results file for ingest (defaults to ${defaultIngestOut}).
+  --phase <phase>      Workflow phase for workflow-status: plan|generate|execute|ingest|report.
   --fail-on <severity> Severity gate threshold for report/gate (info|low|medium|high|critical; default high).
   --no-history         Do not read or append run history during report.
 
@@ -122,6 +125,7 @@ function parseArgs(argv) {
     axe: null,
     out: null,
     failOn: null,
+    phase: null,
     history: true
   };
   const valueFlags = {
@@ -131,7 +135,8 @@ function parseArgs(argv) {
     "--input": "input",
     "--axe": "axe",
     "--out": "out",
-    "--fail-on": "failOn"
+    "--fail-on": "failOn",
+    "--phase": "phase"
   };
   for (let i = 3; i < argv.length; i++) {
     const arg = argv[i];
@@ -748,6 +753,155 @@ function commandGeneratePlaywright(planPath) {
     process.exit(1);
   }
   writeGeneratedSpec(plan);
+}
+
+function collectPlanValidation(planPath) {
+  try {
+    const plan = readPlan(planPath);
+    const errors = validatePlan(plan);
+    const warnings = coverageWarnings(computeCoverage(plan));
+    return { plan, errors, warnings };
+  } catch (err) {
+    return { plan: null, errors: [err.message], warnings: [] };
+  }
+}
+
+function activeRequireImplementationCalls(source) {
+  return [...source.matchAll(/\brequireImplementation\s*\(/g)].filter((match) => {
+    const before = source.slice(Math.max(0, match.index - 20), match.index);
+    return !/\bfunction\s+$/.test(before);
+  });
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function hasScenarioAnnotation(source, scenarioId) {
+  const quotedId = escapeRegExp(scenarioId);
+  const pattern = new RegExp(
+    `type:\\s*['"]ux-gremlin-scenario['"][\\s\\S]{0,240}description:\\s*(['"])${quotedId}\\1`
+  );
+  return pattern.test(source);
+}
+
+function validateGeneratedSpec(plan, specPath = path.resolve(outputSpecPath)) {
+  const errors = [];
+  const guidance = [];
+  if (!fs.existsSync(specPath)) {
+    errors.push(`generated Playwright spec is missing: ${displayPath(specPath)}`);
+    guidance.push("Run generate-playwright after the plan passes check and coverage.");
+    return { errors, guidance };
+  }
+
+  const source = fs.readFileSync(specPath, "utf-8");
+  if (source.includes("TODO:")) {
+    errors.push("generated Playwright spec still contains TODO placeholders");
+    guidance.push("Replace generated TODO step comments with app-specific locators, actions, and expect(...) assertions.");
+  }
+
+  const activeGuards = activeRequireImplementationCalls(source);
+  if (activeGuards.length > 0) {
+    errors.push(`generated Playwright spec still contains ${activeGuards.length} active requireImplementation(...) guard(s)`);
+    guidance.push("Remove each requireImplementation(...) call after replacing it with concrete assertions.");
+  }
+
+  if (!source.includes("ux-gremlin-baseline")) {
+    errors.push("generated Playwright spec is missing the ux-gremlin-baseline annotation required for ingest");
+    guidance.push("Regenerate the spec or restore the baseline annotation before running Playwright.");
+  }
+
+  const scenarioIds = (plan.gremlin_scenarios ?? []).map((scenario) => scenario.id).filter(Boolean);
+  if (!source.includes("ux-gremlin-scenario")) {
+    errors.push("generated Playwright spec is missing ux-gremlin-scenario annotations required for ingest");
+    guidance.push("Regenerate the spec or restore scenario annotations before running Playwright.");
+  }
+  for (const scenarioId of scenarioIds) {
+    if (!hasScenarioAnnotation(source, scenarioId)) {
+      errors.push(`generated Playwright spec is missing annotation for scenario ${scenarioId}`);
+    }
+  }
+
+  return { errors, guidance: [...new Set(guidance)] };
+}
+
+function printWorkflowErrors(errors, guidance = []) {
+  printErrors(errors);
+  for (const item of guidance) console.error(`NEXT: ${item}`);
+}
+
+function commandWorkflowStatus(planPath, phase, options = {}) {
+  if (!phase) {
+    console.error("ERROR: workflow-status requires --phase <plan|generate|execute|ingest|report>");
+    process.exit(2);
+  }
+  if (!allowedWorkflowPhases.has(phase)) {
+    console.error(`ERROR: --phase must be one of: ${[...allowedWorkflowPhases].join(", ")}`);
+    process.exit(2);
+  }
+
+  const { plan, errors: planErrors, warnings } = collectPlanValidation(planPath);
+  if (planErrors.length > 0) {
+    printWorkflowErrors(planErrors, [
+      "Create or repair .agent/session/ux-gremlin-plan.yaml, then rerun check and workflow-status for the same phase."
+    ]);
+    process.exit(1);
+  }
+  printWarnings(warnings);
+
+  if (phase === "plan" || phase === "generate") {
+    console.log(`OK: workflow ${phase} gate passed for ${planPath}`);
+    return;
+  }
+
+  const specStatus = validateGeneratedSpec(plan);
+  if (specStatus.errors.length > 0) {
+    printWorkflowErrors(specStatus.errors, specStatus.guidance);
+    process.exit(1);
+  }
+
+  if (phase === "execute") {
+    console.log(`OK: workflow execute gate passed for ${outputSpecPath}`);
+    return;
+  }
+
+  if (phase === "ingest") {
+    if (!options.input) {
+      printWorkflowErrors(["ingest phase requires --input <playwright-json>"], [
+        `Run Playwright with a JSON reporter, then rerun workflow-status --phase ingest --input <playwright-json>.`
+      ]);
+      process.exit(2);
+    }
+    try {
+      readJsonFile(path.resolve(options.input), "Playwright report");
+    } catch (err) {
+      printWorkflowErrors([err.message], [
+        "Fix or regenerate the Playwright JSON report before running ingest."
+      ]);
+      process.exit(1);
+    }
+    console.log(`OK: workflow ingest gate passed for ${options.input}`);
+    return;
+  }
+
+  const resultsPath = options.results ? path.resolve(options.results) : path.resolve(defaultIngestOut);
+  let results;
+  try {
+    results = readResults(resultsPath);
+  } catch (err) {
+    printWorkflowErrors([err.message], [
+      `Run ingest --input <playwright-json> --out ${defaultIngestOut}, then rerun workflow-status --phase report.`
+    ]);
+    process.exit(1);
+  }
+  const resultErrors = validateResults(results, plan);
+  if (resultErrors.length > 0) {
+    printWorkflowErrors(resultErrors, [
+      "Fix the ingested results file or rerun ingest before generating executed reports."
+    ]);
+    process.exit(1);
+  }
+  console.log(`OK: workflow report gate passed for ${displayPath(resultsPath)}`);
 }
 
 function readJsonFile(filePath, label) {
@@ -1810,6 +1964,12 @@ try {
   else if (args.command === "check") commandCheck(planPath);
   else if (args.command === "coverage") commandCoverage(planPath);
   else if (args.command === "summary") commandSummary(planPath);
+  else if (args.command === "workflow-status") {
+    commandWorkflowStatus(planPath, args.phase, {
+      input: args.input,
+      results: args.results
+    });
+  }
   else if (args.command === "generate-playwright") commandGeneratePlaywright(planPath);
   else if (args.command === "ingest") commandIngest(planPath, args.input, args.axe, args.out);
   else if (args.command === "report") {

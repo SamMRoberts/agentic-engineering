@@ -1,123 +1,95 @@
 {
   "version": "1.0",
   "task": {
-    "title": "Agent On-Ramp Coach plugin",
-    "goal": "Create a production-usable cross-agent plugin for safe AI agent adoption workflows.",
-    "scope": "Only the new plugins/agent-on-ramp-coach package, generated marketplace metadata, and local session gate artifacts.",
+    "title": "Strengthen UX Gremlin workflow sequencing",
+    "goal": "Add an explicit workflow-status gate so UX Gremlin cannot proceed to Playwright execution before the generated spec is implemented.",
+    "scope": "Only the ux-gremlin plugin workflow script, docs, agent instructions, instruction fragments, and tests.",
     "non_goals": [
-      "Do not change existing plugin behavior.",
-      "Do not add external dependencies.",
-      "Do not create a backend service, MCP server, MCP app, or desktop app.",
-      "Do not install a personal marketplace entry."
+      "Do not change generated selector quality or app-specific Playwright implementation.",
+      "Do not remove failing-by-default generated spec behavior.",
+      "Do not add dependencies.",
+      "Do not change unrelated plugins or marketplace metadata."
     ]
   },
   "assumptions": [
     {
       "id": "A1",
-      "statement": "This repository expects installable plugin packages to live under plugins/<plugin-name> with repo-compatible manifests, and the new plugin should be created there rather than in a personal ~/plugins directory.",
+      "statement": "The UX Gremlin plugin already owns the plan validator, Playwright generator, ingest, report, and gate commands in one Node ESM script.",
       "category": "repo_structure",
       "risk_level": "medium",
-      "verification_method": "Read repository plugin authoring instructions and existing plugin layout.",
+      "verification_method": "Read the plugin script and package metadata.",
       "evidence": [
-        "plugins/AGENTS.md states plugins/<plugin-name>/ is one folder per installable plugin and folder name must match name fields.",
-        "Existing plugin directories include plugins/assumption-killer, plugins/change-control-compiler, plugins/ux-gremlin, and plugins/agent-compat."
+        "plugins/ux-gremlin/package.json exposes skills/ux-gremlin/scripts/ux-gremlin.mjs as the bin.",
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs contains command handlers for check, coverage, generate-playwright, ingest, report, and gate."
       ],
       "status": "verified",
       "files_checked": [
-        "plugins/AGENTS.md"
+        "plugins/ux-gremlin/package.json",
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
       ],
       "commands_run": [
-        "sed -n '1,220p' plugins/AGENTS.md",
-        "ls plugins"
+        "cat plugins/ux-gremlin/package.json",
+        "sed -n '1,1320p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
       ],
-      "impact_if_wrong": "The plugin could be scaffolded into the wrong location or omitted from repository validation.",
-      "decision": "Create plugins/agent-on-ramp-coach and do not update the personal marketplace."
+      "impact_if_wrong": "The workflow gate could be added in the wrong location or fail to integrate with existing commands.",
+      "decision": "Add workflow-status to the existing ux-gremlin.mjs command dispatcher."
     },
     {
       "id": "A2",
-      "statement": "The repository plugin shape requires additional host manifests and package metadata beyond the user-listed minimum tree.",
-      "category": "repo_structure",
+      "statement": "The current generated spec intentionally contains TODO placeholders and active requireImplementation calls, so an execution readiness gate can detect incomplete generated output without weakening CI behavior.",
+      "category": "existing_behavior",
       "risk_level": "medium",
-      "verification_method": "Compare the repository plugin guide with existing plugin manifests.",
+      "verification_method": "Read writeGeneratedSpec and existing tests for generated spec behavior.",
       "evidence": [
-        "plugins/AGENTS.md lists plugin.json, .codex-plugin/plugin.json, .claude-plugin/plugin.json, package.json, README.md, CHANGELOG.md, LICENSE, agents, skills, hooks, lib, schemas, templates, and test as applicable.",
-        "plugins/assumption-killer includes root plugin.json, .codex-plugin/plugin.json, .claude-plugin/plugin.json, package.json, CHANGELOG.md, LICENSE, an agent, and a skill."
+        "writeGeneratedSpec emits TODO comments and requireImplementation calls for baseline and scenarios.",
+        "Existing test generated spec is failing-by-default with scenario annotations asserts requireImplementation and scenario/risk annotations are present."
       ],
       "status": "verified",
       "files_checked": [
-        "plugins/AGENTS.md",
-        "plugins/assumption-killer/plugin.json",
-        "plugins/assumption-killer/.codex-plugin/plugin.json",
-        "plugins/assumption-killer/.claude-plugin/plugin.json",
-        "plugins/assumption-killer/package.json"
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+        "plugins/ux-gremlin/test/ux-gremlin.test.mjs"
       ],
       "commands_run": [
-        "cat plugins/assumption-killer/plugin.json",
-        "cat plugins/assumption-killer/.codex-plugin/plugin.json",
-        "cat plugins/assumption-killer/.claude-plugin/plugin.json",
-        "cat plugins/assumption-killer/package.json"
+        "sed -n '320,760p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+        "sed -n '1,620p' plugins/ux-gremlin/test/ux-gremlin.test.mjs"
       ],
-      "impact_if_wrong": "The plugin might validate as content but fail host discovery or marketplace sync.",
-      "decision": "Add repo-compatible companion manifests and package/test metadata while preserving the requested files."
+      "impact_if_wrong": "The new gate might reject valid specs or miss incomplete ones.",
+      "decision": "Fail execute readiness when generated placeholders or active requireImplementation calls remain."
     },
     {
       "id": "A3",
-      "statement": "Marketplace metadata is generated from plugin manifests by scripts/sync-marketplace.mjs, so plugins/marketplace.json should not be hand-edited.",
+      "statement": "The user-facing workflow gap is in orchestration/documentation, not in plan validation itself.",
       "category": "tooling_behavior",
       "risk_level": "medium",
-      "verification_method": "Read the marketplace sync script and plugin guide.",
+      "verification_method": "Run existing plugin tests and inspect skill/agent workflow instructions.",
       "evidence": [
-        "plugins/AGENTS.md says plugins/marketplace.json is generated by scripts/sync-marketplace.mjs and must not be hand-edited.",
-        "scripts/sync-marketplace.mjs discovers plugin directories and builds entries from .codex-plugin/plugin.json, falling back to root plugin.json."
+        "npm test in plugins/ux-gremlin passed 18 tests before implementation.",
+        "SKILL.md and ux-gremlin.agent.md describe baseline-first and generate-before-execution, but do not expose a machine-checkable spec implementation gate."
       ],
       "status": "verified",
       "files_checked": [
-        "plugins/AGENTS.md",
-        "scripts/sync-marketplace.mjs"
+        "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+        "plugins/ux-gremlin/agents/ux-gremlin.agent.md"
       ],
       "commands_run": [
-        "sed -n '1,220p' scripts/sync-marketplace.mjs"
+        "npm test"
       ],
-      "impact_if_wrong": "A manual marketplace edit could be overwritten or fail repository checks.",
-      "decision": "Run the sync script after adding manifests and allow only generated marketplace changes."
-    },
-    {
-      "id": "A4",
-      "statement": "The plugin's deterministic session tooling can be implemented with Node built-in modules only.",
-      "category": "tooling_behavior",
-      "risk_level": "medium",
-      "verification_method": "Assess requested commands and repository script conventions.",
-      "evidence": [
-        "The requested script commands require JSON validation, markdown rendering, git status snapshots, and file comparison, all available through node:fs, node:path, node:child_process, node:os, and node:test.",
-        "plugins/AGENTS.md says to use Node ESM scripts in this repository unless the package already uses another runtime."
-      ],
-      "status": "verified",
-      "files_checked": [
-        "plugins/AGENTS.md"
-      ],
-      "commands_run": [
-        "sed -n '1,220p' plugins/AGENTS.md"
-      ],
-      "impact_if_wrong": "Adding dependencies would violate the request and broaden validation scope.",
-      "decision": "Implement onramp.mjs and tests with built-in Node modules only."
+      "impact_if_wrong": "The implementation could overreach into plan/schema behavior instead of fixing the sequencing problem.",
+      "decision": "Keep plan validation behavior intact and add workflow phase readiness checks plus workflow instructions."
     }
   ],
   "final_verification": {
     "commands_run": [
       "npm test",
       "npm run validate",
-      "node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/invalid-adoption-session.json",
-      "PYTHONPATH=/private/tmp/onramp-pyyaml /Users/samroberts/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/samroberts/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/agent-on-ramp-coach",
-      "node scripts/sync-marketplace.mjs",
-      "node scripts/sync-marketplace.mjs --check",
-      "node plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach/scripts/onramp.mjs init",
-      "node plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot",
-      "node plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits"
+      "node plugins/assumption-killer/bin/assumption-gate.mjs check",
+      "node plugins/change-control-compiler/bin/change-control.mjs check",
+      "node plugins/change-control-compiler/bin/change-control.mjs drift"
     ],
     "tests_run": [
       "node --test test/**/*.test.mjs"
     ],
     "result": "passed",
-    "notes": "Agent On-Ramp Coach tests, valid example validation, expected invalid example failure, Codex plugin validation, marketplace sync, snapshot, no-edit pass, and simulated no-edit failure all completed."
+    "notes": "UX Gremlin workflow-status command, execute readiness gate, docs, and regression tests passed package validation and guardrail checks."
   }
 }
