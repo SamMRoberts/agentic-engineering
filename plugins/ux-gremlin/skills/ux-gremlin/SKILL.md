@@ -43,12 +43,26 @@ Ask for clarification when auth, destructive actions, production data, or mutati
 
 - `init`, `check`, `summary`: create and validate the plan.
 - `coverage`: report missing mandatory categories for the declared `flow_type` and declared-but-uncovered conditions.
+- `workflow-status --phase <plan|generate|execute|ingest|report>`: verify required upstream artifacts before moving to the next phase.
 - `generate-playwright`: emit a runnable, failing-by-default spec annotated with scenario id and risk.
 - `ingest --input <playwright.json> [--axe <axe.json>]`: convert executed Playwright JSON results into a results file, mapping specs to scenarios and blocking mutations when the baseline fails.
 - `report [--results <file>] [--fail-on <severity>] [--no-history]`: render all report artifacts with an executive summary, risk score, Top Issues table, and trend.
 - `gate --results <file> [--fail-on <severity>]`: exit non-zero when the highest open severity meets or exceeds the threshold.
 
 Set `flow_type` in the plan (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`) so `check` and `coverage` can enforce the mandatory scenario categories below.
+
+## Required Workflow Sequence
+
+Follow this order. Before moving to a phase, run `workflow-status --phase <phase>`. If it fails, fix the incomplete upstream artifact, rerun the same gate, and continue only after it passes.
+
+1. Collect target, auth, safety, runner, and baseline flow.
+2. Run `init` and complete `.agent/session/ux-gremlin-plan.yaml`.
+3. Run `workflow-status --phase plan`, `check`, and `coverage`; fix plan gaps.
+4. Run `workflow-status --phase generate`, then `generate-playwright`.
+5. Implement `.agent/generated/ux-gremlin.spec.ts`: replace generated `TODO:` blocks with real steps/assertions and remove active `requireImplementation(...)` calls.
+6. Run `workflow-status --phase execute`; do not run Playwright until this passes.
+7. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright.json>` and `ingest`.
+8. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` or `gate`.
 
 ## Gremlin Scenario Categories
 
@@ -81,6 +95,8 @@ Include keyboard-only navigation, visible focus, focus return after modals, acce
 ## Playwright Requirements
 
 Prefer role-based locators and accessible names. Use placeholders when selectors are unknown. Use `test.step` blocks. Include comments for assertions, recovery checks, screenshots, traces, and accessibility checks. Do not execute destructive paths unless `safety.destructive_actions_allowed` is true and safety notes are present.
+
+Generated specs are not execution-ready until their placeholders are implemented. `UX_GREMLIN_ALLOW_TODO=true` may soft-skip unfinished generated tests during local iteration, but `workflow-status --phase execute` still treats TODOs and active `requireImplementation(...)` guards as incomplete.
 
 ## Reporting Requirements
 

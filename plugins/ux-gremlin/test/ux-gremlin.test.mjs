@@ -206,6 +206,80 @@ test("coverage command reports gaps and clean coverage", () => {
   assert.match(gaps.stdout, /form: add a scenario in category duplicate_entity_creation/);
 });
 
+test("workflow-status plan and generate gates use plan validation", () => {
+  const planReady = run(["workflow-status", "--phase", "plan", "--plan", validPlan]);
+  assert.equal(planReady.status, 0, planReady.stderr);
+  assert.match(planReady.stdout, /workflow plan gate passed/);
+
+  const generateReady = run(["workflow-status", "--phase", "generate", "--plan", validPlan]);
+  assert.equal(generateReady.status, 0, generateReady.stderr);
+  assert.match(generateReady.stdout, /workflow generate gate passed/);
+
+  const invalid = run(["workflow-status", "--phase", "generate", "--plan", invalidPlan]);
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /ERROR: mode must be one of/);
+  assert.match(invalid.stderr, /NEXT: Create or repair/);
+});
+
+test("workflow-status execute fails when generated spec is missing", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const result = run(["workflow-status", "--phase", "execute", "--plan", validPlan], { cwd: dir });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /ERROR: generated Playwright spec is missing/);
+  assert.match(result.stderr, /NEXT: Run generate-playwright/);
+});
+
+test("workflow-status execute fails when generated spec is still incomplete", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const generate = run(["generate-playwright", "--plan", validPlan], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+
+  const result = run(["workflow-status", "--phase", "execute", "--plan", validPlan], { cwd: dir });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /ERROR: generated Playwright spec still contains TODO placeholders/);
+  assert.match(result.stderr, /ERROR: generated Playwright spec still contains \d+ active requireImplementation/);
+  assert.match(result.stderr, /NEXT: Replace generated TODO step comments/);
+});
+
+test("workflow-status execute passes after generated spec is implemented", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const specPath = path.join(dir, ".agent/generated/ux-gremlin.spec.ts");
+  fs.mkdirSync(path.dirname(specPath), { recursive: true });
+  const scenarioIds = [
+    "double-submit-confirm",
+    "reload-mid-flow",
+    "keyboard-only-create",
+    "invalid-required-fields",
+    "expired-auth-confirm",
+    "slow-network-create",
+    "browser-back-forward",
+    "duplicate-entity"
+  ];
+  const scenarioTests = scenarioIds.map((scenarioId) => `  test('${scenarioId}: implemented', {
+    annotation: [{ type: 'ux-gremlin-scenario', description: '${scenarioId}' }]
+  }, async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveURL(/./);
+  });`).join("\n");
+  fs.writeFileSync(specPath, `import { test, expect } from '@playwright/test';
+
+test.describe('Implemented UX Gremlin spec', () => {
+  test('baseline happy path', {
+    annotation: [{ type: 'ux-gremlin-baseline', description: 'true' }]
+  }, async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveURL(/./);
+  });
+
+${scenarioTests}
+});
+`, "utf-8");
+
+  const result = run(["workflow-status", "--phase", "execute", "--plan", validPlan], { cwd: dir });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /workflow execute gate passed/);
+});
+
 test("report includes executive summary, risk score, and top issues", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
   const report = run(["report", "--plan", validPlan, "--results", resultsExample], { cwd: dir });

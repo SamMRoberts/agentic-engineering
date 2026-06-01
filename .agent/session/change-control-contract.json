@@ -1,131 +1,130 @@
 {
   "version": "1.0",
   "task": {
-    "title": "Agent On-Ramp Coach plugin",
-    "request": "Create a cross-agent Agent On-Ramp Coach plugin that helps hesitant engineers adopt AI coding agents through safe, bounded, reviewable workflows.",
-    "problem_statement": "Engineering teams need a reusable plugin that defaults to read-only agent workflows, makes agent work inspectable, gates edits behind explicit confidence levels and approvals, and produces deterministic session artifacts rather than relying on agent self-reporting."
+    "title": "Strengthen UX Gremlin workflow sequencing",
+    "request": "Add required sequence checks so ux-gremlin fixes incomplete workflow steps before moving to the next phase.",
+    "problem_statement": "UX Gremlin can currently proceed toward Playwright execution before .agent/generated/ux-gremlin.spec.ts has implemented steps, which makes the tests non-executable in practice."
   },
-  "goal": "Add a production-usable agent-on-ramp-coach plugin with skill instructions, templates, schema, deterministic Node validation script, examples, hook samples, CI sample, manifests, docs, and tests.",
+  "goal": "Add a workflow-status command and workflow documentation that block phase advancement until required upstream UX Gremlin artifacts are complete.",
   "success_criteria": [
-    "The new plugin lives under plugins/agent-on-ramp-coach with repo-compatible manifests and package metadata.",
-    "The agent-on-ramp-coach skill defines read-only defaults, confidence levels, risk rules, approval gates, file and command rules, review summaries, anti-patterns, and cross-agent guidance.",
-    "Session templates, examples, and schema represent the requested adoption-session structure and allowed enum values.",
-    "The onramp.mjs script uses only Node built-in modules and implements init, check, summary, snapshot, and no-edits.",
-    "Valid adoption-session example passes validation and invalid example fails validation.",
-    "Snapshot and no-edits checks work in this git repository, including a simulated read-only edit failure.",
-    "README, AGENTS fragment, custom-instructions fragment, hook examples, and CI sample are copy-ready and accurate.",
-    "Relevant package tests, plugin validation, and marketplace sync checks pass."
+    "workflow-status accepts --phase plan, generate, execute, ingest, and report.",
+    "workflow-status exits non-zero with ERROR lines and actionable guidance when required upstream artifacts are missing or incomplete.",
+    "execute readiness fails when the generated spec is missing, still has TODO placeholders, still has active requireImplementation calls, or lacks baseline/scenario annotations.",
+    "Existing commands remain backward compatible.",
+    "Docs and agent instructions require the ordered gate-and-repair loop.",
+    "Regression tests cover missing spec, incomplete spec, ready spec, and plan/generation gate behavior.",
+    "npm test passes in plugins/ux-gremlin."
   ],
   "scope": {
-    "summary": "Create a new bounded plugin package for safe AI agent adoption workflows.",
+    "summary": "Bounded enhancement of the UX Gremlin plugin workflow gate and instructions.",
     "in_scope": [
-      "New files under plugins/agent-on-ramp-coach",
-      "Generated marketplace metadata for the new plugin",
-      "Local .agent/session change-control and assumption-gate artifacts"
+      "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+      "plugins/ux-gremlin/test/ux-gremlin.test.mjs",
+      "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+      "plugins/ux-gremlin/agents/ux-gremlin.agent.md",
+      "plugins/ux-gremlin/README.md",
+      "plugins/ux-gremlin/AGENTS.fragment.md",
+      "plugins/ux-gremlin/custom-instructions.fragment.md",
+      ".agent/session change-control and assumption-gate artifacts"
     ],
     "out_of_scope": [
-      "Changing existing plugin behavior",
-      "Adding external dependencies",
-      "Creating a backend service, MCP server, MCP app, or desktop app",
-      "Installing the plugin into a personal marketplace",
-      "Changing global or repo instructions outside the requested fragment files"
+      "Changing app-specific generated selector implementations.",
+      "Changing unrelated plugin behavior.",
+      "Adding new dependencies.",
+      "Changing marketplace metadata.",
+      "Changing plugin install/load behavior."
     ]
   },
   "non_goals": [
-    "Do not make autonomous coding the default.",
-    "Do not create vague placeholder docs or examples.",
-    "Do not add runtime dependencies.",
-    "Do not hard-code credentials, local absolute paths, tenant IDs, or production secrets.",
-    "Do not modify existing plugin packages except generated marketplace output if required by repo conventions."
+    "Do not make generated Playwright specs pass before users implement them.",
+    "Do not hide incomplete specs with soft-skips in workflow readiness.",
+    "Do not introduce schemas or migrations unless needed for the new command.",
+    "Do not rewrite existing report or ingest behavior."
   ],
   "allowed_change_areas": [
-    ".agent",
-    "plugins/agent-on-ramp-coach",
-    "plugins/marketplace.json"
+    ".agent/session",
+    "plugins/ux-gremlin"
   ],
   "forbidden_change_areas": [
     "plugins/agent-compat",
+    "plugins/agent-on-ramp-coach",
     "plugins/assumption-killer",
     "plugins/change-control-compiler",
-    "plugins/ux-gremlin",
+    "plugins/marketplace.json",
     "instructions",
     "agents"
   ],
   "files_to_inspect": [
-    "AGENTS.md",
-    "plugins/AGENTS.md",
-    "plugins/assumption-killer/plugin.json",
-    "plugins/assumption-killer/.codex-plugin/plugin.json",
-    "plugins/assumption-killer/.claude-plugin/plugin.json",
-    "plugins/assumption-killer/package.json",
-    "plugins/assumption-killer/agents/assumption-killer.agent.md",
-    "plugins/ux-gremlin/plugin.json",
-    "scripts/sync-marketplace.mjs",
-    "/Users/samroberts/.codex/skills/.system/plugin-creator/SKILL.md",
-    "/Users/samroberts/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py"
+    "plugins/ux-gremlin/package.json",
+    "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+    "plugins/ux-gremlin/test/ux-gremlin.test.mjs",
+    "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+    "plugins/ux-gremlin/agents/ux-gremlin.agent.md",
+    "plugins/ux-gremlin/README.md",
+    "plugins/ux-gremlin/AGENTS.fragment.md",
+    "plugins/ux-gremlin/custom-instructions.fragment.md"
   ],
   "files_allowed_to_modify": [
     ".agent/session/change-control-contract.json",
     ".agent/session/change-control-contract.md",
     ".agent/session/assumption-gate.json",
     ".agent/session/assumptions.md",
-    "plugins/marketplace.json"
+    "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+    "plugins/ux-gremlin/test/ux-gremlin.test.mjs",
+    "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+    "plugins/ux-gremlin/agents/ux-gremlin.agent.md",
+    "plugins/ux-gremlin/README.md",
+    "plugins/ux-gremlin/AGENTS.fragment.md",
+    "plugins/ux-gremlin/custom-instructions.fragment.md"
   ],
   "files_forbidden_to_modify": [
+    "plugins/marketplace.json",
     "plugins/agent-compat",
+    "plugins/agent-on-ramp-coach",
     "plugins/assumption-killer",
     "plugins/change-control-compiler",
-    "plugins/ux-gremlin",
     "instructions",
     "agents"
   ],
-  "expected_behavior": "The plugin provides a safe Agent On-Ramp workflow with read-only defaults, confidence levels, risk classification, explicit edit approvals, deterministic adoption-session checks, git snapshot/no-edit enforcement, copy-ready docs, and validation examples.",
-  "current_behavior": "No agent-on-ramp-coach plugin exists in this repository.",
+  "expected_behavior": "Agents use workflow-status before each phase, repair any reported incomplete upstream artifact, rerun the same gate, and only execute Playwright after the generated spec has concrete implementation and required ingest annotations.",
+  "current_behavior": "The plugin validates plans and generates failing-by-default specs, but the workflow does not provide a deterministic phase-readiness gate for spec implementation before Playwright execution.",
   "test_requirements": [
-    "Validate the plugin manifest with the plugin-creator validator.",
-    "Run the valid adoption-session example through onramp.mjs check.",
-    "Run the invalid adoption-session example and confirm check fails.",
-    "Run snapshot and no-edits in a git repository and confirm no-edits passes with no out-of-session changes.",
-    "Simulate a file change outside .agent/session for a read-only level and confirm no-edits fails.",
-    "Run npm test from the new plugin package.",
-    "Run repository marketplace sync check."
+    "workflow-status --phase execute fails when the generated spec is missing.",
+    "workflow-status --phase execute fails when a generated spec still contains TODO placeholders or active requireImplementation calls.",
+    "workflow-status --phase execute passes for a fixture spec with implemented steps and required annotations.",
+    "workflow-status --phase plan and --phase generate reuse existing plan validation behavior.",
+    "Run npm test from plugins/ux-gremlin.",
+    "Run assumption-gate check and change-control check/drift."
   ],
   "verification_commands": [
     "npm test",
-    "node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/valid-adoption-session.json",
-    "node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/invalid-adoption-session.json",
-    "node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot",
-    "node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits",
-    "python3 /Users/samroberts/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/agent-on-ramp-coach",
-    "node scripts/sync-marketplace.mjs --check",
     "node plugins/assumption-killer/bin/assumption-gate.mjs check",
     "node plugins/change-control-compiler/bin/change-control.mjs check",
     "node plugins/change-control-compiler/bin/change-control.mjs drift"
   ],
   "risk_level": "medium",
-  "rollback_plan": "Remove plugins/agent-on-ramp-coach, restore generated plugins/marketplace.json if changed, and restore local .agent/session gate artifacts if needed.",
+  "rollback_plan": "Revert modifications under plugins/ux-gremlin and restore the .agent/session gate artifacts.",
   "stop_conditions": [
-    "The requested behavior requires external dependencies.",
-    "The plugin cannot satisfy repo manifest or plugin validation contracts without changing existing infrastructure.",
-    "No-edit enforcement cannot be made deterministic using git state.",
-    "Validation requires modifying existing plugins or repository instructions outside the allowed scope.",
-    "A generated example or schema fails validation and cannot be fixed within scope."
+    "The new command requires external dependencies.",
+    "The execute gate cannot distinguish generated placeholders from implemented specs with acceptable false-positive risk.",
+    "Existing tests fail due to unrelated behavior outside the allowed scope.",
+    "Implementation requires changing unrelated plugin infrastructure."
   ],
   "open_questions": [],
   "implementation_plan": [
-    "Scaffold the plugin directory using the plugin-creator flow where applicable.",
-    "Add repo-compatible manifests, package metadata, changelog, license, and orchestrator agent.",
-    "Implement the skill, templates, schema, examples, hook samples, CI sample, and documentation fragments.",
-    "Implement onramp.mjs with built-in Node modules and deterministic validation/no-edit checks.",
-    "Add node:test coverage for valid, invalid, init, snapshot, no-edits pass, and no-edits fail behavior.",
-    "Run plugin validation, package tests, targeted script checks, snapshot/no-edits smoke checks, and marketplace sync."
+    "Add workflow-status argument parsing and usage text.",
+    "Implement plan/generate/execute/ingest/report phase gate helpers with actionable errors.",
+    "Add execute spec inspection for missing file, TODO placeholders, active requireImplementation calls, baseline annotation, and scenario annotation.",
+    "Update skill, agent, README, and fragments with the required gate-and-repair sequence.",
+    "Add node:test coverage for phase gates.",
+    "Run npm test and guardrail checks."
   ],
   "final_acceptance_checklist": [
-    "The plugin content is copy-ready and avoids hype, placeholders, and autonomous defaults.",
-    "The skill body stays under the repository line-count guidance.",
-    "The script has clear errors and no external dependencies.",
-    "Read-only sessions fail when files outside .agent/session change after a snapshot.",
-    "Docs explain hooks as enforcement aids, not universal skill-selection mechanisms.",
-    "All required validation commands have been run or any unrun command is clearly reported."
+    "workflow-status command is documented in command usage and README.",
+    "Execute phase is blocked for missing or incomplete generated specs.",
+    "Ready implemented spec fixture passes execute phase.",
+    "Docs instruct agents to repair failed gates before advancing.",
+    "No dependencies added.",
+    "All required verification commands pass or failures are reported."
   ]
 }

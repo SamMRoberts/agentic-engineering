@@ -24,4 +24,16 @@ Before final response, run:
 node skills/ux-gremlin/scripts/ux-gremlin.mjs check
 ```
 
+Required phase sequence:
+
+1. Complete `.agent/session/ux-gremlin-plan.yaml`.
+2. Run `workflow-status --phase plan`, `check`, and `coverage`; fix gaps before continuing.
+3. Run `workflow-status --phase generate`, then `generate-playwright`.
+4. Implement `.agent/generated/ux-gremlin.spec.ts` by replacing generated `TODO:` blocks and removing active `requireImplementation(...)` calls.
+5. Run `workflow-status --phase execute`; do not run Playwright until it passes.
+6. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright-json>` and `ingest`.
+7. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` or `gate`.
+
+If a phase gate fails, repair the reported upstream artifact and rerun the same gate before moving to the next step.
+
 Hooks and CI can enforce the artifact and validation result. They do not force skill selection.

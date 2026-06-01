@@ -13,6 +13,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs init
 node skills/ux-gremlin/scripts/ux-gremlin.mjs check
 node skills/ux-gremlin/scripts/ux-gremlin.mjs coverage
 node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
 node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
 node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json
 node skills/ux-gremlin/scripts/ux-gremlin.mjs report
@@ -31,11 +32,16 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs check --plan skills/ux-gremlin/exa
 2. Fill in `target`, `mode`, `safety`, `authentication`, and the baseline happy-path flow.
 3. Optionally set `flow_type` (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`, or a list) so `check` can enforce the mandatory scenario categories for that flow.
 4. Add gremlin scenarios that mutate the baseline. Each scenario needs an id, category, risk level, purpose, steps, expected behavior, assertions, bug indicators, recovery expectation, Playwright notes, and accessibility notes.
-5. Run `check` until validation passes. `check` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
-6. Run `coverage` to see flow-type category gaps and declared-condition warnings as an actionable list.
+5. Run `workflow-status --phase plan`, then `check` until validation passes. `check` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
+6. Run `coverage` to see flow-type category gaps and declared-condition warnings as an actionable list, then fix any gaps.
 7. Run `summary` to review coverage.
-8. Run `generate-playwright` when a starter Playwright spec is useful.
-9. Run `report` after planning or execution to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+8. Run `workflow-status --phase generate`, then `generate-playwright` when a starter Playwright spec is useful.
+9. Implement `.agent/generated/ux-gremlin.spec.ts` by replacing generated `TODO:` comments with app-specific steps and removing active `requireImplementation(...)` calls.
+10. Run `workflow-status --phase execute`; do not run Playwright until this passes.
+11. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright-json>` and `ingest`.
+12. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+
+If a `workflow-status` gate fails, repair the reported upstream artifact and rerun the same gate before moving on. The command is intentionally phase-specific so agents cannot skip missing plan content, generated spec implementation, Playwright JSON output, or ingested results.
 
 ## Coverage Enforcement
 
@@ -130,8 +136,11 @@ The generated `.agent/generated/ux-gremlin.spec.ts` includes one baseline test a
 After replacing placeholders with app-specific locators and fixtures:
 
 ```bash
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
 npx playwright test .agent/generated/ux-gremlin.spec.ts
 ```
+
+The execute gate fails while generated `TODO:` blocks, active `requireImplementation(...)` calls, or required ingest annotations are missing. `UX_GREMLIN_ALLOW_TODO=true` remains a local iteration aid, but it does not make the workflow execution-ready.
 
 ## Playwright MCP And Browser Agents
 
@@ -170,11 +179,18 @@ Every applicable flow should include keyboard-only operation, visible focus, cor
 ```bash
 node skills/ux-gremlin/scripts/ux-gremlin.mjs init
 $EDITOR .agent/session/ux-gremlin-plan.yaml
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
 node skills/ux-gremlin/scripts/ux-gremlin.mjs check
 node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase generate
 node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results skills/ux-gremlin/examples/results.example.yaml
+# implement .agent/generated/ux-gremlin.spec.ts
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
+npx playwright test .agent/generated/ux-gremlin.spec.ts --reporter=json > playwright-report.json
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase ingest --input playwright-report.json
+node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
+node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase report --results .agent/session/ux-gremlin-results.json
+node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
 ```
 
 ## Troubleshooting
@@ -185,4 +201,6 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results skills/ux-gremlin
 - `ERROR: destructive actions are enabled without explicit safety notes`: either set destructive actions to false or document the approved safety boundary.
 - `ERROR: results file is missing`: pass an existing results YAML/JSON file or omit `--results` for a plan-only report.
 - `ERROR: scenario result ... status must be one of`: use `passed`, `failed`, `blocked`, `not_run`, or `needs_review`.
+- `ERROR: generated Playwright spec still contains TODO placeholders`: implement the generated spec before running Playwright.
+- `ERROR: generated Playwright spec still contains ... active requireImplementation(...)`: replace the remaining guard calls with concrete assertions.
 - YAML parse errors: keep the plan within the provided template shape or use `.agent/session/ux-gremlin-plan.json`.
