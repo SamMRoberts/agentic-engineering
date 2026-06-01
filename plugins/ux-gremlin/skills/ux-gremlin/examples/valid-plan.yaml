@@ -5,6 +5,9 @@ target:
   app_area: "Admin Pages"
   environment: "local test"
 mode: "playwright_cli"
+flow_type:
+  - "authenticated"
+  - "navigation"
 safety:
   destructive_actions_allowed: false
   test_data_prefix: "ux-gremlin-page"
@@ -211,9 +214,9 @@ network_conditions:
   include_slow_network: true
   include_offline_recovery: false
 state_conditions:
-  include_stale_cache: true
-  include_storage_clear: true
-  include_cookie_clear: true
+  include_stale_cache: false
+  include_storage_clear: false
+  include_cookie_clear: false
 data_conditions:
   invalid_inputs:
     - "Empty title"

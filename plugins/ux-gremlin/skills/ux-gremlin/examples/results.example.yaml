@@ -4,6 +4,8 @@ run:
   executor: "Playwright CLI"
   environment: "local test"
   mode: "playwright_cli"
+  build: "ci-1042"
+  commit: "abc1234"
   notes: "Executed with prefixed local test data only."
 executed_commands:
   - "npx playwright test .agent/generated/ux-gremlin.spec.ts"
