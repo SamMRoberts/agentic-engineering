@@ -542,3 +542,201 @@ test("report records a trend across runs", () => {
   assert.equal(secondJson.trend.suspected_bug_delta, 0);
   assert.equal(secondJson.trend.pass_rate_delta, 0);
 });
+
+// Recipe DSL plan used to exercise playwright_steps validation and emission.
+function recipeFormPlan(extra = {}) {
+  return {
+    version: "1.0",
+    name: "Recipe test",
+    target: { url: "http://localhost:3000", app_area: "test", environment: "local" },
+    mode: "playwright_cli",
+    safety: { destructive_actions_allowed: false, test_data_prefix: "ux", cleanup_required: true },
+    baseline_flow: {
+      name: "baseline",
+      steps: ["open"],
+      expected_result: "ok",
+      playwright_steps: [
+        { action: "goto", url: "http://localhost:3000/" },
+        { action: "expect_visible", role: "heading", name: "Dashboard" }
+      ]
+    },
+    gremlin_scenarios: [
+      {
+        id: "invalid-fields",
+        name: "Invalid fields",
+        category: "invalid_required_fields",
+        risk_level: "medium",
+        purpose: "p",
+        steps: ["s"],
+        expected_behavior: "b",
+        assertions: ["a"],
+        recovery_expectation: "r",
+        playwright_steps: [
+          { action: "click", role: "button", name: "Add New" },
+          { action: "fill", label: "Title", value: 'quote"value' },
+          { action: "press", key: "Enter" },
+          { action: "expect_text", role: "alert", name: "Validation", text: "Title is required" },
+          { action: "expect_count", role: "row", name: "ux-test", count: 0 },
+          { action: "screenshot", name: "invalid-fields" }
+        ]
+      }
+    ],
+    accessibility_checks: {},
+    assertions: ["a"],
+    bug_indicators: ["b"],
+    recovery_expectations: ["r"],
+    verification_commands: ["c"],
+    reporting: { output_dir: ".agent/reports/ux-gremlin" },
+    ...extra
+  };
+}
+
+test("generate-playwright emits real Playwright code from playwright_steps recipe", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const planPath = path.join(dir, "plan.json");
+  fs.writeFileSync(planPath, JSON.stringify(recipeFormPlan()), "utf-8");
+
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+  const spec = fs.readFileSync(path.join(dir, ".agent/generated/ux-gremlin.spec.ts"), "utf-8");
+
+  // Baseline recipe compiles to real Playwright calls.
+  assert.match(spec, /await page\.goto\("http:\/\/localhost:3000\/"\);/);
+  assert.match(spec, /await expect\(page\.getByRole\("heading", \{ name: "Dashboard" \}\)\)\.toBeVisible\(\);/);
+
+  // Scenario recipe covers click, fill (with quoted value), press, expect_text, expect_count, screenshot.
+  assert.match(spec, /await page\.getByRole\("button", \{ name: "Add New" \}\)\.click\(\);/);
+  assert.match(spec, /await page\.getByLabel\("Title"\)\.fill\("quote\\"value"\);/);
+  assert.match(spec, /await page\.keyboard\.press\("Enter"\);/);
+  assert.match(spec, /await expect\(page\.getByRole\("alert", \{ name: "Validation" \}\)\)\.toContainText\("Title is required"\);/);
+  assert.match(spec, /await expect\(page\.getByRole\("row", \{ name: "ux-test" \}\)\)\.toHaveCount\(0\);/);
+  assert.match(spec, /testInfo\.attach\("invalid-fields", \{ body: __body, contentType: 'image\/png' \}\);/);
+
+  // Scenarios whose recipe contains expect_* drop the failing-by-default guard.
+  assert.doesNotMatch(spec, /requireImplementation\("invalid-fields"/);
+  assert.doesNotMatch(spec, /TODO: mutate the baseline flow for category "invalid_required_fields"/);
+
+  // Baseline recipe with expect_* also drops requireImplementation for baseline.
+  assert.doesNotMatch(spec, /requireImplementation\('baseline happy path'/);
+  assert.doesNotMatch(spec, /TODO: add baseline happy-path steps/);
+});
+
+test("workflow-status execute passes when baseline and scenario recipes provide assertions", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const planPath = path.join(dir, "plan.json");
+  fs.writeFileSync(planPath, JSON.stringify(recipeFormPlan()), "utf-8");
+
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+
+  const status = run(["workflow-status", "--phase", "execute", "--plan", planPath], { cwd: dir });
+  assert.equal(status.status, 0, status.stderr);
+  assert.match(status.stdout, /workflow execute gate passed/);
+});
+
+test("generate-playwright keeps failing-by-default when no recipe is provided", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const planPath = path.join(dir, "plan.json");
+  const plan = recipeFormPlan();
+  delete plan.baseline_flow.playwright_steps;
+  delete plan.gremlin_scenarios[0].playwright_steps;
+  fs.writeFileSync(planPath, JSON.stringify(plan), "utf-8");
+
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+  const spec = fs.readFileSync(path.join(dir, ".agent/generated/ux-gremlin.spec.ts"), "utf-8");
+  assert.match(spec, /requireImplementation\("invalid-fields"/);
+  assert.match(spec, /TODO: mutate the baseline flow for category "invalid_required_fields"/);
+  assert.match(spec, /requireImplementation\('baseline happy path'/);
+});
+
+test("validatePlan rejects malformed playwright_steps with actionable errors", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const planPath = path.join(dir, "plan.json");
+  const plan = recipeFormPlan();
+  plan.gremlin_scenarios[0].playwright_steps = [
+    { action: "teleport" },
+    { action: "click" },
+    { action: "fill", role: "textbox", name: "Title" },
+    { action: "expect_count", role: "row", name: "ux-test" },
+    { action: "press" },
+    { action: "goto" }
+  ];
+  fs.writeFileSync(planPath, JSON.stringify(plan), "utf-8");
+
+  const result = run(["check", "--plan", planPath]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /playwright_steps\[0\]\.action must be one of/);
+  assert.match(result.stderr, /playwright_steps\[1\] requires a selector/);
+  assert.match(result.stderr, /playwright_steps\[2\]\.value must be a string/);
+  assert.match(result.stderr, /playwright_steps\[3\]\.count must be a non-negative integer/);
+  assert.match(result.stderr, /playwright_steps\[4\]\.key must be a non-empty string/);
+  assert.match(result.stderr, /playwright_steps\[5\]\.url must be a non-empty string/);
+});
+
+test("YAML playwright_steps parse through the existing parser", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const planPath = path.join(dir, "plan.yaml");
+  fs.writeFileSync(planPath, `version: "1.0"
+name: "Recipe yaml"
+target:
+  url: "http://localhost:3000"
+  app_area: "test"
+  environment: "local"
+mode: "playwright_cli"
+safety:
+  destructive_actions_allowed: false
+  test_data_prefix: "ux"
+  cleanup_required: true
+baseline_flow:
+  name: "baseline"
+  steps:
+    - "open"
+  expected_result: "ok"
+  playwright_steps:
+    - action: "goto"
+      url: "http://localhost:3000/"
+    - action: "expect_visible"
+      role: "heading"
+      name: "Dashboard"
+gremlin_scenarios:
+  - id: "invalid-fields"
+    name: "Invalid fields"
+    category: "invalid_required_fields"
+    risk_level: "medium"
+    purpose: "p"
+    steps:
+      - "s"
+    expected_behavior: "b"
+    assertions:
+      - "a"
+    recovery_expectation: "r"
+    playwright_steps:
+      - action: "click"
+        role: "button"
+        name: "Add New"
+      - action: "expect_visible"
+        label: "Title"
+accessibility_checks: {}
+assertions:
+  - "a"
+bug_indicators:
+  - "b"
+recovery_expectations:
+  - "r"
+verification_commands:
+  - "c"
+reporting:
+  output_dir: ".agent/reports/ux-gremlin"
+`, "utf-8");
+
+  const result = run(["check", "--plan", planPath]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /OK:/);
+
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+  const spec = fs.readFileSync(path.join(dir, ".agent/generated/ux-gremlin.spec.ts"), "utf-8");
+  assert.match(spec, /await page\.getByRole\("button", \{ name: "Add New" \}\)\.click\(\);/);
+  assert.match(spec, /await expect\(page\.getByLabel\("Title"\)\)\.toBeVisible\(\);/);
+});
