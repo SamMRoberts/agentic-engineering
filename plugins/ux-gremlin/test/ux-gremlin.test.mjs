@@ -305,6 +305,16 @@ test("report includes executive summary, risk score, and top issues", () => {
 
   assert.match(html, /verdict-fail/);
   assert.match(html, /Executive Summary/);
+  assert.match(html, /<section id="executive-summary" class="hero verdict-fail">/);
+  assert.match(html, /<nav class="report-nav" aria-label="Report sections">/);
+  assert.match(html, /href="#top-issues"/);
+  assert.match(html, /href="#scenario-index"/);
+  assert.match(html, /href="#evidence-library"/);
+  assert.match(html, /<p class="decision-line">Fail \| 33% pass rate \| 2 top issue\(s\)<\/p>/);
+  assert.match(html, /<div class="metric-grid" aria-label="Executive metrics">/);
+  assert.match(html, /<section id="top-issues" class="panel-section">/);
+  assert.match(html, /<section id="scenario-index" class="panel-section">/);
+  assert.match(html, /<section id="evidence-library" class="panel-section">/);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>alert/);
 });
@@ -459,9 +469,9 @@ test("ingest copies Playwright attachments into evidence and reports link them s
 
   assert.match(markdown, /\[screenshot: failure screenshot/);
   assert.match(markdown, /\]\(\.\.\/\.\.\/evidence\/ux-gremlin\/double-submit-confirm\//);
-  assert.match(html, /<h2>Scenario Index<\/h2>/);
+  assert.match(html, /<section id="scenario-index" class="panel-section">/);
   assert.match(html, /id="scenario-double-submit-confirm"/);
-  assert.match(html, /<h2>Evidence Library<\/h2>/);
+  assert.match(html, /<section id="evidence-library" class="panel-section">/);
   assert.match(html, /href="\.\.\/\.\.\/evidence\/ux-gremlin\/double-submit-confirm\//);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>alert/);

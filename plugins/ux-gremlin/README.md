@@ -83,7 +83,7 @@ Generated artifacts:
 
 - `report.md`: human-readable report with an executive summary, trend, Top Issues table, and evidence links for review and PR notes.
 - `report.json`: normalized machine-readable summary (including `executive_summary`, `top_issues`, `trend`, and per-scenario evidence metadata) for agents and CI.
-- `report.html`: self-contained static HTML with summary cards, severity badges, status/severity bars, scenario index, evidence library, escaped content, and no scripts or remote assets.
+- `report.html`: self-contained static HTML with an executive decision header, section navigation, metric grid, severity badges, status/severity bars, scenario index, evidence library, escaped content, and no scripts or remote assets.
 - `report.junit.xml`: JUnit results for CI dashboards (failed/blocked map to failures; not_run/needs_review map to skipped).
 - `report.pr.md`: compact PR-comment summary with verdict, pass rate, and the top issues.
 
