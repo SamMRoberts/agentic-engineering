@@ -10,11 +10,50 @@ const defaultJsonPlan = ".agent/session/ux-gremlin-plan.json";
 const templatePath = path.join(skillDir, "templates", "ux-gremlin-plan.yaml");
 const outputSpecPath = ".agent/generated/ux-gremlin.spec.ts";
 const defaultReportDir = ".agent/reports/ux-gremlin";
+const defaultIngestOut = ".agent/session/ux-gremlin-results.json";
+const baselineTestTitle = "baseline happy path";
 
 const allowedModes = new Set(["playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"]);
 const allowedRiskLevels = new Set(["low", "medium", "high", "critical"]);
 const allowedResultStatuses = new Set(["passed", "failed", "blocked", "not_run", "needs_review"]);
 const allowedResultSeverities = new Set(["info", "low", "medium", "high", "critical"]);
+
+// Ordered low -> high so severities can be compared and thresholds applied.
+const severityOrder = ["info", "low", "medium", "high", "critical"];
+const severityRank = new Map(severityOrder.map((value, index) => [value, index]));
+const severityWeights = { info: 0, low: 1, medium: 3, high: 7, critical: 12 };
+
+const allowedFlowTypes = new Set([
+  "form",
+  "authenticated",
+  "long_running",
+  "crud",
+  "read_only",
+  "navigation",
+  "generic"
+]);
+
+// Each flow type requires one or more category groups. A group is satisfied when
+// at least one of its categories is present, so groups express OR and the list
+// expresses AND. This mirrors the SKILL.md scenario generation rules.
+const flowTypeRequirements = {
+  form: [
+    ["invalid_required_fields"],
+    ["partial_form_completion"],
+    ["duplicate_entity_creation"],
+    ["interrupted_save"]
+  ],
+  authenticated: [["expired_auth", "permission_denied"]],
+  long_running: [
+    ["reload_mid_flow"],
+    ["slow_network", "long_running_operation"],
+    ["partial_form_completion"]
+  ],
+  crud: [["duplicate_entity_creation"], ["concurrent_edit"]],
+  read_only: [],
+  navigation: [["browser_back_forward", "deep_link_entry", "unexpected_navigation"]],
+  generic: []
+};
 const allowedCategories = new Set([
   "double_submit",
   "rapid_clicking",
@@ -46,46 +85,67 @@ const allowedCategories = new Set([
 
 function usage(exitCode = 2) {
   const out = exitCode === 0 ? console.log : console.error;
-  out(`Usage: node skills/ux-gremlin/scripts/ux-gremlin.mjs <command> [--plan <path>] [--results <path>] [--out-dir <path>]
+  out(`Usage: node skills/ux-gremlin/scripts/ux-gremlin.mjs <command> [options]
 
 Commands:
   init                 Create .agent/session/ux-gremlin-plan.yaml and report dir if missing.
-  check                Validate a UX Gremlin plan.
+  check                Validate a UX Gremlin plan (includes coverage enforcement).
+  coverage             Report flow-type category gaps and declared-condition warnings.
   summary              Print a concise markdown summary.
-  generate-playwright  Generate .agent/generated/ux-gremlin.spec.ts.
-  report               Create or update report.md, report.json, and report.html.
+  generate-playwright  Generate runnable .agent/generated/ux-gremlin.spec.ts.
+  ingest               Convert a Playwright JSON report (+optional axe) into a results file.
+  report               Create or update report.md, report.json, report.html, report.junit.xml, and report.pr.md.
+  gate                 Exit non-zero when results contain an issue at or above --fail-on severity.
 
-Plan discovery defaults to ${defaultYamlPlan}, then ${defaultJsonPlan}.
-Report output defaults to reporting.output_dir, then ${defaultReportDir}.
+Options:
+  --plan <path>        Plan file (defaults to ${defaultYamlPlan}, then ${defaultJsonPlan}).
+  --results <path>     Executed results file for report/gate.
+  --out-dir <path>     Report output directory (defaults to reporting.output_dir, then ${defaultReportDir}).
+  --input <path>       Playwright JSON report consumed by ingest.
+  --axe <path>         Optional axe-core JSON consumed by ingest.
+  --out <path>         Output results file for ingest (defaults to ${defaultIngestOut}).
+  --fail-on <severity> Severity gate threshold for report/gate (info|low|medium|high|critical; default high).
+  --no-history         Do not read or append run history during report.
+
 YAML support is intentionally conservative and supports the template shape used by this plugin.
 JSON is supported as a fallback at ${defaultJsonPlan}.`);
   process.exit(exitCode);
 }
 
 function parseArgs(argv) {
-  const args = { command: argv[2], plan: null, results: null, outDir: null };
+  const args = {
+    command: argv[2],
+    plan: null,
+    results: null,
+    outDir: null,
+    input: null,
+    axe: null,
+    out: null,
+    failOn: null,
+    history: true
+  };
+  const valueFlags = {
+    "--plan": "plan",
+    "--results": "results",
+    "--out-dir": "outDir",
+    "--input": "input",
+    "--axe": "axe",
+    "--out": "out",
+    "--fail-on": "failOn"
+  };
   for (let i = 3; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--plan") {
-      args.plan = argv[++i];
-      if (!args.plan) {
-        console.error("ERROR: --plan requires a path");
-        usage(2);
-      }
-    } else if (arg === "--results") {
-      args.results = argv[++i];
-      if (!args.results) {
-        console.error("ERROR: --results requires a path");
-        usage(2);
-      }
-    } else if (arg === "--out-dir") {
-      args.outDir = argv[++i];
-      if (!args.outDir) {
-        console.error("ERROR: --out-dir requires a path");
-        usage(2);
-      }
+    if (arg === "--no-history") {
+      args.history = false;
     } else if (arg === "-h" || arg === "--help") {
       usage(0);
+    } else if (Object.prototype.hasOwnProperty.call(valueFlags, arg)) {
+      const value = argv[++i];
+      if (!value) {
+        console.error(`ERROR: ${arg} requires a value`);
+        usage(2);
+      }
+      args[valueFlags[arg]] = value;
     } else {
       console.error(`ERROR: unknown argument ${arg}`);
       usage(2);
@@ -283,6 +343,92 @@ function isStringArray(value) {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
+function planScenarioCategorySet(plan) {
+  return new Set((plan.gremlin_scenarios ?? []).map((scenario) => scenario?.category).filter(Boolean));
+}
+
+function normalizeFlowTypes(plan) {
+  const raw = plan.flow_type ?? plan.flow_types;
+  if (raw == null || raw === "") return [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.map((item) => String(item).trim()).filter(Boolean);
+}
+
+function conditionChecks(plan) {
+  const data = plan.data_conditions ?? {};
+  const network = plan.network_conditions ?? {};
+  const state = plan.state_conditions ?? {};
+  return [
+    {
+      label: "network_conditions.include_slow_network",
+      active: network.include_slow_network === true,
+      categories: ["slow_network", "long_running_operation"]
+    },
+    {
+      label: "network_conditions.include_offline_recovery",
+      active: network.include_offline_recovery === true,
+      categories: ["offline_recovery"]
+    },
+    {
+      label: "state_conditions.include_stale_cache",
+      active: state.include_stale_cache === true,
+      categories: ["stale_cache"]
+    },
+    {
+      label: "state_conditions.include_storage_clear",
+      active: state.include_storage_clear === true,
+      categories: ["session_storage_clear", "local_storage_clear"]
+    },
+    {
+      label: "state_conditions.include_cookie_clear",
+      active: state.include_cookie_clear === true,
+      categories: ["cookie_clear"]
+    },
+    {
+      label: "data_conditions.invalid_inputs",
+      active: hasItems(data.invalid_inputs),
+      categories: ["invalid_required_fields"]
+    },
+    {
+      label: "data_conditions.duplicate_inputs",
+      active: hasItems(data.duplicate_inputs),
+      categories: ["duplicate_entity_creation"]
+    },
+    {
+      label: "data_conditions.boundary_inputs",
+      active: hasItems(data.boundary_inputs),
+      categories: ["invalid_required_fields", "partial_form_completion"]
+    }
+  ];
+}
+
+function computeCoverage(plan) {
+  const present = planScenarioCategorySet(plan);
+  const flowTypes = normalizeFlowTypes(plan);
+  const invalidFlowTypes = flowTypes.filter((flowType) => !allowedFlowTypes.has(flowType));
+  const missing = [];
+  for (const flowType of flowTypes) {
+    const groups = flowTypeRequirements[flowType];
+    if (!groups) continue;
+    for (const group of groups) {
+      if (!group.some((category) => present.has(category))) {
+        missing.push({ flow_type: flowType, expected: group });
+      }
+    }
+  }
+  const conditionWarnings = conditionChecks(plan)
+    .filter((entry) => entry.active && !entry.categories.some((category) => present.has(category)))
+    .map((entry) => ({ condition: entry.label, expected: entry.categories }));
+
+  // authentication.required is a detected signal surfaced as advice, not enforced.
+  const authSignal =
+    plan.authentication?.required === true &&
+    !flowTypes.includes("authenticated") &&
+    !["expired_auth", "permission_denied"].some((category) => present.has(category));
+
+  return { flowTypes, invalidFlowTypes, missing, conditionWarnings, authSignal };
+}
+
 function validatePlan(plan) {
   const errors = [];
   const requiredTop = [
@@ -355,6 +501,16 @@ function validatePlan(plan) {
   if (!hasItems(plan.assertions)) errors.push("assertions must include at least one item");
   if (!hasItems(plan.recovery_expectations)) errors.push("recovery_expectations must include at least one item");
   if (!hasItems(plan.verification_commands)) errors.push("verification commands are empty");
+
+  const coverage = computeCoverage(plan);
+  for (const flowType of coverage.invalidFlowTypes) {
+    errors.push(`flow_type has invalid value: ${flowType} (allowed: ${[...allowedFlowTypes].join(", ")})`);
+  }
+  for (const gap of coverage.missing) {
+    errors.push(
+      `flow_type "${gap.flow_type}" requires a scenario in category: ${gap.expected.join(" or ")}`
+    );
+  }
   return errors;
 }
 
@@ -424,6 +580,25 @@ function commandInit() {
   console.log("Ready .agent/reports/ux-gremlin");
 }
 
+function printWarnings(warnings) {
+  for (const warning of warnings) console.warn(`WARN: ${warning}`);
+}
+
+function coverageWarnings(coverage) {
+  const warnings = [];
+  for (const entry of coverage.conditionWarnings) {
+    warnings.push(
+      `declared ${entry.condition} has no covering scenario in category: ${entry.expected.join(" or ")}`
+    );
+  }
+  if (coverage.authSignal) {
+    warnings.push(
+      "authentication.required is true but no expired_auth or permission_denied scenario is defined"
+    );
+  }
+  return warnings;
+}
+
 function commandCheck(planPath) {
   let plan;
   try {
@@ -437,7 +612,42 @@ function commandCheck(planPath) {
     printErrors(errors);
     process.exit(1);
   }
+  printWarnings(coverageWarnings(computeCoverage(plan)));
   console.log(`OK: ${planPath}`);
+}
+
+function commandCoverage(planPath) {
+  const plan = readPlan(planPath);
+  const coverage = computeCoverage(plan);
+  const present = [...planScenarioCategorySet(plan)].sort();
+  const lines = ["# UX Gremlin Coverage", ""];
+  lines.push(`- Declared flow types: ${coverage.flowTypes.join(", ") || "(none)"}`);
+  lines.push(`- Scenario categories present: ${present.join(", ") || "(none)"}`);
+  lines.push("");
+  lines.push("## Required Category Gaps");
+  lines.push("");
+  if (coverage.invalidFlowTypes.length > 0) {
+    for (const flowType of coverage.invalidFlowTypes) {
+      lines.push(`- Invalid flow_type: ${flowType}`);
+    }
+  }
+  if (coverage.missing.length === 0) {
+    lines.push("- None. All declared flow types are covered.");
+  } else {
+    for (const gap of coverage.missing) {
+      lines.push(`- ${gap.flow_type}: add a scenario in category ${gap.expected.join(" or ")}`);
+    }
+  }
+  lines.push("");
+  lines.push("## Declared Condition Warnings");
+  lines.push("");
+  const warnings = coverageWarnings(coverage);
+  if (warnings.length === 0) {
+    lines.push("- None. All declared conditions have covering scenarios.");
+  } else {
+    for (const warning of warnings) lines.push(`- ${warning}`);
+  }
+  console.log(lines.join("\n"));
 }
 
 function scenarioCategories(plan) {
@@ -479,17 +689,21 @@ function writeGeneratedSpec(plan) {
     const steps = (scenario.steps ?? []).map((step, index) => `    await test.step(${JSON.stringify(`${index + 1}. ${step}`)}, async () => {
       // TODO: mutate the baseline flow for category "${scenario.category}".
     });`).join("\n");
-    const assertions = (scenario.assertions ?? []).map((assertion) => `    // Assertion: ${quoteForComment(assertion)}`).join("\n");
+    const assertions = (scenario.assertions ?? []).map((assertion) => `      ${JSON.stringify(quoteForComment(assertion))},`).join("\n");
+    const annotation = `{ annotation: [{ type: 'ux-gremlin-scenario', description: ${JSON.stringify(scenario.id ?? "")} }, { type: 'ux-gremlin-risk', description: ${JSON.stringify(scenario.risk_level ?? "")} }] }`;
     return `
-  test(${JSON.stringify(`${scenario.id}: ${testName(scenario.name)}`)}, async ({ page }) => {
+  test(${JSON.stringify(`${scenario.id}: ${testName(scenario.name)}`)}, ${annotation}, async ({ page }) => {
     test.skip(destructiveActionsAllowed === false && ${JSON.stringify(scenario.risk_level)} === "critical", "Critical/destructive UX paths require explicit safety review.");
     await page.goto(targetUrl);
 ${steps}
-${assertions}
     // Expected behavior: ${quoteForComment(scenario.expected_behavior)}
     // Recovery check: ${quoteForComment(scenario.recovery_expectation)}
     // Accessibility notes: ${quoteForComment(scenario.accessibility_notes)}
     // Playwright notes: ${quoteForComment(scenario.playwright_notes)}
+    // TODO: replace the guard below with concrete expect(...) assertions.
+    requireImplementation(${JSON.stringify(scenario.id ?? "scenario")}, [
+${assertions}
+    ]);
   });`;
   }).join("\n");
 
@@ -498,13 +712,26 @@ ${assertions}
 const targetUrl = process.env.UX_GREMLIN_TARGET_URL || ${JSON.stringify(plan.target?.url || "http://localhost:3000")};
 const destructiveActionsAllowed = ${plan.safety?.destructive_actions_allowed === true};
 
+// Generated scenarios fail by default so an unfinished spec cannot silently pass
+// in CI. Implement the assertions, then delete the matching requireImplementation
+// call. Set UX_GREMLIN_ALLOW_TODO=true to soft-skip while iterating locally.
+function requireImplementation(scenarioId, assertions) {
+  const allowTodo = ['1', 'true', 'yes'].includes((process.env.UX_GREMLIN_ALLOW_TODO || '').trim().toLowerCase());
+  if (allowTodo) {
+    test.skip(true, \`UX Gremlin: \${scenarioId} not implemented yet\`);
+    return;
+  }
+  const detail = assertions.length > 0 ? \` Expected assertions: \${assertions.join(' | ')}\` : '';
+  throw new Error(\`UX Gremlin: implement assertions for "\${scenarioId}" before running in CI.\${detail}\`);
+}
+
 test.describe(${JSON.stringify(plan.name || "UX Gremlin Plan")}, () => {
-  test('baseline happy path', async ({ page }) => {
+  test('baseline happy path', { annotation: [{ type: 'ux-gremlin-baseline', description: 'true' }] }, async ({ page }) => {
     await page.goto(targetUrl);
 ${baselineSteps || "    // TODO: add baseline happy-path steps."}
     // Expected result: ${quoteForComment(plan.baseline_flow?.expected_result)}
-    // TODO: add concrete expect(...) assertions after selectors are known.
     await expect(page).toHaveURL(/./);
+    requireImplementation('baseline happy path', [${JSON.stringify(quoteForComment(plan.baseline_flow?.expected_result))}]);
   });
 ${scenarioTests}
 });
@@ -521,6 +748,181 @@ function commandGeneratePlaywright(planPath) {
     process.exit(1);
   }
   writeGeneratedSpec(plan);
+}
+
+function readJsonFile(filePath, label) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`${label} file is missing: ${filePath}`);
+  }
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  } catch (err) {
+    throw new Error(`${label} file is not valid JSON: ${err.message}`);
+  }
+}
+
+function collectPlaywrightSpecs(report) {
+  const specs = [];
+  const walk = (suite) => {
+    if (!suite || typeof suite !== "object") return;
+    for (const spec of suite.specs ?? []) specs.push(spec);
+    for (const child of suite.suites ?? []) walk(child);
+  };
+  for (const suite of report.suites ?? []) walk(suite);
+  return specs;
+}
+
+function playwrightOutcomeToStatus(outcome) {
+  switch (outcome) {
+    case "expected":
+      return "passed";
+    case "unexpected":
+      return "failed";
+    case "flaky":
+      return "needs_review";
+    case "skipped":
+      return "not_run";
+    default:
+      return "needs_review";
+  }
+}
+
+function annotationValue(annotations, type) {
+  const match = (annotations ?? []).find((entry) => entry?.type === type);
+  return match ? match.description ?? "" : null;
+}
+
+function severityForStatus(status, risk) {
+  const normalizedRisk = allowedResultSeverities.has(risk) ? risk : null;
+  if (status === "failed") return normalizedRisk || "high";
+  if (status === "needs_review") return normalizedRisk || "medium";
+  if (status === "blocked") return normalizedRisk || "medium";
+  return "info";
+}
+
+function loadAxeIssues(axePath) {
+  if (!axePath) return { byScenario: new Map(), global: [] };
+  const resolved = path.resolve(axePath);
+  if (!fs.existsSync(resolved)) {
+    throw new Error(`optional --axe file could not be read: ${resolved}. Omit --axe if axe-core results are unavailable.`);
+  }
+  const data = readJsonFile(resolved, "axe");
+  const byScenario = new Map();
+  const global = [];
+  const formatViolation = (violation) => {
+    const impact = violation?.impact ? ` (${violation.impact})` : "";
+    const help = violation?.help || violation?.description || "";
+    return `${violation?.id || "violation"}${impact}: ${help}`.trim();
+  };
+  const ingestRun = (run, scenarioId) => {
+    const issues = (run?.violations ?? []).map(formatViolation);
+    if (scenarioId) {
+      byScenario.set(scenarioId, [...(byScenario.get(scenarioId) ?? []), ...issues]);
+    } else {
+      global.push(...issues);
+    }
+  };
+  if (Array.isArray(data)) {
+    for (const entry of data) ingestRun(entry, entry?.scenario_id || entry?.scenarioId || null);
+  } else {
+    ingestRun(data, data?.scenario_id || data?.scenarioId || null);
+  }
+  return { byScenario, global };
+}
+
+function commandIngest(planPath, inputPath, axePath, outPath) {
+  if (!inputPath) {
+    console.error("ERROR: ingest requires --input <playwright-json>");
+    process.exit(2);
+  }
+  const plan = readPlan(planPath);
+  const planErrors = validatePlan(plan);
+  if (planErrors.length > 0) {
+    printErrors(planErrors);
+    process.exit(1);
+  }
+  const report = readJsonFile(path.resolve(inputPath), "Playwright report");
+  const axe = loadAxeIssues(axePath);
+  const specs = collectPlaywrightSpecs(report);
+  const planScenarioIds = new Set((plan.gremlin_scenarios ?? []).map((scenario) => scenario.id).filter(Boolean));
+
+  let baselineFailed = false;
+  const scenarioResults = [];
+  for (const spec of specs) {
+    for (const pwTest of spec.tests ?? []) {
+      const annotations = pwTest.annotations ?? [];
+      const isBaseline =
+        annotationValue(annotations, "ux-gremlin-baseline") != null ||
+        spec.title === baselineTestTitle;
+      const status = playwrightOutcomeToStatus(pwTest.status);
+      if (isBaseline) {
+        if (status === "failed") baselineFailed = true;
+        continue;
+      }
+      let scenarioId = annotationValue(annotations, "ux-gremlin-scenario");
+      if (!scenarioId && typeof spec.title === "string" && spec.title.includes(":")) {
+        scenarioId = spec.title.slice(0, spec.title.indexOf(":")).trim();
+      }
+      if (!scenarioId) continue;
+      if (planScenarioIds.size > 0 && !planScenarioIds.has(scenarioId)) continue;
+      const risk = annotationValue(annotations, "ux-gremlin-risk");
+      const errors = (pwTest.results ?? [])
+        .flatMap((result) => [result?.error?.message, ...(result?.errors ?? []).map((item) => item?.message)])
+        .filter(Boolean)
+        .map((message) => String(message).split("\n")[0].trim());
+      scenarioResults.push({
+        scenario_id: scenarioId,
+        status,
+        severity: severityForStatus(status, risk),
+        outcome: `Playwright reported "${pwTest.status}".`,
+        findings: [...new Set(errors)],
+        suspected_bugs: [],
+        accessibility_issues: axe.byScenario.get(scenarioId) ?? [],
+        console_errors: [],
+        screenshots: [],
+        traces: [],
+        recovery_notes: [],
+        executed_commands: [],
+        open_risks: []
+      });
+    }
+  }
+
+  const openRisks = [...axe.global];
+  if (baselineFailed) {
+    for (const result of scenarioResults) {
+      if (result.status === "not_run" || result.status === "passed") {
+        result.status = "blocked";
+        result.severity = severityForStatus("blocked", result.severity);
+      }
+      result.recovery_notes.push("Baseline failed; scenario blocked until the happy path is restored.");
+    }
+    openRisks.unshift("Baseline happy path failed; all mutation scenarios are blocked.");
+  }
+
+  const results = {
+    version: "1.0",
+    run: {
+      executed_at: new Date().toISOString(),
+      executor: "Playwright JSON ingest",
+      environment: plan.target?.environment || "",
+      mode: plan.mode || "playwright_cli",
+      build: process.env.UX_GREMLIN_BUILD || "",
+      commit: process.env.UX_GREMLIN_COMMIT || report.config?.metadata?.commit || "",
+      notes: baselineFailed
+        ? "Baseline failed; mutation scenarios were blocked during ingest."
+        : "Generated from Playwright JSON report."
+    },
+    executed_commands: ["npx playwright test --reporter=json"],
+    open_risks: [...new Set(openRisks)],
+    scenario_results: scenarioResults
+  };
+
+  const resolvedOut = path.resolve(outPath || defaultIngestOut);
+  ensureDir(path.dirname(resolvedOut));
+  fs.writeFileSync(resolvedOut, `${JSON.stringify(results, null, 2)}\n`, "utf-8");
+  console.log(`Wrote ${resolvedOut}`);
+  console.log(`Scenarios ingested: ${scenarioResults.length}${baselineFailed ? " (baseline failed; mutations blocked)" : ""}`);
 }
 
 function asArray(value) {
@@ -541,16 +943,141 @@ function incrementCount(counts, key) {
   counts[normalized] = (counts[normalized] ?? 0) + 1;
 }
 
+function displayPath(absPath) {
+  const rel = path.relative(process.cwd(), absPath);
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return absPath;
+  return rel;
+}
+
 function buildArtifactPaths(outDir) {
   return {
     markdown: path.join(outDir, "report.md"),
     json: path.join(outDir, "report.json"),
-    html: path.join(outDir, "report.html")
+    html: path.join(outDir, "report.html"),
+    junit: path.join(outDir, "report.junit.xml"),
+    pr: path.join(outDir, "report.pr.md")
   };
 }
 
 function resolveReportDir(plan, outDirArg) {
   return path.resolve(outDirArg || plan.reporting?.output_dir || defaultReportDir);
+}
+
+function maxSeverity(severities) {
+  let best = null;
+  for (const severity of severities) {
+    if (!severityRank.has(severity)) continue;
+    if (best === null || severityRank.get(severity) > severityRank.get(best)) best = severity;
+  }
+  return best;
+}
+
+function severityAtLeast(severity, threshold) {
+  if (!severityRank.has(severity) || !severityRank.has(threshold)) return false;
+  return severityRank.get(severity) >= severityRank.get(threshold);
+}
+
+function recommendedAction(scenario) {
+  if (scenario.status === "failed") {
+    return scenario.suspected_bugs.length > 0
+      ? "Fix defect and add a regression test."
+      : "Investigate failure and confirm expected behavior.";
+  }
+  if (scenario.status === "blocked") return "Restore the baseline happy path, then re-run.";
+  if (scenario.status === "needs_review") return "Triage with design/PM and decide on a fix.";
+  if (scenario.accessibility_issues.length > 0) return "Schedule accessibility remediation.";
+  if (scenario.suspected_bugs.length > 0) return "Confirm the suspected defect and prioritize.";
+  return "Review the recorded evidence.";
+}
+
+function buildTopIssues(scenarios) {
+  const issues = scenarios
+    .filter(
+      (scenario) =>
+        ["failed", "blocked", "needs_review"].includes(scenario.status) ||
+        scenario.suspected_bugs.length > 0 ||
+        scenario.accessibility_issues.length > 0
+    )
+    .map((scenario) => ({
+      id: scenario.id,
+      name: scenario.name,
+      category: scenario.category,
+      status: scenario.status,
+      severity: scenario.severity,
+      impact:
+        scenario.suspected_bugs[0] ||
+        scenario.findings[0] ||
+        scenario.accessibility_issues[0] ||
+        scenario.outcome ||
+        "See scenario detail.",
+      recommended_action: recommendedAction(scenario)
+    }));
+  const statusPriority = { failed: 0, blocked: 1, needs_review: 2, passed: 3, not_run: 4 };
+  issues.sort((a, b) => {
+    const severityDelta = (severityRank.get(b.severity) ?? 0) - (severityRank.get(a.severity) ?? 0);
+    if (severityDelta !== 0) return severityDelta;
+    return (statusPriority[a.status] ?? 9) - (statusPriority[b.status] ?? 9);
+  });
+  return issues;
+}
+
+function computeExecutiveSummary(scenarios, hasResults, suspectedBugCount, accessibilityIssueCount, openRiskCount) {
+  const counts = { passed: 0, failed: 0, blocked: 0, needs_review: 0, not_run: 0 };
+  for (const scenario of scenarios) {
+    counts[scenario.status] = (counts[scenario.status] ?? 0) + 1;
+  }
+  const executed = counts.passed + counts.failed + counts.blocked + counts.needs_review;
+  const passRate = executed > 0 ? Math.round((counts.passed / executed) * 100) : null;
+
+  const openSeverities = scenarios
+    .filter(
+      (scenario) =>
+        ["failed", "blocked", "needs_review"].includes(scenario.status) ||
+        scenario.suspected_bugs.length > 0 ||
+        scenario.accessibility_issues.length > 0
+    )
+    .map((scenario) => scenario.severity);
+  const highestOpenSeverity = maxSeverity(openSeverities);
+
+  let verdict;
+  if (!hasResults || executed === 0) {
+    verdict = "Not executed";
+  } else if (counts.failed > 0 || counts.blocked > 0) {
+    verdict = "Fail";
+  } else if (
+    counts.needs_review > 0 ||
+    suspectedBugCount > 0 ||
+    accessibilityIssueCount > 0 ||
+    openRiskCount > 0
+  ) {
+    verdict = "Pass with risks";
+  } else {
+    verdict = "Pass";
+  }
+
+  // Severity-weighted exposure: only unresolved scenarios contribute.
+  const statusFactor = { failed: 1, blocked: 0.75, needs_review: 0.5, not_run: 0, passed: 0 };
+  const rawScore = scenarios.reduce((sum, scenario) => {
+    const weight = severityWeights[scenario.severity] ?? 0;
+    return sum + weight * (statusFactor[scenario.status] ?? 0);
+  }, 0);
+  const maxScore = scenarios.length * severityWeights.critical;
+  const riskScore = maxScore > 0 ? Math.round((rawScore / maxScore) * 100) : 0;
+  let riskBand = "low";
+  if (riskScore >= 60) riskBand = "critical";
+  else if (riskScore >= 35) riskBand = "high";
+  else if (riskScore >= 15) riskBand = "medium";
+
+  return {
+    verdict,
+    pass_rate: passRate,
+    executed_count: executed,
+    suspected_bug_count: suspectedBugCount,
+    accessibility_blocker_count: accessibilityIssueCount,
+    highest_open_severity: highestOpenSeverity || "none",
+    risk_score: riskScore,
+    risk_band: riskBand
+  };
 }
 
 function normalizeReport(plan, results, outDir) {
@@ -628,6 +1155,8 @@ function normalizeReport(plan, results, outDir) {
       executor: results?.run?.executor || "",
       environment: results?.run?.environment || "",
       mode: results?.run?.mode || plan.mode || "",
+      build: results?.run?.build || "",
+      commit: results?.run?.commit || "",
       notes: results?.run?.notes || ""
     },
     baseline_flow: {
@@ -645,6 +1174,14 @@ function normalizeReport(plan, results, outDir) {
       accessibility_issue_count: scenarios.reduce((sum, scenario) => sum + scenario.accessibility_issues.length, 0),
       console_error_count: scenarios.reduce((sum, scenario) => sum + scenario.console_errors.length, 0)
     },
+    executive_summary: computeExecutiveSummary(
+      scenarios,
+      Boolean(results),
+      scenarios.reduce((sum, scenario) => sum + scenario.suspected_bugs.length, 0),
+      scenarios.reduce((sum, scenario) => sum + scenario.accessibility_issues.length, 0),
+      [...new Set(globalRisks)].length
+    ),
+    top_issues: buildTopIssues(scenarios),
     scenarios,
     evidence: {
       screenshots: scenarios.flatMap((scenario) => scenario.screenshots),
@@ -657,15 +1194,47 @@ function normalizeReport(plan, results, outDir) {
     artifacts: {
       markdown: artifactPaths.markdown,
       json: artifactPaths.json,
-      html: artifactPaths.html
-    }
+      html: artifactPaths.html,
+      junit: artifactPaths.junit,
+      pr: artifactPaths.pr
+    },
+    trend: null
   };
 }
 
+function mdCell(value) {
+  return stringOrEmpty(value).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
+}
+
+function mdTable(headers, rows, emptyMessage) {
+  if (rows.length === 0) return emptyMessage;
+  const head = `| ${headers.join(" | ")} |`;
+  const divider = `| ${headers.map(() => "---").join(" | ")} |`;
+  const body = rows.map((row) => `| ${row.map(mdCell).join(" | ")} |`).join("\n");
+  return `${head}\n${divider}\n${body}`;
+}
+
+function countsTable(counts) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return mdTable(["Key", "Count"], entries.map(([key, count]) => [key, count]), "- None recorded.");
+}
+
+function trendLine(trend) {
+  if (!trend) return "- No previous run recorded; this is the first tracked run.";
+  const formatDelta = (value, suffix = "") => {
+    if (value === null || value === undefined) return "n/a";
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value}${suffix}`;
+  };
+  return [
+    `- Compared with run from ${trend.previous_generated_at || "unknown"}.`,
+    `- Pass rate: ${formatDelta(trend.pass_rate_delta, "%")} (now ${trend.pass_rate ?? "n/a"}%).`,
+    `- Suspected bugs: ${formatDelta(trend.suspected_bug_delta)} (now ${trend.suspected_bug_count}).`,
+    `- Accessibility issues: ${formatDelta(trend.accessibility_issue_delta)} (now ${trend.accessibility_issue_count}).`
+  ].join("\n");
+}
+
 function renderMarkdownReport(report) {
-  const scenarioLines = report.scenarios.map((scenario) => {
-    return `- ${scenario.id}: ${scenario.name} (${scenario.category}, risk=${scenario.risk_level}, status=${scenario.status}, severity=${scenario.severity})`;
-  });
   const scenarioDetails = report.scenarios.map((scenario) => `### ${scenario.id}: ${scenario.name}
 
 - Category: ${scenario.category}
@@ -700,7 +1269,54 @@ ${formatList(scenario.recovery_notes, "- Pending execution.")}
   const allAccessibility = report.scenarios.flatMap((scenario) => scenario.accessibility_issues.map((item) => `${scenario.id}: ${item}`));
   const allConsoleErrors = report.scenarios.flatMap((scenario) => scenario.console_errors.map((item) => `${scenario.id}: ${item}`));
 
+  const exec = report.executive_summary;
+  const scenarioTable = mdTable(
+    ["ID", "Name", "Category", "Risk", "Status", "Severity"],
+    report.scenarios.map((scenario) => [
+      scenario.id,
+      scenario.name,
+      scenario.category,
+      scenario.risk_level,
+      scenario.status,
+      scenario.severity
+    ]),
+    "No scenarios recorded."
+  );
+  const topIssuesTable = mdTable(
+    ["Severity", "Status", "Scenario", "Category", "Suspected Impact", "Recommended Action"],
+    report.top_issues.map((issue) => [
+      issue.severity,
+      issue.status,
+      `${issue.id}: ${issue.name}`,
+      issue.category,
+      issue.impact,
+      issue.recommended_action
+    ]),
+    "- No open issues. Every executed scenario passed without suspected bugs or accessibility blockers."
+  );
+
   return `# UX Gremlin Report
+
+## Executive Summary
+
+- Verdict: **${exec.verdict}**
+- Pass rate: ${exec.pass_rate === null ? "n/a (not executed)" : `${exec.pass_rate}%`} (${exec.executed_count} of ${report.summary.scenario_count} scenarios executed)
+- Risk score: ${exec.risk_score}/100 (${exec.risk_band})
+- Highest open severity: ${exec.highest_open_severity}
+- Suspected bugs: ${exec.suspected_bug_count}
+- Accessibility blockers: ${exec.accessibility_blocker_count}
+- Target: ${report.plan.name || report.plan.target.url || report.plan.target.app_area || "(unnamed)"}
+- Environment: ${report.run.environment || report.plan.target.environment || "(not set)"}
+- Executed at: ${report.run.executed_at || "(not executed)"}${report.run.executor ? ` by ${report.run.executor}` : ""}
+- Build/commit: ${report.run.build || "(n/a)"}${report.run.commit ? ` / ${report.run.commit}` : ""}
+
+## Trend
+
+${trendLine(report.trend)}
+
+## Top Issues & Recommended Actions
+
+${topIssuesTable}
 
 ## Target
 
@@ -720,13 +1336,22 @@ Expected result: ${report.baseline_flow.expected_result}
 ## Scenario Rollup
 
 - Total scenarios: ${report.summary.scenario_count}
-- Status counts: ${JSON.stringify(report.summary.status_counts)}
-- Severity counts: ${JSON.stringify(report.summary.severity_counts)}
-- Category counts: ${JSON.stringify(report.summary.category_counts)}
+
+### Status counts
+
+${countsTable(report.summary.status_counts)}
+
+### Severity counts
+
+${countsTable(report.summary.severity_counts)}
+
+### Category counts
+
+${countsTable(report.summary.category_counts)}
 
 ## Scenarios Tested
 
-${scenarioLines.join("\n") || "No scenarios recorded."}
+${scenarioTable}
 
 ${scenarioDetails || "No scenario details recorded."}
 
@@ -748,7 +1373,7 @@ ${formatList(allConsoleErrors, "- Pending execution.")}
 
 ## Screenshots / Traces
 
-- Output directory: ${path.dirname(report.artifacts.markdown)}
+- Output directory: ${displayPath(path.dirname(report.artifacts.markdown))}
 ${formatList([...report.evidence.screenshots, ...report.evidence.traces], "- Pending execution.")}
 
 ## Recovery Behavior
@@ -786,14 +1411,77 @@ function htmlList(items, fallback) {
   return `<ul>${values.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
 
+function severityBadge(severity) {
+  const value = stringOrEmpty(severity) || "none";
+  return `<span class="badge sev-${escapeHtml(value)}">${escapeHtml(value)}</span>`;
+}
+
+function statusBadge(status) {
+  const value = stringOrEmpty(status) || "not_run";
+  return `<span class="badge st-${escapeHtml(value)}">${escapeHtml(value)}</span>`;
+}
+
+function htmlCountsBar(counts, prefix) {
+  const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+  if (total === 0) return `<p>None recorded.</p>`;
+  const segments = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, count]) => {
+      const pct = Math.round((count / total) * 100);
+      return `<div class="bar-seg ${prefix}-${escapeHtml(key)}" style="width:${pct}%" title="${escapeHtml(`${key}: ${count}`)}"><span>${escapeHtml(`${key} ${count}`)}</span></div>`;
+    })
+    .join("");
+  return `<div class="bar">${segments}</div>`;
+}
+
+function htmlCountsTable(counts) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) return `<p>None recorded.</p>`;
+  const rows = entries
+    .map(([key, count]) => `<tr><td>${escapeHtml(key)}</td><td>${escapeHtml(count)}</td></tr>`)
+    .join("");
+  return `<table><thead><tr><th>Key</th><th>Count</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 function renderHtmlReport(report) {
+  const exec = report.executive_summary;
+  const allFindings = report.scenarios.flatMap((scenario) => scenario.findings.map((item) => `${scenario.id}: ${item}`));
+  const allBugs = report.scenarios.flatMap((scenario) => scenario.suspected_bugs.map((item) => `${scenario.id}: ${item}`));
+  const allAccessibility = report.scenarios.flatMap((scenario) => scenario.accessibility_issues.map((item) => `${scenario.id}: ${item}`));
+  const allConsoleErrors = report.scenarios.flatMap((scenario) => scenario.console_errors.map((item) => `${scenario.id}: ${item}`));
+
+  const verdictClass = exec.verdict.toLowerCase().replace(/[^a-z]+/g, "-");
+  const topIssuesRows = report.top_issues
+    .map(
+      (issue) => `<tr>
+      <td>${severityBadge(issue.severity)}</td>
+      <td>${statusBadge(issue.status)}</td>
+      <td>${escapeHtml(`${issue.id}: ${issue.name}`)}</td>
+      <td>${escapeHtml(issue.category)}</td>
+      <td>${escapeHtml(issue.impact)}</td>
+      <td>${escapeHtml(issue.recommended_action)}</td>
+    </tr>`
+    )
+    .join("\n");
+  const topIssues =
+    report.top_issues.length > 0
+      ? `<table><thead><tr><th>Severity</th><th>Status</th><th>Scenario</th><th>Category</th><th>Suspected Impact</th><th>Recommended Action</th></tr></thead><tbody>${topIssuesRows}</tbody></table>`
+      : `<p>No open issues. Every executed scenario passed without suspected bugs or accessibility blockers.</p>`;
+
+  const trendItems = report.trend
+    ? [
+        `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
+        `Pass rate now ${report.trend.pass_rate ?? "n/a"}% (delta ${report.trend.pass_rate_delta ?? "n/a"}).`,
+        `Suspected bugs now ${report.trend.suspected_bug_count} (delta ${report.trend.suspected_bug_delta}).`,
+        `Accessibility issues now ${report.trend.accessibility_issue_count} (delta ${report.trend.accessibility_issue_delta}).`
+      ]
+    : ["No previous run recorded; this is the first tracked run."];
+
   const scenarioSections = report.scenarios.map((scenario) => `<section>
-    <h3>${escapeHtml(`${scenario.id}: ${scenario.name}`)}</h3>
+    <h3>${escapeHtml(`${scenario.id}: ${scenario.name}`)} ${severityBadge(scenario.severity)} ${statusBadge(scenario.status)}</h3>
     <dl>
       <dt>Category</dt><dd>${escapeHtml(scenario.category)}</dd>
       <dt>Planned risk</dt><dd>${escapeHtml(scenario.risk_level)}</dd>
-      <dt>Status</dt><dd>${escapeHtml(scenario.status)}</dd>
-      <dt>Severity</dt><dd>${escapeHtml(scenario.severity)}</dd>
       <dt>Outcome</dt><dd>${escapeHtml(scenario.outcome)}</dd>
     </dl>
     <h4>Findings</h4>${htmlList(scenario.findings, "None recorded.")}
@@ -811,16 +1499,73 @@ function renderHtmlReport(report) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(report.plan.name || "UX Gremlin Report")}</title>
   <style>
-    body { color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem auto; max-width: 980px; padding: 0 1rem; }
+    body { color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; }
     h1, h2, h3 { color: #111827; }
     section { border-top: 1px solid #d1d5db; padding: 1rem 0; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; }
     dt { font-weight: 700; }
     code, pre { background: #f3f4f6; border-radius: 4px; padding: 0.1rem 0.25rem; }
+    table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
+    th, td { border: 1px solid #d1d5db; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.95rem; }
+    th { background: #f9fafb; }
+    .cards { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .card { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.75rem 1rem; min-width: 9rem; }
+    .card .label { color: #6b7280; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .card .value { font-size: 1.4rem; font-weight: 700; }
+    .verdict { display: inline-block; border-radius: 6px; padding: 0.35rem 0.75rem; font-weight: 700; color: #fff; }
+    .verdict-pass { background: #15803d; }
+    .verdict-pass-with-risks { background: #b45309; }
+    .verdict-fail { background: #b91c1c; }
+    .verdict-not-executed { background: #4b5563; }
+    .badge { display: inline-block; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #fff; }
+    .sev-critical { background: #7f1d1d; } .sev-high { background: #b91c1c; } .sev-medium { background: #b45309; } .sev-low { background: #2563eb; } .sev-info, .sev-none { background: #6b7280; }
+    .st-failed { background: #b91c1c; } .st-blocked { background: #7f1d1d; } .st-needs_review { background: #b45309; } .st-passed { background: #15803d; } .st-not_run { background: #6b7280; }
+    .bar { display: flex; width: 100%; height: 1.5rem; border-radius: 6px; overflow: hidden; border: 1px solid #d1d5db; }
+    .bar-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.72rem; white-space: nowrap; min-width: 2.5rem; }
+    .bar-seg span { padding: 0 0.25rem; }
+    .st-passed, .sev-low { }
   </style>
 </head>
 <body>
   <h1>UX Gremlin Report</h1>
+  <section>
+    <h2>Executive Summary</h2>
+    <p><span class="verdict verdict-${escapeHtml(verdictClass)}">${escapeHtml(exec.verdict)}</span></p>
+    <div class="cards">
+      <div class="card"><div class="label">Pass rate</div><div class="value">${escapeHtml(exec.pass_rate === null ? "n/a" : `${exec.pass_rate}%`)}</div></div>
+      <div class="card"><div class="label">Risk score</div><div class="value">${escapeHtml(exec.risk_score)}/100</div><div>${severityBadge(exec.risk_band)}</div></div>
+      <div class="card"><div class="label">Highest severity</div><div class="value">${severityBadge(exec.highest_open_severity)}</div></div>
+      <div class="card"><div class="label">Suspected bugs</div><div class="value">${escapeHtml(exec.suspected_bug_count)}</div></div>
+      <div class="card"><div class="label">A11y blockers</div><div class="value">${escapeHtml(exec.accessibility_blocker_count)}</div></div>
+      <div class="card"><div class="label">Executed</div><div class="value">${escapeHtml(exec.executed_count)}/${escapeHtml(report.summary.scenario_count)}</div></div>
+    </div>
+    <dl>
+      <dt>Target</dt><dd>${escapeHtml(report.plan.name || report.plan.target.url || report.plan.target.app_area || "(unnamed)")}</dd>
+      <dt>Environment</dt><dd>${escapeHtml(report.run.environment || report.plan.target.environment || "(not set)")}</dd>
+      <dt>Executed at</dt><dd>${escapeHtml(report.run.executed_at || "(not executed)")}${report.run.executor ? escapeHtml(` by ${report.run.executor}`) : ""}</dd>
+      <dt>Build / commit</dt><dd>${escapeHtml(report.run.build || "(n/a)")}${report.run.commit ? escapeHtml(` / ${report.run.commit}`) : ""}</dd>
+    </dl>
+  </section>
+  <section>
+    <h2>Trend</h2>
+    ${htmlList(trendItems, "No previous run recorded.")}
+  </section>
+  <section>
+    <h2>Top Issues &amp; Recommended Actions</h2>
+    ${topIssues}
+  </section>
+  <section>
+    <h2>Scenario Rollup</h2>
+    <p>Total scenarios: ${escapeHtml(report.summary.scenario_count)}</p>
+    <h3>Status</h3>
+    ${htmlCountsBar(report.summary.status_counts, "st")}
+    ${htmlCountsTable(report.summary.status_counts)}
+    <h3>Severity</h3>
+    ${htmlCountsBar(report.summary.severity_counts, "sev")}
+    ${htmlCountsTable(report.summary.severity_counts)}
+    <h3>Category</h3>
+    ${htmlCountsTable(report.summary.category_counts)}
+  </section>
   <section>
     <h2>Target</h2>
     <dl>
@@ -833,13 +1578,6 @@ function renderHtmlReport(report) {
     </dl>
   </section>
   <section>
-    <h2>Scenario Rollup</h2>
-    <p>Total scenarios: ${escapeHtml(report.summary.scenario_count)}</p>
-    <p>Status counts: <code>${escapeHtml(JSON.stringify(report.summary.status_counts))}</code></p>
-    <p>Severity counts: <code>${escapeHtml(JSON.stringify(report.summary.severity_counts))}</code></p>
-    <p>Category counts: <code>${escapeHtml(JSON.stringify(report.summary.category_counts))}</code></p>
-  </section>
-  <section>
     <h2>Baseline Flow</h2>
     ${htmlList(report.baseline_flow.steps.map((step, index) => `${index + 1}. ${step}`), "No baseline steps recorded.")}
     <p>Expected result: ${escapeHtml(report.baseline_flow.expected_result)}</p>
@@ -847,6 +1585,22 @@ function renderHtmlReport(report) {
   <section>
     <h2>Scenarios Tested</h2>
     ${scenarioSections || "<p>No scenario details recorded.</p>"}
+  </section>
+  <section>
+    <h2>Findings</h2>
+    ${htmlList(allFindings, "Pending execution.")}
+  </section>
+  <section>
+    <h2>Bugs Suspected</h2>
+    ${htmlList(allBugs, "Pending execution.")}
+  </section>
+  <section>
+    <h2>Accessibility Issues</h2>
+    ${htmlList(allAccessibility, "Pending keyboard, focus, ARIA, and screen-reader validation.")}
+  </section>
+  <section>
+    <h2>Console Errors</h2>
+    ${htmlList(allConsoleErrors, "Pending execution.")}
   </section>
   <section>
     <h2>Executed Commands</h2>
@@ -861,7 +1615,110 @@ function renderHtmlReport(report) {
 `;
 }
 
-function commandReport(planPath, resultsPath, outDirArg) {
+function renderJUnitReport(report) {
+  const failureStatuses = new Set(["failed", "blocked"]);
+  const skippedStatuses = new Set(["not_run", "needs_review"]);
+  const failures = report.scenarios.filter((scenario) => failureStatuses.has(scenario.status)).length;
+  const skipped = report.scenarios.filter((scenario) => skippedStatuses.has(scenario.status)).length;
+  const cases = report.scenarios
+    .map((scenario) => {
+      const name = escapeHtml(`${scenario.id}: ${scenario.name}`);
+      const classname = escapeHtml(scenario.category || "ux-gremlin");
+      if (failureStatuses.has(scenario.status)) {
+        const message = escapeHtml(
+          scenario.suspected_bugs[0] || scenario.findings[0] || scenario.outcome || scenario.status
+        );
+        return `  <testcase classname="${classname}" name="${name}"><failure message="${message}" type="${escapeHtml(scenario.status)}">${escapeHtml(`severity=${scenario.severity}; ${scenario.outcome}`)}</failure></testcase>`;
+      }
+      if (skippedStatuses.has(scenario.status)) {
+        return `  <testcase classname="${classname}" name="${name}"><skipped message="${escapeHtml(scenario.status)}"/></testcase>`;
+      }
+      return `  <testcase classname="${classname}" name="${name}"/>`;
+    })
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="ux-gremlin" tests="${report.summary.scenario_count}" failures="${failures}" skipped="${skipped}">
+  <testsuite name="${escapeHtml(report.plan.name || "UX Gremlin")}" tests="${report.summary.scenario_count}" failures="${failures}" skipped="${skipped}" timestamp="${escapeHtml(report.run.executed_at || report.generated_at)}">
+${cases}
+  </testsuite>
+</testsuites>
+`;
+}
+
+function renderPrComment(report) {
+  const exec = report.executive_summary;
+  const verdictEmoji = {
+    Pass: "✅",
+    "Pass with risks": "⚠️",
+    Fail: "❌",
+    "Not executed": "⏳"
+  };
+  const topIssues = report.top_issues.slice(0, 5);
+  const issuesTable = mdTable(
+    ["Severity", "Status", "Scenario", "Recommended Action"],
+    topIssues.map((issue) => [issue.severity, issue.status, `${issue.id}: ${issue.name}`, issue.recommended_action]),
+    "No open issues."
+  );
+  return `### UX Gremlin: ${verdictEmoji[exec.verdict] || ""} ${exec.verdict}
+
+- Pass rate: ${exec.pass_rate === null ? "n/a (not executed)" : `${exec.pass_rate}%`} (${exec.executed_count}/${report.summary.scenario_count} executed)
+- Risk score: ${exec.risk_score}/100 (${exec.risk_band}) · Highest severity: ${exec.highest_open_severity}
+- Suspected bugs: ${exec.suspected_bug_count} · Accessibility blockers: ${exec.accessibility_blocker_count}
+
+#### Top issues
+
+${issuesTable}
+`;
+}
+
+function loadHistory(historyPath) {
+  if (!fs.existsSync(historyPath)) return [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(historyPath, "utf-8"));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function computeTrend(report, history) {
+  const previous = history.length > 0 ? history[history.length - 1] : null;
+  const current = {
+    generated_at: report.generated_at,
+    pass_rate: report.executive_summary.pass_rate,
+    suspected_bug_count: report.executive_summary.suspected_bug_count,
+    accessibility_issue_count: report.summary.accessibility_issue_count,
+    verdict: report.executive_summary.verdict
+  };
+  if (!previous) return { current, trend: null };
+  const delta = (now, before) => (now == null || before == null ? null : now - before);
+  return {
+    current,
+    trend: {
+      previous_generated_at: previous.generated_at || "unknown",
+      pass_rate: current.pass_rate,
+      pass_rate_delta: delta(current.pass_rate, previous.pass_rate),
+      suspected_bug_count: current.suspected_bug_count,
+      suspected_bug_delta: delta(current.suspected_bug_count, previous.suspected_bug_count) ?? 0,
+      accessibility_issue_count: current.accessibility_issue_count,
+      accessibility_issue_delta: delta(current.accessibility_issue_count, previous.accessibility_issue_count) ?? 0
+    }
+  };
+}
+
+function highestIssueSeverity(report) {
+  const severities = report.scenarios
+    .filter(
+      (scenario) =>
+        ["failed", "blocked", "needs_review"].includes(scenario.status) ||
+        scenario.suspected_bugs.length > 0 ||
+        scenario.accessibility_issues.length > 0
+    )
+    .map((scenario) => scenario.severity);
+  return maxSeverity(severities);
+}
+
+function commandReport(planPath, resultsPath, outDirArg, options = {}) {
   const plan = readPlan(planPath);
   const planErrors = validatePlan(plan);
   if (planErrors.length > 0) {
@@ -880,12 +1737,69 @@ function commandReport(planPath, resultsPath, outDirArg) {
   ensureDir(outDir);
   const report = normalizeReport(plan, results, outDir);
   const artifacts = buildArtifactPaths(outDir);
+
+  // Only executed runs contribute to history so plan-only reports stay deterministic.
+  const useHistory = options.history !== false && Boolean(results);
+  const historyPath = path.join(outDir, "history.json");
+  if (useHistory) {
+    const history = loadHistory(historyPath);
+    const { current, trend } = computeTrend(report, history);
+    report.trend = trend;
+    history.push(current);
+    fs.writeFileSync(historyPath, `${JSON.stringify(history, null, 2)}\n`, "utf-8");
+  }
+
   fs.writeFileSync(artifacts.markdown, renderMarkdownReport(report), "utf-8");
   fs.writeFileSync(artifacts.json, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
   fs.writeFileSync(artifacts.html, renderHtmlReport(report), "utf-8");
+  fs.writeFileSync(artifacts.junit, renderJUnitReport(report), "utf-8");
+  fs.writeFileSync(artifacts.pr, renderPrComment(report), "utf-8");
   console.log(`Wrote ${artifacts.markdown}`);
   console.log(`Wrote ${artifacts.json}`);
   console.log(`Wrote ${artifacts.html}`);
+  console.log(`Wrote ${artifacts.junit}`);
+  console.log(`Wrote ${artifacts.pr}`);
+
+  if (options.failOn) {
+    applyGate(report, options.failOn);
+  }
+}
+
+function applyGate(report, failOn) {
+  const threshold = failOn || "high";
+  if (!allowedResultSeverities.has(threshold)) {
+    console.error(`ERROR: --fail-on must be one of: ${[...allowedResultSeverities].join(", ")}`);
+    process.exit(2);
+  }
+  const highest = highestIssueSeverity(report);
+  if (highest && severityAtLeast(highest, threshold)) {
+    console.error(
+      `GATE FAIL: highest open severity ${highest} is at or above threshold ${threshold} (verdict: ${report.executive_summary.verdict}).`
+    );
+    process.exit(1);
+  }
+  console.log(`GATE PASS: highest open severity ${highest || "none"} is below threshold ${threshold}.`);
+}
+
+function commandGate(planPath, resultsPath, failOn) {
+  const plan = readPlan(planPath);
+  const planErrors = validatePlan(plan);
+  if (planErrors.length > 0) {
+    printErrors(planErrors);
+    process.exit(1);
+  }
+  if (!resultsPath) {
+    console.error("ERROR: gate requires --results <path>");
+    process.exit(2);
+  }
+  const results = readResults(resultsPath);
+  const resultErrors = validateResults(results, plan);
+  if (resultErrors.length > 0) {
+    printErrors(resultErrors);
+    process.exit(1);
+  }
+  const report = normalizeReport(plan, results, resolveReportDir(plan, null));
+  applyGate(report, failOn || "high");
 }
 
 const args = parseArgs(process.argv);
@@ -894,10 +1808,18 @@ const planPath = resolvePlanPath(args.plan);
 try {
   if (args.command === "init") commandInit();
   else if (args.command === "check") commandCheck(planPath);
+  else if (args.command === "coverage") commandCoverage(planPath);
   else if (args.command === "summary") commandSummary(planPath);
   else if (args.command === "generate-playwright") commandGeneratePlaywright(planPath);
-  else if (args.command === "report") commandReport(planPath, args.results ? path.resolve(args.results) : null, args.outDir);
-  else usage(2);
+  else if (args.command === "ingest") commandIngest(planPath, args.input, args.axe, args.out);
+  else if (args.command === "report") {
+    commandReport(planPath, args.results ? path.resolve(args.results) : null, args.outDir, {
+      failOn: args.failOn,
+      history: args.history
+    });
+  } else if (args.command === "gate") {
+    commandGate(planPath, args.results ? path.resolve(args.results) : null, args.failOn);
+  } else usage(2);
 } catch (err) {
   console.error(`ERROR: ${err.message}`);
   process.exit(1);

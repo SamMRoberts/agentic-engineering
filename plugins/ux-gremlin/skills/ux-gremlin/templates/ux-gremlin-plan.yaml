@@ -5,6 +5,7 @@ target:
   app_area: ""
   environment: ""
 mode: "playwright_cli"
+flow_type: []
 safety:
   destructive_actions_allowed: false
   test_data_prefix: "ux-gremlin"

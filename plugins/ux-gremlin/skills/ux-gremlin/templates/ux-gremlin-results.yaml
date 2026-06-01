@@ -4,6 +4,8 @@ run:
   executor: ""
   environment: ""
   mode: "playwright_cli"
+  build: ""
+  commit: ""
   notes: ""
 executed_commands: []
 open_risks: []

@@ -35,6 +35,22 @@
       "type": "string",
       "enum": ["playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"]
     },
+    "flow_type": {
+      "description": "Optional flow type(s) used to enforce mandatory scenario coverage during check.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+          }
+        }
+      ]
+    },
     "safety": {
       "type": "object",
       "required": ["destructive_actions_allowed", "test_data_prefix", "cleanup_required"],
