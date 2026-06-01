@@ -1,0 +1,27 @@
+{
+  "description": "Example Codex hook wiring for UX Gremlin. Hook syntax varies by host version; treat this as a copy-ready starting point, not a universal contract.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs init",
+        "timeoutSeconds": 10
+      }
+    ],
+    "Stop": [
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs check",
+        "timeoutSeconds": 10
+      },
+      {
+        "command": "node skills/ux-gremlin/scripts/ux-gremlin.mjs report",
+        "timeoutSeconds": 10,
+        "optional": true
+      }
+    ]
+  },
+  "notes": [
+    "Hooks initialize and validate required artifacts.",
+    "Hooks do not force the agent to select the UX Gremlin skill.",
+    "Use CI or pre-commit as the stronger enforcement layer."
+  ]
+}

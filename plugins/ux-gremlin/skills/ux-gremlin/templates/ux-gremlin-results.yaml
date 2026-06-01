@@ -1,0 +1,25 @@
+version: "1.0"
+run:
+  executed_at: ""
+  executor: ""
+  environment: ""
+  mode: "playwright_cli"
+  build: ""
+  commit: ""
+  notes: ""
+executed_commands: []
+open_risks: []
+scenario_results:
+  - scenario_id: ""
+    status: "not_run"
+    severity: "info"
+    outcome: ""
+    findings: []
+    suspected_bugs: []
+    accessibility_issues: []
+    console_errors: []
+    screenshots: []
+    traces: []
+    recovery_notes: []
+    executed_commands: []
+    open_risks: []

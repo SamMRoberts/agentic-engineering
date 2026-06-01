@@ -1,0 +1,69 @@
+version: "1.0"
+run:
+  executed_at: "2026-06-01T12:00:00.000Z"
+  executor: "Playwright CLI"
+  environment: "local test"
+  mode: "playwright_cli"
+  build: "ci-1042"
+  commit: "abc1234"
+  notes: "Executed with prefixed local test data only."
+executed_commands:
+  - "npx playwright test .agent/generated/ux-gremlin.spec.ts"
+open_risks:
+  - "Selectors are still placeholders in two lower-risk flows."
+scenario_results:
+  - scenario_id: "double-submit-confirm"
+    status: "failed"
+    severity: "high"
+    outcome: "Two matching pages were created after a rapid double confirmation."
+    findings:
+      - "Confirm remains enabled while the save request is pending."
+    suspected_bugs:
+      - "Duplicate entity creation is possible when the final confirmation is activated twice."
+    accessibility_issues:
+      - "Disabled state is not announced while the save is pending."
+    console_errors:
+      - "POST /api/pages returned 409 after duplicate submit"
+    screenshots:
+      - ".agent/reports/ux-gremlin/screenshots/double-submit-confirm.png"
+    traces:
+      - ".agent/reports/ux-gremlin/traces/double-submit-confirm.zip"
+    recovery_notes:
+      - "Manual cleanup removed the extra prefixed page."
+    executed_commands:
+      - "npx playwright test .agent/generated/ux-gremlin.spec.ts --grep double-submit-confirm"
+    open_risks:
+      - "The duplicate prevention behavior needs a regression test after the app fix."
+  - scenario_id: "reload-mid-flow"
+    status: "passed"
+    severity: "low"
+    outcome: "Reload discarded unsaved data with clear messaging and no partial page creation."
+    findings: []
+    suspected_bugs: []
+    accessibility_issues: []
+    console_errors: []
+    screenshots:
+      - ".agent/reports/ux-gremlin/screenshots/reload-mid-flow.png"
+    traces: []
+    recovery_notes:
+      - "The user can restart the creation flow after reload."
+    executed_commands: []
+    open_risks: []
+  - scenario_id: "keyboard-only-create"
+    status: "needs_review"
+    severity: "medium"
+    outcome: "Keyboard navigation completed, but focus styling needs design review for contrast."
+    findings:
+      - "Focus indicator contrast may be below target on the Page type control."
+    suspected_bugs: []
+    accessibility_issues:
+      - "Potential focus contrast issue: <script>alert(1)</script>"
+    console_errors: []
+    screenshots:
+      - ".agent/reports/ux-gremlin/screenshots/keyboard-only-create.png"
+    traces: []
+    recovery_notes:
+      - "Keyboard users can still complete or cancel the flow."
+    executed_commands: []
+    open_risks:
+      - "Design review needed for focus indicator contrast."

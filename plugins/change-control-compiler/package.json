@@ -1,0 +1,18 @@
+{
+  "name": "change-control-compiler",
+  "version": "0.1.0",
+  "description": "Compile software requests into enforceable Change Control Contracts.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "change-control": "./bin/change-control.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.mjs",
+    "validate": "node bin/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json",
+    "summary": "node bin/change-control.mjs summary --contract skills/change-control-compiler/examples/valid-contract.json"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

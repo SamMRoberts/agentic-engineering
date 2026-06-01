@@ -1,7 +1,0 @@
-id: missing-selector
-name: Click step with no selector
-target:
-  baseUrl: http://localhost:3000
-plan:
-  - id: step1
-    action: click

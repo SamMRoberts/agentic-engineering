@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/agent-on-ramp-coach/adoption-history-entry.schema.json",
+  "title": "Agent On-Ramp Adoption History Entry",
+  "description": "One append-only line in .agent/session/onramp-history.jsonl, written by `onramp.mjs complete`. Each line is a standalone JSON object so teams can track adoption over time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "timestamp",
+    "task_title",
+    "workflow_type",
+    "risk_level",
+    "recommended_confidence_level",
+    "selected_confidence_level",
+    "final_status",
+    "files_inspected_count",
+    "files_modified_count"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "task_title": {
+      "type": "string"
+    },
+    "workflow_type": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string"
+    },
+    "recommended_confidence_level": {
+      "type": "string"
+    },
+    "selected_confidence_level": {
+      "type": "string"
+    },
+    "final_status": {
+      "type": "string"
+    },
+    "files_inspected_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "files_modified_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

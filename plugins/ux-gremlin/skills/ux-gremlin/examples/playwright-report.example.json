@@ -1,0 +1,64 @@
+{
+  "config": { "metadata": { "commit": "abc1234" } },
+  "suites": [
+    {
+      "title": "ux-gremlin.spec.ts",
+      "specs": [
+        {
+          "title": "baseline happy path",
+          "tests": [
+            {
+              "status": "expected",
+              "annotations": [{ "type": "ux-gremlin-baseline", "description": "true" }],
+              "results": [{ "status": "passed" }]
+            }
+          ]
+        },
+        {
+          "title": "double-submit-confirm: Double-submit final confirmation",
+          "tests": [
+            {
+              "status": "unexpected",
+              "annotations": [
+                { "type": "ux-gremlin-scenario", "description": "double-submit-confirm" },
+                { "type": "ux-gremlin-risk", "description": "high" }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "error": { "message": "Expected count 1 but received 2\n    at spec.ts:42" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "reload-mid-flow: Reload while form is partially complete",
+          "tests": [
+            {
+              "status": "expected",
+              "annotations": [
+                { "type": "ux-gremlin-scenario", "description": "reload-mid-flow" },
+                { "type": "ux-gremlin-risk", "description": "medium" }
+              ],
+              "results": [{ "status": "passed" }]
+            }
+          ]
+        },
+        {
+          "title": "keyboard-only-create: Keyboard-only page creation",
+          "tests": [
+            {
+              "status": "flaky",
+              "annotations": [
+                { "type": "ux-gremlin-scenario", "description": "keyboard-only-create" },
+                { "type": "ux-gremlin-risk", "description": "high" }
+              ],
+              "results": [{ "status": "failed" }, { "status": "passed" }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

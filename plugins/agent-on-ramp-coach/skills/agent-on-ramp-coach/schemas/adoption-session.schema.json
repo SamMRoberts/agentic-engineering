@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/agent-on-ramp-coach/adoption-session.schema.json",
+  "title": "Agent On-Ramp Adoption Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "task",
+    "workflow_type",
+    "risk_level",
+    "recommended_confidence_level",
+    "selected_confidence_level",
+    "explicit_edit_approval",
+    "allowed_actions",
+    "forbidden_actions",
+    "files_inspected",
+    "commands_run",
+    "files_modified",
+    "agent_findings",
+    "agent_recommendations",
+    "human_review_items",
+    "verification_commands",
+    "final_status",
+    "next_suggested_step"
+  ],
+  "properties": {
+    "version": {
+      "const": "1.0"
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "user_request",
+        "summary"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "user_request": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "workflow_type": {
+      "enum": [
+        "explain_code",
+        "summarize_file",
+        "summarize_pr",
+        "review_diff",
+        "find_risky_areas",
+        "suggest_tests",
+        "create_debug_plan",
+        "explain_test_failure",
+        "map_change_impact",
+        "draft_handoff_notes",
+        "create_small_refactor_plan",
+        "generate_readme_update_plan",
+        "identify_missing_docs",
+        "review_agent_output"
+      ]
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "recommended_confidence_level": {
+      "$ref": "#/$defs/confidenceLevel"
+    },
+    "selected_confidence_level": {
+      "$ref": "#/$defs/confidenceLevel"
+    },
+    "explicit_edit_approval": {
+      "type": "boolean"
+    },
+    "allowed_actions": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "forbidden_actions": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "files_inspected": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "commands_run": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "files_modified": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "agent_findings": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "agent_recommendations": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "human_review_items": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "verification_commands": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "final_status": {
+      "enum": [
+        "not_started",
+        "read_only_complete",
+        "plan_complete",
+        "patch_proposed",
+        "changes_applied",
+        "verification_passed",
+        "verification_failed",
+        "blocked"
+      ]
+    },
+    "next_suggested_step": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "confidenceLevel": {
+      "enum": [
+        "level_0_explain_only",
+        "level_1_analyze_only",
+        "level_2_plan_only",
+        "level_3_propose_patch",
+        "level_4_make_small_scoped_change",
+        "level_5_agent_executes_bounded_task"
+      ]
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

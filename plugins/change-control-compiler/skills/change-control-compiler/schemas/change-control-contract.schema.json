@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/change-control-compiler/change-control-contract.schema.json",
+  "title": "Change Control Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "task",
+    "goal",
+    "success_criteria",
+    "scope",
+    "non_goals",
+    "allowed_change_areas",
+    "forbidden_change_areas",
+    "files_to_inspect",
+    "files_allowed_to_modify",
+    "files_forbidden_to_modify",
+    "expected_behavior",
+    "current_behavior",
+    "test_requirements",
+    "verification_commands",
+    "risk_level",
+    "rollback_plan",
+    "stop_conditions",
+    "open_questions",
+    "implementation_plan",
+    "final_acceptance_checklist"
+  ],
+  "properties": {
+    "version": { "const": "1.0" },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "request", "problem_statement"],
+      "properties": {
+        "title": { "type": "string" },
+        "request": { "type": "string" },
+        "problem_statement": { "type": "string" }
+      }
+    },
+    "goal": { "type": "string" },
+    "success_criteria": { "type": "array", "items": { "type": "string" } },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "in_scope", "out_of_scope"],
+      "properties": {
+        "summary": { "type": "string" },
+        "in_scope": { "type": "array", "items": { "type": "string" } },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "non_goals": { "type": "array", "items": { "type": "string" } },
+    "allowed_change_areas": { "type": "array", "items": { "type": "string" } },
+    "forbidden_change_areas": { "type": "array", "items": { "type": "string" } },
+    "files_to_inspect": { "type": "array", "items": { "type": "string" } },
+    "files_allowed_to_modify": { "type": "array", "items": { "type": "string" } },
+    "files_forbidden_to_modify": { "type": "array", "items": { "type": "string" } },
+    "expected_behavior": { "type": "string" },
+    "current_behavior": { "type": "string" },
+    "test_requirements": { "type": "array", "items": { "type": "string" } },
+    "verification_commands": { "type": "array", "items": { "type": "string" } },
+    "risk_level": { "enum": ["low", "medium", "high", "critical"] },
+    "rollback_plan": { "type": "string" },
+    "stop_conditions": { "type": "array", "items": { "type": "string" } },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "implementation_plan": { "type": "array", "items": { "type": "string" } },
+    "final_acceptance_checklist": { "type": "array", "items": { "type": "string" } }
+  }
+}

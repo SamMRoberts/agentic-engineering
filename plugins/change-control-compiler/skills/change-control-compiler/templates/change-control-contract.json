@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "",
+    "request": "",
+    "problem_statement": ""
+  },
+  "goal": "",
+  "success_criteria": [],
+  "scope": {
+    "summary": "",
+    "in_scope": [],
+    "out_of_scope": []
+  },
+  "non_goals": [],
+  "allowed_change_areas": [],
+  "forbidden_change_areas": [],
+  "files_to_inspect": [],
+  "files_allowed_to_modify": [],
+  "files_forbidden_to_modify": [],
+  "expected_behavior": "",
+  "current_behavior": "",
+  "test_requirements": [],
+  "verification_commands": [],
+  "risk_level": "low",
+  "rollback_plan": "",
+  "stop_conditions": [],
+  "open_questions": [],
+  "implementation_plan": [],
+  "final_acceptance_checklist": []
+}

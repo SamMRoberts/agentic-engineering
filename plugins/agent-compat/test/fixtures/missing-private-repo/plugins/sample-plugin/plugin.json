@@ -1,0 +1,8 @@
+{
+  "name": "sample-plugin",
+  "agents": "agents",
+  "entrypointAgent": "sample-plugin",
+  "privateAgents": [
+    "missing-worker"
+  ]
+}

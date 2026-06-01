@@ -5,19 +5,79 @@
   },
   "plugins": [
     {
-      "name": "web-ux-test",
+      "name": "agent-compat",
       "source": {
         "source": "git-subdir",
         "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/web-ux-test",
+        "path": "plugins/agent-compat",
         "ref": "main"
       },
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Testing",
-      "description": "Workflow-enforced Playwright UX testing: schema-validated plans, gated execution, deterministic repair loop."
+      "category": "Productivity",
+      "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents."
+    },
+    {
+      "name": "agent-on-ramp-coach",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/agent-on-ramp-coach",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions."
+    },
+    {
+      "name": "assumption-killer",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/assumption-killer",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Force agents to identify, verify, and record assumptions before implementation."
+    },
+    {
+      "name": "change-control-compiler",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/change-control-compiler",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Turn vague change requests into enforceable scope, verification, and drift-control contracts."
+    },
+    {
+      "name": "ux-gremlin",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/ux-gremlin",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs."
     }
   ]
 }

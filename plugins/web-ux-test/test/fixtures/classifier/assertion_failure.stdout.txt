@@ -1,6 +1,0 @@
-  Error: expect(received).toBeVisible()
-  Expected: visible
-  Received: hidden
-  Locator: text=Created successfully
-
-      8 |   await expect(page.locator('text=Created successfully')).toBeVisible();

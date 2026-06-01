@@ -1,0 +1,16 @@
+{
+  "sessionStart": [
+    {
+      "name": "assumption-gate-init",
+      "command": "node plugins/assumption-killer/bin/assumption-gate.mjs init",
+      "timeoutSeconds": 10
+    }
+  ],
+  "sessionEnd": [
+    {
+      "name": "assumption-gate-check",
+      "command": "node plugins/assumption-killer/bin/assumption-gate.mjs check",
+      "timeoutSeconds": 10
+    }
+  ]
+}

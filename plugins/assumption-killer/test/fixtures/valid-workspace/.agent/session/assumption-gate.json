@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "Validate assumption gate",
+    "goal": "Verify the plugin validator accepts a complete gate.",
+    "scope": "Test fixture only.",
+    "non_goals": ["Modify production code"]
+  },
+  "assumptions": [
+    {
+      "id": "A1",
+      "statement": "The gate fixture has the required fields.",
+      "category": "tooling_behavior",
+      "risk_level": "high",
+      "verification_method": "Read this fixture and run the validator.",
+      "evidence": ["test/fixtures/valid-workspace/.agent/session/assumption-gate.json includes all required fields."],
+      "status": "verified",
+      "files_checked": ["test/fixtures/valid-workspace/.agent/session/assumption-gate.json"],
+      "commands_run": ["node bin/assumption-gate.mjs check --root test/fixtures/valid-workspace"],
+      "impact_if_wrong": "The validator test would pass a malformed artifact.",
+      "decision": "Use this fixture as the positive validator case."
+    }
+  ],
+  "final_verification": {
+    "commands_run": ["node bin/assumption-gate.mjs check --root test/fixtures/valid-workspace"],
+    "tests_run": ["npm test"],
+    "result": "passed",
+    "notes": "Fixture is intentionally valid."
+  }
+}

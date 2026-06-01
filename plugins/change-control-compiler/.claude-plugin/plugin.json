@@ -1,0 +1,27 @@
+{
+  "name": "change-control-compiler",
+  "version": "0.1.0",
+  "description": "Compile vague software requests into enforceable Change Control Contracts before implementation.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/change-control-compiler",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SamMRoberts/agentic-engineering"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "scope-control",
+    "change-control",
+    "validation",
+    "codex",
+    "copilot",
+    "claude"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "hooks": "./hooks.json"
+}

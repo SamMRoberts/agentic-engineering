@@ -1,0 +1,245 @@
+version: "1.0"
+name: "Admin page creation UX resilience"
+target:
+  url: "http://localhost:3000/admin"
+  app_area: "Admin Pages"
+  environment: "local test"
+mode: "playwright_cli"
+flow_type:
+  - "authenticated"
+  - "navigation"
+safety:
+  destructive_actions_allowed: false
+  test_data_prefix: "ux-gremlin-page"
+  cleanup_required: true
+  notes: "Create only prefixed test pages in an isolated local or staging environment."
+authentication:
+  required: true
+  method: "Existing authenticated test session"
+  notes: "Use a non-production admin test account with permission to create prefixed pages."
+baseline_flow:
+  name: "Create a new page through admin UI"
+  preconditions:
+    - "User is authenticated as a test admin."
+    - "The test page name is unique and starts with ux-gremlin-page."
+  steps:
+    - "Open app"
+    - "Navigate to menu"
+    - "Select Pages tab"
+    - "Click Add New"
+    - "Choose Page"
+    - "Fill required fields"
+    - "Click Next"
+    - "Confirm creation"
+    - "Wait for completion"
+    - "Verify created page appears"
+  expected_result: "A new prefixed page is created once and appears in the Pages list."
+gremlin_scenarios:
+  - id: "double-submit-confirm"
+    name: "Double-submit final confirmation"
+    category: "double_submit"
+    risk_level: "high"
+    purpose: "Detect duplicate page creation when users double-click or retry the final confirmation."
+    preconditions:
+      - "Baseline flow reaches Confirm creation."
+    steps:
+      - "Complete baseline steps through the confirmation dialog."
+      - "Activate Confirm twice in quick succession."
+      - "Wait for the operation to settle."
+      - "Return to the Pages list and search for the generated page name."
+    expected_behavior: "Only one page is created and the UI disables, deduplicates, or safely ignores the second submit."
+    assertions:
+      - "Exactly one matching page appears."
+      - "The confirmation action cannot create duplicate entities."
+    bug_indicators:
+      - "Two pages with the same generated name appear."
+      - "The UI shows conflicting success and error states."
+    recovery_expectation: "The user can continue from a clear success state without manual cleanup beyond the single created test page."
+    playwright_notes: "Use role-based Confirm locator; avoid real production data."
+    accessibility_notes: "Confirm button disabled state should be conveyed semantically."
+  - id: "reload-mid-flow"
+    name: "Reload while form is partially complete"
+    category: "reload_mid_flow"
+    risk_level: "medium"
+    purpose: "Verify reload behavior during a partially completed creation flow."
+    preconditions:
+      - "Baseline flow reaches required fields."
+    steps:
+      - "Fill required fields with prefixed data."
+      - "Reload the page before clicking Next."
+      - "Observe restored, reset, or explicitly discarded form state."
+    expected_behavior: "The app either restores the draft safely or clearly communicates that unsaved data was discarded."
+    assertions:
+      - "No duplicate or partial page is created after reload."
+      - "The user can restart or resume the flow."
+    bug_indicators:
+      - "A partial page appears in the list."
+      - "The form becomes impossible to submit after reload."
+    recovery_expectation: "The user lands in a stable state with an obvious path to continue or restart."
+    playwright_notes: "Use page.reload() after filling fields."
+    accessibility_notes: "Any unsaved-change warning must be keyboard reachable."
+  - id: "keyboard-only-create"
+    name: "Keyboard-only page creation"
+    category: "keyboard_only"
+    risk_level: "high"
+    purpose: "Verify the page creation flow works without pointer input."
+    preconditions:
+      - "User starts at the admin landing page."
+    steps:
+      - "Use Tab and Enter or Space to navigate the menu."
+      - "Open Pages, Add New, and Page type using keyboard controls."
+      - "Complete required fields and confirm using keyboard only."
+    expected_behavior: "All interactive controls are reachable, named, ordered, and operable from the keyboard."
+    assertions:
+      - "Focus remains visible throughout the flow."
+      - "The created page appears after keyboard-only completion."
+    bug_indicators:
+      - "Focus is trapped or lost."
+      - "A pointer-only control blocks progress."
+    recovery_expectation: "The user can finish or cancel the flow using only keyboard controls."
+    playwright_notes: "Use page.keyboard.press and role locators."
+    accessibility_notes: "Validate focus order, accessible names, and modal focus return."
+  - id: "invalid-required-fields"
+    name: "Invalid required fields"
+    category: "invalid_required_fields"
+    risk_level: "medium"
+    purpose: "Verify validation errors are clear and prevent invalid page creation."
+    preconditions:
+      - "Baseline flow reaches required fields."
+    steps:
+      - "Leave the page title empty."
+      - "Enter an invalid slug or boundary value."
+      - "Attempt to continue."
+    expected_behavior: "The app blocks submission, identifies invalid fields, and preserves entered data."
+    assertions:
+      - "Validation messages are visible and tied to fields."
+      - "No page is created."
+    bug_indicators:
+      - "The form advances with invalid required fields."
+      - "Errors are only visible by color."
+    recovery_expectation: "The user can correct fields and continue without losing valid input."
+    playwright_notes: "Prefer getByLabel and getByRole locators."
+    accessibility_notes: "Errors should use aria-describedby or equivalent association."
+  - id: "expired-auth-confirm"
+    name: "Expired auth before confirmation"
+    category: "expired_auth"
+    risk_level: "high"
+    purpose: "Verify session expiry near submit does not create ambiguous state or lose recovery path."
+    preconditions:
+      - "Baseline flow reaches Confirm creation."
+    steps:
+      - "Prepare a valid prefixed page."
+      - "Expire the session or simulate a 401 before confirmation."
+      - "Attempt to confirm creation."
+    expected_behavior: "The app blocks creation, prompts re-authentication, and avoids duplicate or partial entities."
+    assertions:
+      - "The user sees a clear authentication message."
+      - "No unauthorized page creation occurs."
+    bug_indicators:
+      - "The page is created despite expired auth."
+      - "The app reports success while redirecting to login."
+    recovery_expectation: "After re-authentication, the user can resume safely or restart with clear state."
+    playwright_notes: "Use route interception or test auth fixture to simulate session expiry."
+    accessibility_notes: "Auth error status should be announced and focus should move to the recovery action."
+  - id: "slow-network-create"
+    name: "Slow network during save"
+    category: "slow_network"
+    risk_level: "medium"
+    purpose: "Verify progress, disabling, and timeout behavior under slow save conditions."
+    preconditions:
+      - "Baseline flow reaches Confirm creation."
+    steps:
+      - "Throttle network or delay the save response."
+      - "Confirm creation."
+      - "Observe progress and retry behavior."
+    expected_behavior: "The app shows progress, prevents unsafe repeat submissions, and recovers from timeout or completion."
+    assertions:
+      - "A loading or pending state is visible."
+      - "The user is not able to create accidental duplicates."
+    bug_indicators:
+      - "The UI appears idle while save is pending."
+      - "Retries create multiple pages."
+    recovery_expectation: "The user can determine whether save completed and retry safely if needed."
+    playwright_notes: "Use page.route to delay the save endpoint when endpoint is known."
+    accessibility_notes: "Pending state should not rely only on animation."
+  - id: "browser-back-forward"
+    name: "Browser back and forward in wizard"
+    category: "browser_back_forward"
+    risk_level: "medium"
+    purpose: "Verify browser navigation does not corrupt wizard state."
+    preconditions:
+      - "Baseline flow reaches the step after required fields."
+    steps:
+      - "Click Next after filling required fields."
+      - "Use browser Back."
+      - "Use browser Forward."
+      - "Attempt to confirm."
+    expected_behavior: "Wizard state remains consistent or is explicitly reset with clear user messaging."
+    assertions:
+      - "No stale confirmation uses old or blank data."
+      - "The user can recover without duplicate creation."
+    bug_indicators:
+      - "The confirm step displays stale data."
+      - "Back/forward creates an invalid wizard state."
+    recovery_expectation: "The user can edit, cancel, or confirm from a coherent state."
+    playwright_notes: "Use page.goBack() and page.goForward()."
+    accessibility_notes: "Focus should land on the current wizard heading after navigation."
+  - id: "duplicate-entity"
+    name: "Duplicate page name"
+    category: "duplicate_entity_creation"
+    risk_level: "high"
+    purpose: "Verify duplicate entity handling is explicit and recoverable."
+    preconditions:
+      - "A prefixed page with the target name already exists."
+    steps:
+      - "Run the baseline flow using an existing prefixed page name."
+      - "Attempt to confirm creation."
+    expected_behavior: "The app blocks duplicate creation and explains how to choose a unique name."
+    assertions:
+      - "A duplicate validation message is visible."
+      - "Only the original page exists."
+    bug_indicators:
+      - "A second duplicate page is created."
+      - "The app reports success but silently changes the name."
+    recovery_expectation: "The user can change the name and submit successfully."
+    playwright_notes: "Create duplicate fixture data only in an isolated test environment."
+    accessibility_notes: "Duplicate warning should be associated with the name field."
+accessibility_checks:
+  keyboard_only: true
+  focus_management: true
+  aria_semantics: true
+  screen_reader_notes:
+    - "Announce validation errors and save progress."
+network_conditions:
+  include_slow_network: true
+  include_offline_recovery: false
+state_conditions:
+  include_stale_cache: false
+  include_storage_clear: false
+  include_cookie_clear: false
+data_conditions:
+  invalid_inputs:
+    - "Empty title"
+    - "Invalid slug"
+  duplicate_inputs:
+    - "Existing prefixed page name"
+  boundary_inputs:
+    - "Maximum title length"
+assertions:
+  - "Baseline page creation succeeds exactly once."
+  - "Gremlin scenarios preserve a clear recovery path."
+bug_indicators:
+  - "Duplicate entity creation"
+  - "Lost focus or pointer-only control"
+  - "Success state with failed backend operation"
+recovery_expectations:
+  - "Users can restart, resume, or cancel from every interrupted state."
+  - "No gremlin scenario leaves partial or duplicate entities."
+verification_commands:
+  - "node skills/ux-gremlin/scripts/ux-gremlin.mjs check"
+  - "node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright"
+reporting:
+  output_dir: ".agent/reports/ux-gremlin"
+  include_screenshots: true
+  include_trace: true
+  include_console_errors: true

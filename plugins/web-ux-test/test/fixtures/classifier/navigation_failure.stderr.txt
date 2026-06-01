@@ -1,4 +1,0 @@
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-  navigation failed because the page crashed
-  Call log:
-    - navigating to "http://localhost:3000/"

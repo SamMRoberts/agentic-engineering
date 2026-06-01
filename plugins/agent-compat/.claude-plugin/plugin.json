@@ -1,0 +1,26 @@
+{
+  "name": "agent-compat",
+  "version": "0.2.0",
+  "description": "Compatibility layer that converts Copilot *.agent.md custom agents into Codex and Claude instruction overlays.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/agent-compat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SamMRoberts/agentic-engineering"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "copilot",
+    "codex",
+    "claude",
+    "compatibility",
+    "instructions",
+    "custom-agents"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/"
+}
