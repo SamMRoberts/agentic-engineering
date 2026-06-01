@@ -1,95 +1,111 @@
 {
   "version": "1.0",
   "task": {
-    "title": "Strengthen UX Gremlin workflow sequencing",
-    "goal": "Add an explicit workflow-status gate so UX Gremlin cannot proceed to Playwright execution before the generated spec is implemented.",
-    "scope": "Only the ux-gremlin plugin workflow script, docs, agent instructions, instruction fragments, and tests.",
+    "title": "Link UX Gremlin evidence artifacts in reports",
+    "goal": "Copy Playwright evidence attachments into .agent/evidence during UX Gremlin ingest and render linked, data-rich Markdown and static HTML reports.",
+    "scope": "Only the ux-gremlin plugin reporting, ingest, results schema, examples, docs, tests, package metadata, and local guardrail artifacts.",
     "non_goals": [
-      "Do not change generated selector quality or app-specific Playwright implementation.",
-      "Do not remove failing-by-default generated spec behavior.",
-      "Do not add dependencies.",
-      "Do not change unrelated plugins or marketplace metadata."
+      "Do not add remote artifact upload or external report hosting.",
+      "Do not add JavaScript or remote assets to the HTML report.",
+      "Do not change generated Playwright test semantics beyond evidence reporting support.",
+      "Do not modify unrelated plugins or hand-edit marketplace.json."
     ]
   },
   "assumptions": [
     {
       "id": "A1",
-      "statement": "The UX Gremlin plugin already owns the plan validator, Playwright generator, ingest, report, and gate commands in one Node ESM script.",
+      "statement": "UX Gremlin report and ingest behavior is centralized in one Node ESM script, so evidence copying and report linking can be implemented without introducing a new runtime or dependency.",
       "category": "repo_structure",
       "risk_level": "medium",
-      "verification_method": "Read the plugin script and package metadata.",
+      "verification_method": "Read the plugin package metadata and ux-gremlin command script.",
       "evidence": [
-        "plugins/ux-gremlin/package.json exposes skills/ux-gremlin/scripts/ux-gremlin.mjs as the bin.",
-        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs contains command handlers for check, coverage, generate-playwright, ingest, report, and gate."
+        "plugins/ux-gremlin/package.json exposes skills/ux-gremlin/scripts/ux-gremlin.mjs as the plugin bin.",
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs contains commandIngest, normalizeReport, renderMarkdownReport, renderHtmlReport, and commandReport."
       ],
       "status": "verified",
       "files_checked": [
         "plugins/ux-gremlin/package.json",
         "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
       ],
-      "commands_run": [
-        "cat plugins/ux-gremlin/package.json",
-        "sed -n '1,1320p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
-      ],
-      "impact_if_wrong": "The workflow gate could be added in the wrong location or fail to integrate with existing commands.",
-      "decision": "Add workflow-status to the existing ux-gremlin.mjs command dispatcher."
+      "commands_run": [],
+      "impact_if_wrong": "The implementation could split behavior across the wrong artifacts or require new plugin infrastructure.",
+      "decision": "Implement the feature in ux-gremlin.mjs and existing plugin tests/docs."
     },
     {
       "id": "A2",
-      "statement": "The current generated spec intentionally contains TODO placeholders and active requireImplementation calls, so an execution readiness gate can detect incomplete generated output without weakening CI behavior.",
-      "category": "existing_behavior",
+      "statement": "The existing results contract stores screenshots and traces as string arrays and can be extended with evidence_artifacts without breaking current consumers.",
+      "category": "data_model",
       "risk_level": "medium",
-      "verification_method": "Read writeGeneratedSpec and existing tests for generated spec behavior.",
+      "verification_method": "Read results schema, results template/example, validator, and report normalization code.",
       "evidence": [
-        "writeGeneratedSpec emits TODO comments and requireImplementation calls for baseline and scenarios.",
-        "Existing test generated spec is failing-by-default with scenario annotations asserts requireImplementation and scenario/risk annotations are present."
+        "plugins/ux-gremlin/skills/ux-gremlin/schemas/ux-gremlin-results.schema.json defines screenshots and traces as arrays of strings and allows additional properties.",
+        "validateResults currently checks screenshots and traces as string arrays.",
+        "normalizeReport preserves per-scenario screenshots and traces and aggregates them into report.evidence."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/skills/ux-gremlin/schemas/ux-gremlin-results.schema.json",
+        "plugins/ux-gremlin/skills/ux-gremlin/templates/ux-gremlin-results.yaml",
+        "plugins/ux-gremlin/skills/ux-gremlin/examples/results.example.yaml",
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
+      ],
+      "commands_run": [],
+      "impact_if_wrong": "A schema change could break existing reports or ingested results.",
+      "decision": "Preserve screenshots/traces and add optional evidence_artifacts as a compatible extension."
+    },
+    {
+      "id": "A3",
+      "statement": "Playwright JSON reporter evidence is represented as per-result attachments that can be copied locally when an attachment path exists.",
+      "category": "api_contract",
+      "risk_level": "high",
+      "verification_method": "Use Playwright JSON reporter shape documented in the current fixture conventions and cover attachment handling with a regression test.",
+      "evidence": [
+        "plugins/ux-gremlin/skills/ux-gremlin/examples/playwright-report.example.json models suites/specs/tests/results, matching commandIngest traversal.",
+        "The implementation will add a fixture test with result.attachments entries containing name/contentType/path and assert copied evidence files."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/skills/ux-gremlin/examples/playwright-report.example.json",
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+        "plugins/ux-gremlin/test/ux-gremlin.test.mjs"
+      ],
+      "commands_run": [],
+      "impact_if_wrong": "Ingest could silently miss evidence attachments or fail to copy artifacts from real Playwright output.",
+      "decision": "Collect attachments from every Playwright test result attempt and validate the expected shape with tests."
+    },
+    {
+      "id": "A4",
+      "statement": "Evidence links can be rendered safely by linking only local .agent/evidence paths and escaping labels and href attributes in Markdown and HTML.",
+      "category": "security_or_permissions",
+      "risk_level": "high",
+      "verification_method": "Read current escaping behavior and add malicious artifact-name regression coverage.",
+      "evidence": [
+        "renderHtmlReport already escapes dynamic text through escapeHtml and has an existing test that rejects raw <script> output.",
+        "The implementation will add tests for quote/script-containing evidence names and for relative links into .agent/evidence."
       ],
       "status": "verified",
       "files_checked": [
         "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
         "plugins/ux-gremlin/test/ux-gremlin.test.mjs"
       ],
-      "commands_run": [
-        "sed -n '320,760p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
-        "sed -n '1,620p' plugins/ux-gremlin/test/ux-gremlin.test.mjs"
-      ],
-      "impact_if_wrong": "The new gate might reject valid specs or miss incomplete ones.",
-      "decision": "Fail execute readiness when generated placeholders or active requireImplementation calls remain."
-    },
-    {
-      "id": "A3",
-      "statement": "The user-facing workflow gap is in orchestration/documentation, not in plan validation itself.",
-      "category": "tooling_behavior",
-      "risk_level": "medium",
-      "verification_method": "Run existing plugin tests and inspect skill/agent workflow instructions.",
-      "evidence": [
-        "npm test in plugins/ux-gremlin passed 18 tests before implementation.",
-        "SKILL.md and ux-gremlin.agent.md describe baseline-first and generate-before-execution, but do not expose a machine-checkable spec implementation gate."
-      ],
-      "status": "verified",
-      "files_checked": [
-        "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
-        "plugins/ux-gremlin/agents/ux-gremlin.agent.md"
-      ],
-      "commands_run": [
-        "npm test"
-      ],
-      "impact_if_wrong": "The implementation could overreach into plan/schema behavior instead of fixing the sequencing problem.",
-      "decision": "Keep plan validation behavior intact and add workflow phase readiness checks plus workflow instructions."
+      "commands_run": [],
+      "impact_if_wrong": "Reports could introduce HTML injection or unsafe file links from untrusted result text.",
+      "decision": "Render links through dedicated local-evidence helpers and keep non-evidence strings as escaped text."
     }
   ],
   "final_verification": {
     "commands_run": [
-      "npm test",
-      "npm run validate",
-      "node plugins/assumption-killer/bin/assumption-gate.mjs check",
-      "node plugins/change-control-compiler/bin/change-control.mjs check",
-      "node plugins/change-control-compiler/bin/change-control.mjs drift"
+      "npm --prefix /Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/ux-gremlin test",
+      "npm --prefix /Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/ux-gremlin run validate",
+      "node /Users/samroberts/Repo/SamMRoberts/agentic-engineering/scripts/sync-marketplace.mjs --check",
+      "node /Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/assumption-killer/bin/assumption-gate.mjs check --root /Users/samroberts/Repo/SamMRoberts/agentic-engineering",
+      "node /Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/change-control-compiler/bin/change-control.mjs check --root /Users/samroberts/Repo/SamMRoberts/agentic-engineering",
+      "node /Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/change-control-compiler/bin/change-control.mjs drift --root /Users/samroberts/Repo/SamMRoberts/agentic-engineering"
     ],
     "tests_run": [
       "node --test test/**/*.test.mjs"
     ],
     "result": "passed",
-    "notes": "UX Gremlin workflow-status command, execute readiness gate, docs, and regression tests passed package validation and guardrail checks."
+    "notes": "UX Gremlin evidence copying, linked reports, static HTML readability, docs, metadata, package validation, marketplace sync, and guardrail checks passed."
   }
 }

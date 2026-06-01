@@ -365,6 +365,110 @@ test("ingest converts a Playwright JSON report into results", () => {
   assert.equal(report.status, 0, report.stderr);
 });
 
+test("ingest copies Playwright attachments into evidence and reports link them safely", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
+  const attachmentDir = path.join(dir, "playwright-artifacts");
+  fs.mkdirSync(attachmentDir, { recursive: true });
+  const screenshotPath = path.join(attachmentDir, "failure screenshot.png");
+  const tracePath = path.join(attachmentDir, "trace.zip");
+  const genericPath = path.join(attachmentDir, "network quote.txt");
+  fs.writeFileSync(screenshotPath, "png-bytes", "utf-8");
+  fs.writeFileSync(tracePath, "zip-bytes", "utf-8");
+  fs.writeFileSync(genericPath, "network-bytes", "utf-8");
+
+  const pwReport = path.join(dir, "playwright-report.json");
+  fs.writeFileSync(
+    pwReport,
+    JSON.stringify({
+      suites: [
+        {
+          title: "ux-gremlin.spec.ts",
+          specs: [
+            {
+              title: "baseline happy path",
+              tests: [
+                {
+                  status: "expected",
+                  annotations: [{ type: "ux-gremlin-baseline", description: "true" }],
+                  results: [{ status: "passed" }]
+                }
+              ]
+            },
+            {
+              title: "double-submit-confirm: Double-submit final confirmation",
+              tests: [
+                {
+                  status: "unexpected",
+                  annotations: [
+                    { type: "ux-gremlin-scenario", description: "double-submit-confirm" },
+                    { type: "ux-gremlin-risk", description: "high" }
+                  ],
+                  results: [
+                    {
+                      status: "failed",
+                      error: { message: "Expected count 1 but received 2\n    at spec.ts:42" },
+                      attachments: [
+                        {
+                          name: "failure screenshot <script>alert(1)</script>",
+                          contentType: "image/png",
+                          path: screenshotPath
+                        },
+                        { name: "trace archive", contentType: "application/zip", path: tracePath },
+                        { name: "network \"quote\" log", contentType: "text/plain", path: genericPath },
+                        {
+                          name: "missing screenshot",
+                          contentType: "image/png",
+                          path: path.join(attachmentDir, "missing.png")
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }, null, 2),
+    "utf-8"
+  );
+
+  const outPath = path.join(dir, ".agent/session/ux-gremlin-results.json");
+  const ingest = run(["ingest", "--plan", validPlan, "--input", pwReport, "--out", outPath], { cwd: dir });
+  assert.equal(ingest.status, 0, ingest.stderr);
+  const results = JSON.parse(fs.readFileSync(outPath, "utf-8"));
+  const scenario = results.scenario_results.find((item) => item.scenario_id === "double-submit-confirm");
+  assert.ok(scenario);
+  assert.equal(scenario.screenshots.length, 1);
+  assert.equal(scenario.traces.length, 1);
+  assert.equal(scenario.evidence_artifacts.length, 1);
+  assert.match(scenario.screenshots[0], /^\.agent\/evidence\/ux-gremlin\/double-submit-confirm\//);
+  assert.match(scenario.traces[0], /^\.agent\/evidence\/ux-gremlin\/double-submit-confirm\//);
+  assert.match(scenario.evidence_artifacts[0], /^\.agent\/evidence\/ux-gremlin\/double-submit-confirm\//);
+  assert.equal(fs.existsSync(path.join(dir, scenario.screenshots[0])), true);
+  assert.equal(fs.existsSync(path.join(dir, scenario.traces[0])), true);
+  assert.equal(fs.existsSync(path.join(dir, scenario.evidence_artifacts[0])), true);
+  assert.match(results.open_risks.join("\n"), /missing screenshot/);
+
+  const report = run(["report", "--plan", validPlan, "--results", outPath], { cwd: dir });
+  assert.equal(report.status, 0, report.stderr);
+  const reportDir = path.join(dir, ".agent/reports/ux-gremlin");
+  const markdown = fs.readFileSync(path.join(reportDir, "report.md"), "utf-8");
+  const html = fs.readFileSync(path.join(reportDir, "report.html"), "utf-8");
+  const reportJson = JSON.parse(fs.readFileSync(path.join(reportDir, "report.json"), "utf-8"));
+
+  assert.match(markdown, /\[screenshot: failure screenshot/);
+  assert.match(markdown, /\]\(\.\.\/\.\.\/evidence\/ux-gremlin\/double-submit-confirm\//);
+  assert.match(html, /<h2>Scenario Index<\/h2>/);
+  assert.match(html, /id="scenario-double-submit-confirm"/);
+  assert.match(html, /<h2>Evidence Library<\/h2>/);
+  assert.match(html, /href="\.\.\/\.\.\/evidence\/ux-gremlin\/double-submit-confirm\//);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  assert.doesNotMatch(html, /<script>alert/);
+  assert.equal(reportJson.evidence.artifacts.length, 3);
+  assert.equal(reportJson.scenarios.find((item) => item.id === "double-submit-confirm").evidence.length, 3);
+});
+
 test("ingest blocks mutations when the baseline fails", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ux-gremlin-"));
   const pwReport = path.join(dir, "pw.json");

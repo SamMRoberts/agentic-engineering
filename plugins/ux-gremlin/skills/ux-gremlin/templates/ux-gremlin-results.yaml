@@ -20,6 +20,8 @@ scenario_results:
     console_errors: []
     screenshots: []
     traces: []
+    evidence_artifacts: []
+    evidence_items: []
     recovery_notes: []
     executed_commands: []
     open_risks: []
