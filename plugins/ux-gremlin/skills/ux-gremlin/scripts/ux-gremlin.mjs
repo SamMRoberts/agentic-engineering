@@ -1842,6 +1842,23 @@ function renderHtmlReport(report) {
   const allConsoleErrors = report.scenarios.flatMap((scenario) => scenario.console_errors.map((item) => `${scenario.id}: ${item}`));
 
   const verdictClass = exec.verdict.toLowerCase().replace(/[^a-z]+/g, "-");
+  const passRateLabel = exec.pass_rate === null ? "n/a" : `${exec.pass_rate}%`;
+  const targetLabel = report.plan.name || report.plan.target.url || report.plan.target.app_area || "UX Gremlin Report";
+  const evidenceCount = report.evidence.artifacts.length;
+  const openIssueCount = report.top_issues.length;
+  const openRiskCount = report.open_risks.length;
+  const decisionLine = `${exec.verdict} | ${passRateLabel} pass rate | ${openIssueCount} top issue(s)`;
+  const navItems = [
+    ["Executive", "executive-summary"],
+    ["Top Issues", "top-issues"],
+    ["Scenarios", "scenario-index"],
+    ["Rollup", "scenario-rollup"],
+    ["Evidence", "evidence-library"],
+    ["Risks", "open-risks"]
+  ];
+  const nav = `<nav class="report-nav" aria-label="Report sections">${navItems
+    .map(([label, href]) => `<a href="#${href}">${escapeHtml(label)}</a>`)
+    .join("")}</nav>`;
   const topIssuesRows = report.top_issues
     .map(
       (issue) => `<tr>
@@ -1856,7 +1873,7 @@ function renderHtmlReport(report) {
     .join("\n");
   const topIssues =
     report.top_issues.length > 0
-      ? `<table><thead><tr><th>Severity</th><th>Status</th><th>Scenario</th><th>Category</th><th>Suspected Impact</th><th>Recommended Action</th></tr></thead><tbody>${topIssuesRows}</tbody></table>`
+      ? `<div class="table-wrap"><table><thead><tr><th>Severity</th><th>Status</th><th>Scenario</th><th>Category</th><th>Suspected Impact</th><th>Recommended Action</th></tr></thead><tbody>${topIssuesRows}</tbody></table></div>`
       : `<p>No open issues. Every executed scenario passed without suspected bugs or accessibility blockers.</p>`;
 
   const scenarioIndexRows = report.scenarios
@@ -1877,11 +1894,11 @@ function renderHtmlReport(report) {
 
   const trendItems = report.trend
     ? [
-        `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
-        `Pass rate now ${report.trend.pass_rate ?? "n/a"}% (delta ${report.trend.pass_rate_delta ?? "n/a"}).`,
-        `Suspected bugs now ${report.trend.suspected_bug_count} (delta ${report.trend.suspected_bug_delta}).`,
-        `Accessibility issues now ${report.trend.accessibility_issue_count} (delta ${report.trend.accessibility_issue_delta}).`
-      ]
+      `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
+      `Pass rate now ${report.trend.pass_rate ?? "n/a"}% (delta ${report.trend.pass_rate_delta ?? "n/a"}).`,
+      `Suspected bugs now ${report.trend.suspected_bug_count} (delta ${report.trend.suspected_bug_delta}).`,
+      `Accessibility issues now ${report.trend.accessibility_issue_count} (delta ${report.trend.accessibility_issue_delta}).`
+    ]
     : ["No previous run recorded; this is the first tracked run."];
 
   const scenarioSections = report.scenarios.map((scenario) => `<section id="${escapeHtml(htmlAnchorId("scenario", scenario.id))}">
@@ -1913,29 +1930,49 @@ function renderHtmlReport(report) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(report.plan.name || "UX Gremlin Report")}</title>
+  <title>${escapeHtml(`${targetLabel} | UX Gremlin Report`)}</title>
   <style>
-    body { color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem auto; max-width: 1180px; padding: 0 1rem; }
+    :root { color-scheme: light; --ink: #172033; --muted: #5b6472; --line: #d8dde6; --paper: #ffffff; --wash: #f6f8fb; --teal: #0f766e; --blue: #1d4ed8; --amber: #b45309; --red: #b91c1c; --green: #15803d; }
+    body { background: var(--wash); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 0 auto; max-width: 1240px; padding: 1.25rem; }
     a { color: #0f766e; font-weight: 650; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
     a:focus-visible { outline: 3px solid #14b8a6; outline-offset: 2px; }
-    h1, h2, h3 { color: #111827; }
-    section { border-top: 1px solid #d1d5db; padding: 1rem 0; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.02; margin: 0.2rem 0 0.75rem; }
+    h2 { margin-top: 0; }
+    section { padding: 1rem 0; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; }
     dt { font-weight: 700; }
     code, pre { background: #f3f4f6; border-radius: 4px; padding: 0.1rem 0.25rem; }
+    .report-nav { align-items: center; background: rgba(255,255,255,0.94); border: 1px solid var(--line); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; padding: 0.4rem; position: sticky; top: 0.5rem; z-index: 5; }
+    .report-nav a { border-radius: 6px; color: var(--ink); padding: 0.35rem 0.55rem; text-decoration: none; }
+    .report-nav a:hover { background: #eef6f5; color: var(--teal); }
+    .hero { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 56%, #eef6f5 100%); border: 1px solid var(--line); border-left: 8px solid var(--muted); border-radius: 8px; box-shadow: 0 18px 42px rgba(23,32,51,0.08); margin-bottom: 1rem; padding: 1.25rem; }
+    .hero.verdict-pass { border-left-color: var(--green); }
+    .hero.verdict-pass-with-risks { border-left-color: var(--amber); }
+    .hero.verdict-fail { border-left-color: var(--red); }
+    .hero.verdict-not-executed { border-left-color: var(--muted); }
+    .eyebrow { color: var(--teal); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; margin: 0; text-transform: uppercase; }
+    .decision-line { color: var(--ink); font-size: 1.1rem; font-weight: 760; margin: 0.4rem 0 1rem; }
+    .run-strip { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: 0.8rem; }
+    .panel-section { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; padding: 1rem; }
     .table-wrap { overflow-x: auto; }
     table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
     th, td { border: 1px solid #d1d5db; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.95rem; }
     th { background: #f9fafb; position: sticky; top: 0; z-index: 1; }
     .cards { display: flex; flex-wrap: wrap; gap: 0.75rem; }
     .card { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.75rem 1rem; min-width: 9rem; }
+    .metric-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+    .metric-card { background: rgba(255,255,255,0.82); border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem; }
+    .metric-card .label { color: var(--muted); font-size: 0.76rem; font-weight: 760; text-transform: uppercase; }
+    .metric-card .value { color: var(--ink); font-size: 1.6rem; font-weight: 820; margin-top: 0.15rem; }
+    .metric-card .note { color: var(--muted); font-size: 0.84rem; margin-top: 0.1rem; }
     .card .label { color: #6b7280; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
     .card .value { font-size: 1.4rem; font-weight: 700; }
     .verdict { display: inline-block; border-radius: 6px; padding: 0.35rem 0.75rem; font-weight: 700; color: #fff; }
-    .verdict-pass { background: #15803d; }
-    .verdict-pass-with-risks { background: #b45309; }
-    .verdict-fail { background: #b91c1c; }
-    .verdict-not-executed { background: #4b5563; }
+    .verdict.verdict-pass { background: #15803d; }
+    .verdict.verdict-pass-with-risks { background: #b45309; }
+    .verdict.verdict-fail { background: #b91c1c; }
+    .verdict.verdict-not-executed { background: #4b5563; }
     .badge { display: inline-block; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #fff; }
     .sev-critical { background: #7f1d1d; } .sev-high { background: #b91c1c; } .sev-medium { background: #b45309; } .sev-low { background: #2563eb; } .sev-info, .sev-none { background: #6b7280; }
     .st-failed { background: #b91c1c; } .st-blocked { background: #7f1d1d; } .st-needs_review { background: #b45309; } .st-passed { background: #15803d; } .st-not_run { background: #6b7280; }
@@ -1948,43 +1985,46 @@ function renderHtmlReport(report) {
     .evidence-path { color: #6b7280; display: block; font-size: 0.82rem; margin-top: 0.1rem; }
     .evidence-group { border-top: 1px dashed #d1d5db; padding-top: 0.75rem; }
     .st-passed, .sev-low { }
-    @media (max-width: 720px) { body { margin: 1rem auto; } dl { grid-template-columns: 1fr; } .card { min-width: 7rem; } }
-    @media print { body { max-width: none; } a { color: inherit; } th { position: static; } }
+    @media (max-width: 720px) { body { padding: 0.75rem; } .report-nav { position: static; } dl { grid-template-columns: 1fr; } .card { min-width: 7rem; } }
+    @media print { body { background: #fff; max-width: none; } .report-nav { display: none; } a { color: inherit; } th { position: static; } .hero, .panel-section { box-shadow: none; } }
   </style>
 </head>
 <body>
-  <h1>UX Gremlin Report</h1>
-  <section>
+  ${nav}
+  <section id="executive-summary" class="hero verdict-${escapeHtml(verdictClass)}">
     <h2>Executive Summary</h2>
+    <p class="eyebrow">Executive UX Resilience Report</p>
+    <h1>${escapeHtml(targetLabel)}</h1>
     <p><span class="verdict verdict-${escapeHtml(verdictClass)}">${escapeHtml(exec.verdict)}</span></p>
-    <div class="cards">
-      <div class="card"><div class="label">Pass rate</div><div class="value">${escapeHtml(exec.pass_rate === null ? "n/a" : `${exec.pass_rate}%`)}</div></div>
-      <div class="card"><div class="label">Risk score</div><div class="value">${escapeHtml(exec.risk_score)}/100</div><div>${severityBadge(exec.risk_band)}</div></div>
-      <div class="card"><div class="label">Highest severity</div><div class="value">${severityBadge(exec.highest_open_severity)}</div></div>
-      <div class="card"><div class="label">Suspected bugs</div><div class="value">${escapeHtml(exec.suspected_bug_count)}</div></div>
-      <div class="card"><div class="label">A11y blockers</div><div class="value">${escapeHtml(exec.accessibility_blocker_count)}</div></div>
-      <div class="card"><div class="label">Executed</div><div class="value">${escapeHtml(exec.executed_count)}/${escapeHtml(report.summary.scenario_count)}</div></div>
+    <p class="decision-line">${escapeHtml(decisionLine)}</p>
+    <div class="metric-grid" aria-label="Executive metrics">
+      <div class="metric-card"><div class="label">Pass rate</div><div class="value">${escapeHtml(passRateLabel)}</div><div class="note">${escapeHtml(exec.executed_count)} of ${escapeHtml(report.summary.scenario_count)} scenarios executed</div></div>
+      <div class="metric-card"><div class="label">Risk score</div><div class="value">${escapeHtml(exec.risk_score)}/100</div><div class="note">${severityBadge(exec.risk_band)}</div></div>
+      <div class="metric-card"><div class="label">Top issues</div><div class="value">${escapeHtml(openIssueCount)}</div><div class="note">highest severity ${escapeHtml(exec.highest_open_severity)}</div></div>
+      <div class="metric-card"><div class="label">Evidence</div><div class="value">${escapeHtml(evidenceCount)}</div><div class="note">linked artifact(s)</div></div>
+      <div class="metric-card"><div class="label">Suspected bugs</div><div class="value">${escapeHtml(exec.suspected_bug_count)}</div><div class="note">${escapeHtml(exec.accessibility_blocker_count)} accessibility blocker(s)</div></div>
+      <div class="metric-card"><div class="label">Open risks</div><div class="value">${escapeHtml(openRiskCount)}</div><div class="note">result-specific risk note(s)</div></div>
     </div>
-    <dl>
+    <dl class="run-strip">
       <dt>Target</dt><dd>${escapeHtml(report.plan.name || report.plan.target.url || report.plan.target.app_area || "(unnamed)")}</dd>
       <dt>Environment</dt><dd>${escapeHtml(report.run.environment || report.plan.target.environment || "(not set)")}</dd>
       <dt>Executed at</dt><dd>${escapeHtml(report.run.executed_at || "(not executed)")}${report.run.executor ? escapeHtml(` by ${report.run.executor}`) : ""}</dd>
       <dt>Build / commit</dt><dd>${escapeHtml(report.run.build || "(n/a)")}${report.run.commit ? escapeHtml(` / ${report.run.commit}`) : ""}</dd>
     </dl>
   </section>
-  <section>
+  <section id="trend" class="panel-section">
     <h2>Trend</h2>
     ${htmlList(trendItems, "No previous run recorded.")}
   </section>
-  <section>
+  <section id="top-issues" class="panel-section">
     <h2>Top Issues &amp; Recommended Actions</h2>
     ${topIssues}
   </section>
-  <section>
+  <section id="scenario-index" class="panel-section">
     <h2>Scenario Index</h2>
     ${scenarioIndex}
   </section>
-  <section>
+  <section id="scenario-rollup" class="panel-section">
     <h2>Scenario Rollup</h2>
     <p>Total scenarios: ${escapeHtml(report.summary.scenario_count)}</p>
     <h3>Status</h3>
@@ -1996,7 +2036,7 @@ function renderHtmlReport(report) {
     <h3>Category</h3>
     ${htmlCountsTable(report.summary.category_counts)}
   </section>
-  <section>
+  <section id="target" class="panel-section">
     <h2>Target</h2>
     <dl>
       <dt>Name</dt><dd>${escapeHtml(report.plan.name)}</dd>
@@ -2007,40 +2047,40 @@ function renderHtmlReport(report) {
       <dt>Results included</dt><dd>${escapeHtml(report.source.has_results)}</dd>
     </dl>
   </section>
-  <section>
+  <section id="baseline-flow" class="panel-section">
     <h2>Baseline Flow</h2>
     ${htmlList(report.baseline_flow.steps.map((step, index) => `${index + 1}. ${step}`), "No baseline steps recorded.")}
     <p>Expected result: ${escapeHtml(report.baseline_flow.expected_result)}</p>
   </section>
-  <section>
+  <section id="scenarios-tested" class="panel-section">
     <h2>Scenarios Tested</h2>
     ${scenarioSections || "<p>No scenario details recorded.</p>"}
   </section>
-  <section>
+  <section id="evidence-library" class="panel-section">
     <h2>Evidence Library</h2>
     ${evidenceGroups || "<p>Pending execution.</p>"}
   </section>
-  <section>
+  <section id="findings" class="panel-section">
     <h2>Findings</h2>
     ${htmlList(allFindings, "Pending execution.")}
   </section>
-  <section>
+  <section id="bugs-suspected" class="panel-section">
     <h2>Bugs Suspected</h2>
     ${htmlList(allBugs, "Pending execution.")}
   </section>
-  <section>
+  <section id="accessibility-issues" class="panel-section">
     <h2>Accessibility Issues</h2>
     ${htmlList(allAccessibility, "Pending keyboard, focus, ARIA, and screen-reader validation.")}
   </section>
-  <section>
+  <section id="console-errors" class="panel-section">
     <h2>Console Errors</h2>
     ${htmlList(allConsoleErrors, "Pending execution.")}
   </section>
-  <section>
+  <section id="executed-commands" class="panel-section">
     <h2>Executed Commands</h2>
     ${htmlList(report.executed_commands, "Pending execution.")}
   </section>
-  <section>
+  <section id="open-risks" class="panel-section">
     <h2>Open Risks</h2>
     ${htmlList(report.open_risks, "No result-specific risks recorded.")}
   </section>

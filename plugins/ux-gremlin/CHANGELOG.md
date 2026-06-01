@@ -5,7 +5,7 @@
 - `ingest` now copies Playwright attachment files into `.agent/evidence/ux-gremlin/<scenario-id>/`, classifies screenshots/traces/generic artifacts, and records missing evidence as open risks instead of failing the whole run.
 - Reports now render related `.agent/evidence` artifacts as safe relative links in Markdown and static HTML while preserving escaped, script-free output.
 - `report.json` now includes normalized per-scenario evidence metadata alongside the existing `screenshots` and `traces` arrays; results may also include `evidence_artifacts` and `evidence_items`.
-- HTML reports now include a scenario index, scenario anchors, evidence counts, grouped evidence library, responsive table wrapping, focus styles, and print-friendly static CSS for data-rich review.
+- HTML reports now include an executive decision header, section navigation, metric grid, scenario index, scenario anchors, evidence counts, grouped evidence library, responsive table wrapping, focus styles, and print-friendly static CSS for data-rich review.
 
 ## 1.2.0
 
