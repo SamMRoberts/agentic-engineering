@@ -1,0 +1,128 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "UX Gremlin enhanced report generation",
+    "request": "Implement structured execution-results support for the ux-gremlin report command and generate Markdown, JSON, and static HTML reports.",
+    "problem_statement": "The existing ux-gremlin report command only writes a static Markdown skeleton from the plan, so executed scenario outcomes, evidence, severity rollups, and machine-readable report data cannot be captured deterministically."
+  },
+  "goal": "Add backward-compatible enhanced ux-gremlin reports from optional structured results input with deterministic tests and documentation.",
+  "success_criteria": [
+    "Existing plan-only report command still succeeds.",
+    "Report command accepts --results and --out-dir arguments.",
+    "Report command writes report.md, report.json, and report.html.",
+    "Structured results template, schema, and example fixture exist.",
+    "Markdown, JSON, and HTML include scenario status, findings, bugs, accessibility issues, console errors, evidence, recovery notes, commands, and risks.",
+    "HTML escapes unsafe content and uses no remote assets or scripts.",
+    "Plugin version and changelog are updated for a non-breaking minor release.",
+    "Relevant tests and validation commands pass."
+  ],
+  "scope": {
+    "summary": "Bounded enhancement to the ux-gremlin plugin report generation surface.",
+    "in_scope": [
+      "UX Gremlin CLI report command behavior",
+      "UX Gremlin result schemas, templates, and examples",
+      "UX Gremlin README, SKILL.md, report example, version, and changelog",
+      "UX Gremlin node:test coverage"
+    ],
+    "out_of_scope": [
+      "Parsing Playwright reporter JSON",
+      "Adding runtime dependencies",
+      "Building an interactive report UI",
+      "Changing plan schema compatibility",
+      "Changing unrelated plugins or marketplace generated output"
+    ]
+  },
+  "non_goals": [
+    "Do not infer results from Playwright output in this iteration.",
+    "Do not introduce JavaScript, remote assets, or external CSS into HTML reports.",
+    "Do not redesign the ux-gremlin plan format.",
+    "Do not modify unrelated plugin infrastructure."
+  ],
+  "allowed_change_areas": [
+    ".agent",
+    "plugins/ux-gremlin"
+  ],
+  "forbidden_change_areas": [
+    "plugins/marketplace.json",
+    "plugins/agent-compat",
+    "plugins/assumption-killer",
+    "plugins/change-control-compiler",
+    "instructions",
+    "agents"
+  ],
+  "files_to_inspect": [
+    "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+    "plugins/ux-gremlin/test/ux-gremlin.test.mjs",
+    "plugins/ux-gremlin/skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json",
+    "plugins/ux-gremlin/skills/ux-gremlin/examples/valid-plan.yaml",
+    "plugins/ux-gremlin/README.md",
+    "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+    "plugins/ux-gremlin/package.json",
+    "plugins/ux-gremlin/.codex-plugin/plugin.json",
+    "plugins/ux-gremlin/CHANGELOG.md"
+  ],
+  "files_allowed_to_modify": [
+    ".agent/session/change-control-contract.json",
+    ".agent/session/change-control-contract.md",
+    ".agent/session/assumption-gate.json",
+    ".agent/session/assumptions.md",
+    "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+    "plugins/ux-gremlin/test/ux-gremlin.test.mjs",
+    "plugins/ux-gremlin/skills/ux-gremlin/templates/ux-gremlin-results.yaml",
+    "plugins/ux-gremlin/skills/ux-gremlin/examples/results.example.yaml",
+    "plugins/ux-gremlin/skills/ux-gremlin/schemas/ux-gremlin-results.schema.json",
+    "plugins/ux-gremlin/skills/ux-gremlin/examples/report.example.md",
+    "plugins/ux-gremlin/README.md",
+    "plugins/ux-gremlin/skills/ux-gremlin/SKILL.md",
+    "plugins/ux-gremlin/package.json",
+    "plugins/ux-gremlin/.codex-plugin/plugin.json",
+    "plugins/ux-gremlin/CHANGELOG.md"
+  ],
+  "files_forbidden_to_modify": [
+    "plugins/marketplace.json"
+  ],
+  "expected_behavior": "The report command validates the plan, optionally reads structured results from YAML or JSON, normalizes plan and result data, and writes synchronized Markdown, JSON, and static escaped HTML artifacts to the selected report directory.",
+  "current_behavior": "The report command reads only the plan and writes one static Markdown skeleton to .agent/reports/ux-gremlin/report.md.",
+  "test_requirements": [
+    "Existing ux-gremlin tests continue to pass.",
+    "Add coverage for results-backed report outputs.",
+    "Add coverage for status and severity counts in JSON.",
+    "Add coverage for Markdown sections sourced from results.",
+    "Add coverage for HTML escaping of unsafe result text.",
+    "Add coverage for malformed or missing results errors.",
+    "Add coverage for --out-dir writing all artifacts."
+  ],
+  "verification_commands": [
+    "npm test",
+    "npm run validate",
+    "node ../../scripts/sync-marketplace.mjs --check",
+    "node plugins/assumption-killer/bin/assumption-gate.mjs check",
+    "node plugins/change-control-compiler/skills/change-control-compiler/scripts/change-control.mjs drift"
+  ],
+  "risk_level": "medium",
+  "rollback_plan": "Revert changes under plugins/ux-gremlin and the local .agent/session guard artifacts.",
+  "stop_conditions": [
+    "Implementation requires a new runtime dependency.",
+    "Implementation requires changing unrelated plugins or generated marketplace output.",
+    "Existing plan-only report compatibility cannot be preserved.",
+    "Report results schema cannot represent the requested fields without an unresolved product decision.",
+    "Verification fails for a code-related reason that cannot be fixed within scope."
+  ],
+  "open_questions": [],
+  "implementation_plan": [
+    "Extend CLI argument parsing for --results and --out-dir.",
+    "Add structured result parsing, validation, normalization, rollup, Markdown, JSON, and HTML generation helpers.",
+    "Add results schema, template, and example fixture.",
+    "Update tests for legacy and enhanced report generation.",
+    "Update docs, report example, changelog, and version metadata.",
+    "Run required verification and drift checks."
+  ],
+  "final_acceptance_checklist": [
+    "All report artifacts are generated in default and custom output directories.",
+    "Plan-only report remains backward compatible.",
+    "Results-backed reports include grouped findings, suspected bugs, evidence, and recovery notes.",
+    "HTML content is escaped and self-contained.",
+    "Tests and validation commands pass.",
+    "Drift check passes."
+  ]
+}

@@ -34,6 +34,8 @@ Ask for clarification when auth, destructive actions, production data, or mutati
 - `.agent/session/ux-gremlin-plan.yaml`
 - `.agent/generated/ux-gremlin.spec.ts` when Playwright generation is requested.
 - `.agent/reports/ux-gremlin/report.md`
+- `.agent/reports/ux-gremlin/report.json`
+- `.agent/reports/ux-gremlin/report.html`
 
 ## Gremlin Scenario Categories
 
@@ -71,6 +73,8 @@ Prefer role-based locators and accessible names. Use placeholders when selectors
 
 Reports must separate observed findings from suspected bugs, accessibility issues, console errors, screenshots/traces, recovery behavior, follow-up tests, and open risks.
 
+Use plan-only report generation when execution has not happened yet. After execution, pass a structured results YAML or JSON file with `--results`. Results must record scenario status (`passed`, `failed`, `blocked`, `not_run`, or `needs_review`), severity, outcome, evidence, commands, recovery notes, and risks where known. Static HTML reports must remain self-contained and escaped.
+
 ## Anti-Patterns
 
 - Generating gremlin scenarios without a baseline flow.
@@ -82,7 +86,7 @@ Reports must separate observed findings from suspected bugs, accessibility issue
 
 ## Final Response Requirements
 
-State the plan path, generated spec path if any, report path if any, validation commands run, scenario count, safety constraints, and open risks.
+State the plan path, generated spec path if any, report paths if any, validation commands run, scenario count, safety constraints, and open risks.
 
 ## Cross-Agent Notes
 

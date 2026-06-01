@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "task": {
+    "title": "UX Gremlin enhanced report generation",
+    "goal": "Implement optional structured results input and synchronized Markdown, JSON, and static HTML report outputs for ux-gremlin.",
+    "scope": "Only the ux-gremlin plugin report-generation path, related structured artifacts, docs, version metadata, and tests.",
+    "non_goals": [
+      "Do not parse Playwright reporter JSON.",
+      "Do not add runtime dependencies.",
+      "Do not change unrelated plugins."
+    ]
+  },
+  "assumptions": [
+    {
+      "id": "A1",
+      "statement": "The current report command is implemented in the ux-gremlin skill script and writes a single Markdown report from plan data.",
+      "category": "existing_behavior",
+      "risk_level": "medium",
+      "verification_method": "Read the CLI implementation.",
+      "evidence": [
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs defines commandReport(planPath), outputReportPath, and fs.writeFileSync(outputReportPath, content, \"utf-8\")."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
+      ],
+      "commands_run": [
+        "sed -n '220,520p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs"
+      ],
+      "impact_if_wrong": "The implementation could modify the wrong report path or duplicate existing behavior.",
+      "decision": "Extend the existing commandReport path instead of adding a parallel command."
+    },
+    {
+      "id": "A2",
+      "statement": "The plugin currently uses only Node built-in modules for the CLI, so enhanced report generation can avoid new runtime dependencies.",
+      "category": "tooling_behavior",
+      "risk_level": "medium",
+      "verification_method": "Read imports and package metadata.",
+      "evidence": [
+        "ux-gremlin.mjs imports node:fs, node:path, and node:url only.",
+        "plugins/ux-gremlin/package.json has no dependencies section."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+        "plugins/ux-gremlin/package.json"
+      ],
+      "commands_run": [
+        "sed -n '1,260p' plugins/ux-gremlin/skills/ux-gremlin/scripts/ux-gremlin.mjs",
+        "cat plugins/ux-gremlin/package.json"
+      ],
+      "impact_if_wrong": "Adding schema or HTML support might require a dependency and broaden scope.",
+      "decision": "Reuse the existing conservative YAML parser and implement validation helpers locally."
+    },
+    {
+      "id": "A3",
+      "statement": "The existing ux-gremlin test suite is passing before changes.",
+      "category": "test_behavior",
+      "risk_level": "medium",
+      "verification_method": "Run the plugin test command.",
+      "evidence": [
+        "npm test in plugins/ux-gremlin passed 3 tests before implementation."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/test/ux-gremlin.test.mjs"
+      ],
+      "commands_run": [
+        "npm test"
+      ],
+      "impact_if_wrong": "A pre-existing failure could be misattributed to this change.",
+      "decision": "Use the current passing tests as the baseline and add targeted tests for the new behavior."
+    },
+    {
+      "id": "A4",
+      "statement": "A non-breaking minor version bump is appropriate because existing commands and plan schema remain compatible while adding optional report features.",
+      "category": "backwards_compatibility",
+      "risk_level": "medium",
+      "verification_method": "Compare requested public interface with current command usage and package metadata.",
+      "evidence": [
+        "The requested plan explicitly preserves the existing report command and adds optional --results and --out-dir.",
+        "Current package and Codex manifest versions are 1.0.0."
+      ],
+      "status": "verified",
+      "files_checked": [
+        "plugins/ux-gremlin/package.json",
+        "plugins/ux-gremlin/.codex-plugin/plugin.json"
+      ],
+      "commands_run": [
+        "cat plugins/ux-gremlin/package.json",
+        "cat plugins/ux-gremlin/.codex-plugin/plugin.json"
+      ],
+      "impact_if_wrong": "Incorrect versioning could misrepresent a breaking or patch-level change.",
+      "decision": "Bump package and Codex plugin manifest versions to 1.1.0 and add a changelog entry."
+    }
+  ],
+  "final_verification": {
+    "commands_run": [
+      "npm test",
+      "npm run validate",
+      "node ../../scripts/sync-marketplace.mjs --check"
+    ],
+    "tests_run": [
+      "node --test test/**/*.test.mjs"
+    ],
+    "result": "passed",
+    "notes": "UX Gremlin plugin tests, plan validation, and marketplace check passed after implementation."
+  }
+}

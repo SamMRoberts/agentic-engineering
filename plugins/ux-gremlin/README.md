@@ -30,9 +30,35 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs check --plan skills/ux-gremlin/exa
 4. Run `check` until validation passes.
 5. Run `summary` to review coverage.
 6. Run `generate-playwright` when a starter Playwright spec is useful.
-7. Run `report` after planning or execution to create `.agent/reports/ux-gremlin/report.md`.
+7. Run `report` after planning or execution to create `.agent/reports/ux-gremlin/report.md`, `report.json`, and `report.html`.
 
 The plan schema is documented in `skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json`. The runtime validator uses only Node.js built-in modules and a conservative YAML parser for this plugin's template shape. JSON is supported as a fallback at `.agent/session/ux-gremlin-plan.json`.
+
+## Reports
+
+Plan-only reports remain supported:
+
+```bash
+node skills/ux-gremlin/scripts/ux-gremlin.mjs report --plan skills/ux-gremlin/examples/valid-plan.yaml
+```
+
+To include executed outcomes, pass a structured results file:
+
+```bash
+node skills/ux-gremlin/scripts/ux-gremlin.mjs report \
+  --plan skills/ux-gremlin/examples/valid-plan.yaml \
+  --results skills/ux-gremlin/examples/results.example.yaml
+```
+
+Use `--out-dir <path>` to write all report artifacts somewhere other than `reporting.output_dir`.
+
+The results contract is documented in `skills/ux-gremlin/schemas/ux-gremlin-results.schema.json`, with a starter template at `skills/ux-gremlin/templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, recovery notes, executed commands, and open risks.
+
+Generated artifacts:
+
+- `report.md`: human-readable report for review and PR notes.
+- `report.json`: normalized machine-readable summary for agents and CI.
+- `report.html`: self-contained static HTML with escaped content and no scripts or remote assets.
 
 ## Test Modes
 
@@ -96,6 +122,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs check
 node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
 node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
 node skills/ux-gremlin/scripts/ux-gremlin.mjs report
+node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results skills/ux-gremlin/examples/results.example.yaml
 ```
 
 ## Troubleshooting
@@ -104,4 +131,6 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs report
 - `ERROR: baseline flow has no steps`: fill `baseline_flow.steps` before adding scenarios.
 - `ERROR: no gremlin scenarios are defined`: add at least one scenario, and normally at least three for useful coverage.
 - `ERROR: destructive actions are enabled without explicit safety notes`: either set destructive actions to false or document the approved safety boundary.
+- `ERROR: results file is missing`: pass an existing results YAML/JSON file or omit `--results` for a plan-only report.
+- `ERROR: scenario result ... status must be one of`: use `passed`, `failed`, `blocked`, `not_run`, or `needs_review`.
 - YAML parse errors: keep the plan within the provided template shape or use `.agent/session/ux-gremlin-plan.json`.
