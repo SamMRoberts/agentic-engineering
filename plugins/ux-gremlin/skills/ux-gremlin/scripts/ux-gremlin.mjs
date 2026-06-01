@@ -11,6 +11,7 @@ const templatePath = path.join(skillDir, "templates", "ux-gremlin-plan.yaml");
 const outputSpecPath = ".agent/generated/ux-gremlin.spec.ts";
 const defaultReportDir = ".agent/reports/ux-gremlin";
 const defaultIngestOut = ".agent/session/ux-gremlin-results.json";
+const defaultEvidenceDir = ".agent/evidence/ux-gremlin";
 const baselineTestTitle = "baseline happy path";
 
 const allowedModes = new Set(["playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"]);
@@ -551,12 +552,31 @@ function validateResults(results, plan) {
         "console_errors",
         "screenshots",
         "traces",
+        "evidence_artifacts",
         "recovery_notes",
         "executed_commands",
         "open_risks"
       ]) {
         if (result?.[field] != null && !isStringArray(result[field])) {
           errors.push(`${label}.${field} must be an array of strings when provided`);
+        }
+      }
+      if (result?.evidence_items != null) {
+        if (!Array.isArray(result.evidence_items)) {
+          errors.push(`${label}.evidence_items must be an array when provided`);
+        } else {
+          result.evidence_items.forEach((item, itemIndex) => {
+            const itemLabel = `${label}.evidence_items[${itemIndex}]`;
+            if (!item || typeof item !== "object" || Array.isArray(item)) {
+              errors.push(`${itemLabel} must be an object`);
+              return;
+            }
+            for (const field of ["kind", "path", "label", "content_type"]) {
+              if (item[field] != null && typeof item[field] !== "string") {
+                errors.push(`${itemLabel}.${field} must be a string when provided`);
+              }
+            }
+          });
         }
       }
     });
@@ -954,6 +974,113 @@ function severityForStatus(status, risk) {
   return "info";
 }
 
+function toPosixPath(value) {
+  return String(value).replace(/\\/g, "/");
+}
+
+function relativeToCwd(absPath) {
+  const rel = path.relative(process.cwd(), absPath);
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return toPosixPath(absPath);
+  return toPosixPath(rel);
+}
+
+function sanitizePathSegment(value, fallback) {
+  const normalized = stringOrEmpty(value)
+    .normalize("NFKD")
+    .replace(/[\\/]+/g, "-")
+    .replace(/[^A-Za-z0-9._ -]+/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-.]+|[-.]+$/g, "")
+    .slice(0, 96);
+  return normalized || fallback;
+}
+
+function attachmentLabel(attachment, sourcePath) {
+  return stringOrEmpty(attachment?.name || path.basename(sourcePath) || "evidence");
+}
+
+function evidenceKindForAttachment(attachment, sourcePath) {
+  const contentType = stringOrEmpty(attachment?.contentType).toLowerCase();
+  const name = `${attachment?.name || ""} ${sourcePath || ""}`.toLowerCase();
+  const ext = path.extname(sourcePath || "").toLowerCase();
+  if (contentType.startsWith("image/") || [".png", ".jpg", ".jpeg", ".webp", ".gif"].includes(ext)) {
+    return "screenshot";
+  }
+  if (name.includes("trace") || contentType.includes("zip") || ext === ".zip") return "trace";
+  return "artifact";
+}
+
+function resolveAttachmentPath(attachment, inputDir) {
+  if (!attachment?.path || typeof attachment.path !== "string") return null;
+  if (path.isAbsolute(attachment.path)) return attachment.path;
+  const fromInputDir = path.resolve(inputDir, attachment.path);
+  if (fs.existsSync(fromInputDir)) return fromInputDir;
+  return path.resolve(attachment.path);
+}
+
+function uniqueEvidenceDestination(scenarioDir, desiredFileName, usedNames) {
+  const parsed = path.parse(desiredFileName);
+  const base = parsed.name || "evidence";
+  const ext = parsed.ext || "";
+  let candidate = `${base}${ext}`;
+  let counter = 2;
+  while (usedNames.has(candidate) || fs.existsSync(path.join(scenarioDir, candidate))) {
+    candidate = `${base}-${counter}${ext}`;
+    counter += 1;
+  }
+  usedNames.add(candidate);
+  return path.join(scenarioDir, candidate);
+}
+
+function copyEvidenceAttachments(scenarioId, attachments, inputDir) {
+  const evidence = { screenshots: [], traces: [], evidence_artifacts: [], evidence_items: [], open_risks: [] };
+  const values = Array.isArray(attachments) ? attachments : [];
+  if (values.length === 0) return evidence;
+
+  const scenarioDir = path.resolve(defaultEvidenceDir, sanitizePathSegment(scenarioId, "scenario"));
+  ensureDir(scenarioDir);
+  const usedNames = new Set();
+
+  for (const attachment of values) {
+    const sourcePath = resolveAttachmentPath(attachment, inputDir);
+    const label = attachmentLabel(attachment, sourcePath || attachment?.path || "evidence");
+    if (!sourcePath || !fs.existsSync(sourcePath)) {
+      evidence.open_risks.push(`Evidence attachment could not be copied for ${scenarioId}: ${label}`);
+      continue;
+    }
+    const sourceExt = path.extname(sourcePath);
+    const rawName = attachment?.name && path.extname(attachment.name) ? attachment.name : `${attachment?.name || path.basename(sourcePath, sourceExt)}${sourceExt}`;
+    const safeName = sanitizePathSegment(rawName, "evidence") || `evidence${sourceExt || ""}`;
+    const destination = uniqueEvidenceDestination(scenarioDir, safeName, usedNames);
+    try {
+      fs.copyFileSync(sourcePath, destination);
+    } catch (error) {
+      evidence.open_risks.push(`Evidence attachment could not be copied for ${scenarioId}: ${label} (${error.message})`);
+      continue;
+    }
+
+    const relPath = relativeToCwd(destination);
+    const kind = evidenceKindForAttachment(attachment, sourcePath);
+    const item = {
+      kind,
+      path: relPath,
+      label,
+      content_type: stringOrEmpty(attachment?.contentType)
+    };
+    evidence.evidence_items.push(item);
+    if (kind === "screenshot") evidence.screenshots.push(relPath);
+    else if (kind === "trace") evidence.traces.push(relPath);
+    else evidence.evidence_artifacts.push(relPath);
+  }
+
+  evidence.screenshots = [...new Set(evidence.screenshots)];
+  evidence.traces = [...new Set(evidence.traces)];
+  evidence.evidence_artifacts = [...new Set(evidence.evidence_artifacts)];
+  evidence.open_risks = [...new Set(evidence.open_risks)];
+  return evidence;
+}
+
 function loadAxeIssues(axePath) {
   if (!axePath) return { byScenario: new Map(), global: [] };
   const resolved = path.resolve(axePath);
@@ -996,6 +1123,7 @@ function commandIngest(planPath, inputPath, axePath, outPath) {
     process.exit(1);
   }
   const report = readJsonFile(path.resolve(inputPath), "Playwright report");
+  const inputDir = path.dirname(path.resolve(inputPath));
   const axe = loadAxeIssues(axePath);
   const specs = collectPlaywrightSpecs(report);
   const planScenarioIds = new Set((plan.gremlin_scenarios ?? []).map((scenario) => scenario.id).filter(Boolean));
@@ -1024,6 +1152,8 @@ function commandIngest(planPath, inputPath, axePath, outPath) {
         .flatMap((result) => [result?.error?.message, ...(result?.errors ?? []).map((item) => item?.message)])
         .filter(Boolean)
         .map((message) => String(message).split("\n")[0].trim());
+      const attachments = (pwTest.results ?? []).flatMap((result) => result?.attachments ?? []);
+      const copiedEvidence = copyEvidenceAttachments(scenarioId, attachments, inputDir);
       scenarioResults.push({
         scenario_id: scenarioId,
         status,
@@ -1033,16 +1163,18 @@ function commandIngest(planPath, inputPath, axePath, outPath) {
         suspected_bugs: [],
         accessibility_issues: axe.byScenario.get(scenarioId) ?? [],
         console_errors: [],
-        screenshots: [],
-        traces: [],
+        screenshots: copiedEvidence.screenshots,
+        traces: copiedEvidence.traces,
+        evidence_artifacts: copiedEvidence.evidence_artifacts,
+        evidence_items: copiedEvidence.evidence_items,
         recovery_notes: [],
         executed_commands: [],
-        open_risks: []
+        open_risks: copiedEvidence.open_risks
       });
     }
   }
 
-  const openRisks = [...axe.global];
+  const openRisks = [...axe.global, ...scenarioResults.flatMap((result) => result.open_risks ?? [])];
   if (baselineFailed) {
     for (const result of scenarioResults) {
       if (result.status === "not_run" || result.status === "passed") {
@@ -1090,6 +1222,56 @@ function stringOrEmpty(value) {
 function formatList(items, fallback) {
   const lines = asArray(items).map((item) => `- ${item}`);
   return lines.length > 0 ? lines.join("\n") : fallback;
+}
+
+function markdownLinkText(value) {
+  return stringOrEmpty(value).replace(/\\/g, "\\\\").replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+}
+
+function encodePathForHref(value) {
+  return toPosixPath(value)
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+function evidenceAbsolutePath(evidencePath) {
+  if (!evidencePath) return null;
+  return path.isAbsolute(evidencePath) ? evidencePath : path.resolve(evidencePath);
+}
+
+function isEvidencePath(evidencePath) {
+  const absPath = evidenceAbsolutePath(evidencePath);
+  if (!absPath) return false;
+  const evidenceRoot = path.resolve(".agent/evidence");
+  const rel = path.relative(evidenceRoot, absPath);
+  return rel && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+function evidenceHref(evidencePath, reportArtifactPath) {
+  if (!isEvidencePath(evidencePath)) return null;
+  const rel = path.relative(path.dirname(reportArtifactPath), evidenceAbsolutePath(evidencePath));
+  return encodePathForHref(rel || path.basename(evidencePath));
+}
+
+function evidenceDisplayLabel(item) {
+  const label = item?.label || path.basename(item?.path || "evidence");
+  const kind = item?.kind && item.kind !== "artifact" ? `${item.kind}: ` : "";
+  return `${kind}${label}`;
+}
+
+function markdownEvidenceList(items, fallback, reportArtifactPath) {
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (values.length === 0) return fallback;
+  return values
+    .map((item) => {
+      const pathValue = typeof item === "string" ? item : item.path;
+      const label = typeof item === "string" ? item : evidenceDisplayLabel(item);
+      const href = evidenceHref(pathValue, reportArtifactPath);
+      if (!href) return `- ${label}`;
+      return `- [${markdownLinkText(label)}](${href})`;
+    })
+    .join("\n");
 }
 
 function incrementCount(counts, key) {
@@ -1240,6 +1422,10 @@ function normalizeReport(plan, results, outDir) {
     const result = resultByScenario.get(scenario.id) ?? {};
     const status = result.status || "not_run";
     const severity = result.severity || (results ? "info" : scenario.risk_level || "info");
+    const screenshots = asArray(result.screenshots);
+    const traces = asArray(result.traces);
+    const evidenceArtifacts = asArray(result.evidence_artifacts);
+    const evidence = normalizeEvidenceItems(result.evidence_items, { screenshots, traces, evidenceArtifacts });
     return {
       id: scenario.id,
       name: scenario.name,
@@ -1255,8 +1441,10 @@ function normalizeReport(plan, results, outDir) {
       suspected_bugs: asArray(result.suspected_bugs),
       accessibility_issues: asArray(result.accessibility_issues),
       console_errors: asArray(result.console_errors),
-      screenshots: asArray(result.screenshots),
-      traces: asArray(result.traces),
+      screenshots,
+      traces,
+      evidence_artifacts: evidenceArtifacts,
+      evidence,
       recovery_notes: asArray(result.recovery_notes),
       executed_commands: asArray(result.executed_commands),
       open_risks: asArray(result.open_risks)
@@ -1273,6 +1461,13 @@ function normalizeReport(plan, results, outDir) {
   }
 
   const artifactPaths = buildArtifactPaths(outDir);
+  for (const scenario of scenarios) {
+    scenario.evidence = scenario.evidence.map((item) => ({
+      ...item,
+      href: evidenceHref(item.path, artifactPaths.html),
+      markdown_href: evidenceHref(item.path, artifactPaths.markdown)
+    }));
+  }
   const globalCommands = [
     ...asArray(results?.executed_commands),
     ...scenarios.flatMap((scenario) => scenario.executed_commands)
@@ -1339,7 +1534,8 @@ function normalizeReport(plan, results, outDir) {
     scenarios,
     evidence: {
       screenshots: scenarios.flatMap((scenario) => scenario.screenshots),
-      traces: scenarios.flatMap((scenario) => scenario.traces)
+      traces: scenarios.flatMap((scenario) => scenario.traces),
+      artifacts: scenarios.flatMap((scenario) => scenario.evidence)
     },
     executed_commands: [...new Set(globalCommands)],
     verification_commands: asArray(plan.verification_commands),
@@ -1354,6 +1550,29 @@ function normalizeReport(plan, results, outDir) {
     },
     trend: null
   };
+}
+
+function normalizeEvidenceItems(items, sources) {
+  const seen = new Set();
+  const normalized = [];
+  const push = (item) => {
+    if (!item?.path || seen.has(item.path)) return;
+    seen.add(item.path);
+    normalized.push({
+      kind: item.kind || "artifact",
+      path: item.path,
+      label: item.label || path.basename(item.path),
+      content_type: item.content_type || "",
+      href: null
+    });
+  };
+  for (const item of Array.isArray(items) ? items : []) {
+    if (item && typeof item === "object" && !Array.isArray(item)) push(item);
+  }
+  for (const itemPath of sources.screenshots) push({ kind: "screenshot", path: itemPath, label: path.basename(itemPath) });
+  for (const itemPath of sources.traces) push({ kind: "trace", path: itemPath, label: path.basename(itemPath) });
+  for (const itemPath of sources.evidenceArtifacts) push({ kind: "artifact", path: itemPath, label: path.basename(itemPath) });
+  return normalized;
 }
 
 function mdCell(value) {
@@ -1412,7 +1631,7 @@ Console Errors:
 ${formatList(scenario.console_errors, "- None recorded.")}
 
 Evidence:
-${formatList([...scenario.screenshots, ...scenario.traces], "- None recorded.")}
+${markdownEvidenceList(scenario.evidence, "- None recorded.", report.artifacts.markdown)}
 
 Recovery Notes:
 ${formatList(scenario.recovery_notes, "- Pending execution.")}
@@ -1528,7 +1747,7 @@ ${formatList(allConsoleErrors, "- Pending execution.")}
 ## Screenshots / Traces
 
 - Output directory: ${displayPath(path.dirname(report.artifacts.markdown))}
-${formatList([...report.evidence.screenshots, ...report.evidence.traces], "- Pending execution.")}
+${markdownEvidenceList(report.evidence.artifacts, "- Pending execution.", report.artifacts.markdown)}
 
 ## Recovery Behavior
 
@@ -1563,6 +1782,24 @@ function htmlList(items, fallback) {
   const values = asArray(items);
   if (values.length === 0) return `<p>${escapeHtml(fallback)}</p>`;
   return `<ul>${values.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function htmlEvidenceList(items, fallback, reportArtifactPath) {
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (values.length === 0) return `<p>${escapeHtml(fallback)}</p>`;
+  return `<ul class="evidence-list">${values.map((item) => {
+    const href = evidenceHref(item.path, reportArtifactPath);
+    const label = evidenceDisplayLabel(item);
+    const meta = item.path && item.path !== label ? `<span class="evidence-path">${escapeHtml(item.path)}</span>` : "";
+    const content = href
+      ? `<a href="${escapeHtml(href)}">${escapeHtml(label)}</a>`
+      : `<span>${escapeHtml(label)}</span>`;
+    return `<li>${content}${meta}</li>`;
+  }).join("")}</ul>`;
+}
+
+function htmlAnchorId(prefix, value) {
+  return `${prefix}-${sanitizePathSegment(value, "item").toLowerCase()}`;
 }
 
 function severityBadge(severity) {
@@ -1622,6 +1859,22 @@ function renderHtmlReport(report) {
       ? `<table><thead><tr><th>Severity</th><th>Status</th><th>Scenario</th><th>Category</th><th>Suspected Impact</th><th>Recommended Action</th></tr></thead><tbody>${topIssuesRows}</tbody></table>`
       : `<p>No open issues. Every executed scenario passed without suspected bugs or accessibility blockers.</p>`;
 
+  const scenarioIndexRows = report.scenarios
+    .map((scenario) => `<tr>
+      <td><a href="#${escapeHtml(htmlAnchorId("scenario", scenario.id))}">${escapeHtml(scenario.id)}</a></td>
+      <td>${escapeHtml(scenario.name)}</td>
+      <td>${escapeHtml(scenario.category)}</td>
+      <td>${severityBadge(scenario.severity)}</td>
+      <td>${statusBadge(scenario.status)}</td>
+      <td>${escapeHtml(scenario.findings.length)}</td>
+      <td>${escapeHtml(scenario.evidence.length)}</td>
+      <td>${escapeHtml(recommendedAction(scenario))}</td>
+    </tr>`)
+    .join("\n");
+  const scenarioIndex = scenarioIndexRows
+    ? `<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Severity</th><th>Status</th><th>Findings</th><th>Evidence</th><th>Recommended Action</th></tr></thead><tbody>${scenarioIndexRows}</tbody></table></div>`
+    : `<p>No scenarios recorded.</p>`;
+
   const trendItems = report.trend
     ? [
         `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
@@ -1631,8 +1884,9 @@ function renderHtmlReport(report) {
       ]
     : ["No previous run recorded; this is the first tracked run."];
 
-  const scenarioSections = report.scenarios.map((scenario) => `<section>
+  const scenarioSections = report.scenarios.map((scenario) => `<section id="${escapeHtml(htmlAnchorId("scenario", scenario.id))}">
     <h3>${escapeHtml(`${scenario.id}: ${scenario.name}`)} ${severityBadge(scenario.severity)} ${statusBadge(scenario.status)}</h3>
+    <p class="scenario-meta">${escapeHtml(scenario.evidence.length)} evidence artifact(s) · ${escapeHtml(scenario.findings.length)} finding(s)</p>
     <dl>
       <dt>Category</dt><dd>${escapeHtml(scenario.category)}</dd>
       <dt>Planned risk</dt><dd>${escapeHtml(scenario.risk_level)}</dd>
@@ -1642,9 +1896,17 @@ function renderHtmlReport(report) {
     <h4>Suspected Bugs</h4>${htmlList(scenario.suspected_bugs, "None recorded.")}
     <h4>Accessibility Issues</h4>${htmlList(scenario.accessibility_issues, "None recorded.")}
     <h4>Console Errors</h4>${htmlList(scenario.console_errors, "None recorded.")}
-    <h4>Evidence</h4>${htmlList([...scenario.screenshots, ...scenario.traces], "None recorded.")}
+    <h4>Evidence</h4>${htmlEvidenceList(scenario.evidence, "None recorded.", report.artifacts.html)}
     <h4>Recovery Notes</h4>${htmlList(scenario.recovery_notes, "Pending execution.")}
   </section>`).join("\n");
+
+  const evidenceGroups = report.scenarios
+    .filter((scenario) => scenario.evidence.length > 0)
+    .map((scenario) => `<section class="evidence-group">
+      <h3><a href="#${escapeHtml(htmlAnchorId("scenario", scenario.id))}">${escapeHtml(`${scenario.id}: ${scenario.name}`)}</a></h3>
+      ${htmlEvidenceList(scenario.evidence, "None recorded.", report.artifacts.html)}
+    </section>`)
+    .join("\n");
 
   return `<!doctype html>
 <html lang="en">
@@ -1653,15 +1915,18 @@ function renderHtmlReport(report) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(report.plan.name || "UX Gremlin Report")}</title>
   <style>
-    body { color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; }
+    body { color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem auto; max-width: 1180px; padding: 0 1rem; }
+    a { color: #0f766e; font-weight: 650; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
+    a:focus-visible { outline: 3px solid #14b8a6; outline-offset: 2px; }
     h1, h2, h3 { color: #111827; }
     section { border-top: 1px solid #d1d5db; padding: 1rem 0; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; }
     dt { font-weight: 700; }
     code, pre { background: #f3f4f6; border-radius: 4px; padding: 0.1rem 0.25rem; }
+    .table-wrap { overflow-x: auto; }
     table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
     th, td { border: 1px solid #d1d5db; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.95rem; }
-    th { background: #f9fafb; }
+    th { background: #f9fafb; position: sticky; top: 0; z-index: 1; }
     .cards { display: flex; flex-wrap: wrap; gap: 0.75rem; }
     .card { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.75rem 1rem; min-width: 9rem; }
     .card .label { color: #6b7280; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -1677,7 +1942,14 @@ function renderHtmlReport(report) {
     .bar { display: flex; width: 100%; height: 1.5rem; border-radius: 6px; overflow: hidden; border: 1px solid #d1d5db; }
     .bar-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.72rem; white-space: nowrap; min-width: 2.5rem; }
     .bar-seg span { padding: 0 0.25rem; }
+    .scenario-meta { color: #4b5563; font-weight: 650; }
+    .evidence-list { display: grid; gap: 0.45rem; padding-left: 1.2rem; }
+    .evidence-list li { overflow-wrap: anywhere; }
+    .evidence-path { color: #6b7280; display: block; font-size: 0.82rem; margin-top: 0.1rem; }
+    .evidence-group { border-top: 1px dashed #d1d5db; padding-top: 0.75rem; }
     .st-passed, .sev-low { }
+    @media (max-width: 720px) { body { margin: 1rem auto; } dl { grid-template-columns: 1fr; } .card { min-width: 7rem; } }
+    @media print { body { max-width: none; } a { color: inherit; } th { position: static; } }
   </style>
 </head>
 <body>
@@ -1707,6 +1979,10 @@ function renderHtmlReport(report) {
   <section>
     <h2>Top Issues &amp; Recommended Actions</h2>
     ${topIssues}
+  </section>
+  <section>
+    <h2>Scenario Index</h2>
+    ${scenarioIndex}
   </section>
   <section>
     <h2>Scenario Rollup</h2>
@@ -1739,6 +2015,10 @@ function renderHtmlReport(report) {
   <section>
     <h2>Scenarios Tested</h2>
     ${scenarioSections || "<p>No scenario details recorded.</p>"}
+  </section>
+  <section>
+    <h2>Evidence Library</h2>
+    ${evidenceGroups || "<p>Pending execution.</p>"}
   </section>
   <section>
     <h2>Findings</h2>

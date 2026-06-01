@@ -25,9 +25,24 @@ scenario_results:
     console_errors:
       - "POST /api/pages returned 409 after duplicate submit"
     screenshots:
-      - ".agent/reports/ux-gremlin/screenshots/double-submit-confirm.png"
+      - ".agent/evidence/ux-gremlin/double-submit-confirm/double-submit-confirm.png"
     traces:
-      - ".agent/reports/ux-gremlin/traces/double-submit-confirm.zip"
+      - ".agent/evidence/ux-gremlin/double-submit-confirm/double-submit-confirm.zip"
+    evidence_artifacts:
+      - ".agent/evidence/ux-gremlin/double-submit-confirm/network-log.txt"
+    evidence_items:
+      - kind: "screenshot"
+        path: ".agent/evidence/ux-gremlin/double-submit-confirm/double-submit-confirm.png"
+        label: "Failure screenshot"
+        content_type: "image/png"
+      - kind: "trace"
+        path: ".agent/evidence/ux-gremlin/double-submit-confirm/double-submit-confirm.zip"
+        label: "Playwright trace"
+        content_type: "application/zip"
+      - kind: "artifact"
+        path: ".agent/evidence/ux-gremlin/double-submit-confirm/network-log.txt"
+        label: "Network log"
+        content_type: "text/plain"
     recovery_notes:
       - "Manual cleanup removed the extra prefixed page."
     executed_commands:
@@ -43,8 +58,14 @@ scenario_results:
     accessibility_issues: []
     console_errors: []
     screenshots:
-      - ".agent/reports/ux-gremlin/screenshots/reload-mid-flow.png"
+      - ".agent/evidence/ux-gremlin/reload-mid-flow/reload-mid-flow.png"
     traces: []
+    evidence_artifacts: []
+    evidence_items:
+      - kind: "screenshot"
+        path: ".agent/evidence/ux-gremlin/reload-mid-flow/reload-mid-flow.png"
+        label: "Reload recovery screenshot"
+        content_type: "image/png"
     recovery_notes:
       - "The user can restart the creation flow after reload."
     executed_commands: []
@@ -60,8 +81,14 @@ scenario_results:
       - "Potential focus contrast issue: <script>alert(1)</script>"
     console_errors: []
     screenshots:
-      - ".agent/reports/ux-gremlin/screenshots/keyboard-only-create.png"
+      - ".agent/evidence/ux-gremlin/keyboard-only-create/keyboard-only-create.png"
     traces: []
+    evidence_artifacts: []
+    evidence_items:
+      - kind: "screenshot"
+        path: ".agent/evidence/ux-gremlin/keyboard-only-create/keyboard-only-create.png"
+        label: "Keyboard focus screenshot"
+        content_type: "image/png"
     recovery_notes:
       - "Keyboard users can still complete or cancel the flow."
     executed_commands: []

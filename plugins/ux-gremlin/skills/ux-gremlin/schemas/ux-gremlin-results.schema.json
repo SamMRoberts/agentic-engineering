@@ -73,6 +73,23 @@
             "type": "array",
             "items": { "type": "string" }
           },
+          "evidence_artifacts": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "evidence_items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "kind": { "type": "string" },
+                "path": { "type": "string" },
+                "label": { "type": "string" },
+                "content_type": { "type": "string" }
+              }
+            }
+          },
           "recovery_notes": {
             "type": "array",
             "items": { "type": "string" }

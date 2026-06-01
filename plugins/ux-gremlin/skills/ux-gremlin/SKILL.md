@@ -33,6 +33,7 @@ Ask for clarification when auth, destructive actions, production data, or mutati
 
 - `.agent/session/ux-gremlin-plan.yaml`
 - `.agent/generated/ux-gremlin.spec.ts` when Playwright generation is requested.
+- `.agent/evidence/ux-gremlin/<scenario-id>/...` when executed Playwright attachments are ingested.
 - `.agent/reports/ux-gremlin/report.md`
 - `.agent/reports/ux-gremlin/report.json`
 - `.agent/reports/ux-gremlin/report.html`
@@ -102,7 +103,7 @@ Generated specs are not execution-ready until their placeholders are implemented
 
 Reports must separate observed findings from suspected bugs, accessibility issues, console errors, screenshots/traces, recovery behavior, follow-up tests, and open risks. Every report opens with an executive summary (verdict, pass rate, severity-weighted risk score, highest open severity, suspected-bug and accessibility counts, run metadata) and a ranked Top Issues & Recommended Actions table for leadership and product reviewers.
 
-Use plan-only report generation when execution has not happened yet. After execution, pass a structured results YAML or JSON file with `--results`, or produce one with `ingest`. Results must record scenario status (`passed`, `failed`, `blocked`, `not_run`, or `needs_review`), severity, outcome, evidence, commands, recovery notes, and risks where known. Static HTML reports must remain self-contained and escaped. Use `gate` or `report --fail-on <severity>` in CI to block merges on suspected regressions.
+Use plan-only report generation when execution has not happened yet. After execution, pass a structured results YAML or JSON file with `--results`, or produce one with `ingest`. Results must record scenario status (`passed`, `failed`, `blocked`, `not_run`, or `needs_review`), severity, outcome, evidence, commands, recovery notes, and risks where known. Ingested Playwright attachments are copied to `.agent/evidence/ux-gremlin/<scenario-id>/` and linked from Markdown/HTML reports when local paths are available. Static HTML reports must remain self-contained, escaped, and script-free. Use `gate` or `report --fail-on <severity>` in CI to block merges on suspected regressions.
 
 ## Anti-Patterns
 

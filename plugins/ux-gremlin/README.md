@@ -75,13 +75,15 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs report \
 
 Use `--out-dir <path>` to write all report artifacts somewhere other than `reporting.output_dir`.
 
-The results contract is documented in `skills/ux-gremlin/schemas/ux-gremlin-results.schema.json`, with a starter template at `skills/ux-gremlin/templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
+The results contract is documented in `skills/ux-gremlin/schemas/ux-gremlin-results.schema.json`, with a starter template at `skills/ux-gremlin/templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, generic `evidence_artifacts`, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
+
+Evidence files should live under `.agent/evidence/ux-gremlin/<scenario-id>/`. Reports link local evidence paths from that directory with paths relative to the report artifact, while non-evidence strings remain plain escaped text.
 
 Generated artifacts:
 
-- `report.md`: human-readable report with an executive summary, trend, and Top Issues table for review and PR notes.
-- `report.json`: normalized machine-readable summary (including `executive_summary`, `top_issues`, and `trend`) for agents and CI.
-- `report.html`: self-contained static HTML with summary cards, severity badges, status/severity bars, escaped content, and no scripts or remote assets.
+- `report.md`: human-readable report with an executive summary, trend, Top Issues table, and evidence links for review and PR notes.
+- `report.json`: normalized machine-readable summary (including `executive_summary`, `top_issues`, `trend`, and per-scenario evidence metadata) for agents and CI.
+- `report.html`: self-contained static HTML with summary cards, severity badges, status/severity bars, scenario index, evidence library, escaped content, and no scripts or remote assets.
 - `report.junit.xml`: JUnit results for CI dashboards (failed/blocked map to failures; not_run/needs_review map to skipped).
 - `report.pr.md`: compact PR-comment summary with verdict, pass rate, and the top issues.
 
@@ -103,7 +105,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.j
 node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
 ```
 
-`ingest` maps each spec back to its scenario using the `ux-gremlin-scenario` annotation emitted by the generated spec (falling back to the `id:` title prefix). If the baseline test failed, every mutation scenario is marked `blocked` and the failure is surfaced as an open risk. Pass `--axe <axe.json>` to attach axe-core violations (a single run attaches globally; an array of `{ scenario_id, violations }` attaches per scenario). Set `UX_GREMLIN_BUILD` and `UX_GREMLIN_COMMIT` to stamp build metadata.
+`ingest` maps each spec back to its scenario using the `ux-gremlin-scenario` annotation emitted by the generated spec (falling back to the `id:` title prefix). It copies readable Playwright attachment files into `.agent/evidence/ux-gremlin/<scenario-id>/`, classifies images as `screenshots`, trace/zip artifacts as `traces`, and other files as `evidence_artifacts`. Missing or unreadable attachment files are recorded as open risks so the run remains reportable. If the baseline test failed, every mutation scenario is marked `blocked` and the failure is surfaced as an open risk. Pass `--axe <axe.json>` to attach axe-core violations (a single run attaches globally; an array of `{ scenario_id, violations }` attaches per scenario). Set `UX_GREMLIN_BUILD` and `UX_GREMLIN_COMMIT` to stamp build metadata.
 
 ## CI Severity Gate
 
