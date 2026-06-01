@@ -1,39 +1,47 @@
-# UX Gremlin Workflow
+# UX Gremlin Skill Router
 
-Before creating or modifying Playwright, browser-agent, or manual UX validation tests, use the UX Gremlin workflow.
+When the task involves UX resilience testing, Playwright scenario generation, selector discovery, result triage, or reporting for a web flow, use the focused UX Gremlin skills instead of the monolithic workflow.
 
-Required artifact:
+## Choose the skill from intent + artifact state
 
-- `.agent/session/ux-gremlin-plan.yaml`
+1. Match the user's request to the closest skill:
+   - Strategy / coverage questions → `node skills/test-strategy-advisor/scripts/test-strategy-advisor.mjs`
+   - Baseline capture / walkthrough → `node skills/baseline-recorder/scripts/baseline-recorder.mjs`
+   - Plan creation → `node skills/plan-gremlins/scripts/plan-gremlins.mjs`
+   - Plan validation / readiness → `node skills/validate-plan/scripts/validate-plan.mjs`
+   - Playwright generation → `node skills/generate-playwright/scripts/generate-playwright.mjs`
+   - Selector resolution → `node skills/selector-discovery/scripts/selector-discovery.mjs`
+   - Execution / ingestion → `node skills/execute-tests/scripts/execute-tests.mjs`
+   - Reporting / severity gates → `node skills/report-gremlins/scripts/report-gremlins.mjs`
+   - Failure triage → `node skills/triage-failures/scripts/triage-failures.mjs`
+   - Fix recommendations → `node skills/fix-suggestions/scripts/fix-suggestions.mjs`
+   - Regression comparison → `node skills/regression-guard/scripts/regression-guard.mjs`
+   - Accessibility deep dive → `node skills/accessibility-audit/scripts/accessibility-audit.mjs`
+   - PR-aware planning → `node skills/plan-from-pr/scripts/plan-from-pr.mjs`
+   - CI setup → `node skills/ci-integration/scripts/ci-integration.mjs`
+   - Existing test conversion → `node skills/convert-existing/scripts/convert-existing.mjs`
+   - Scenario explanation → `node skills/explain-scenario/scripts/explain-scenario.mjs`
 
-Every UX flow must include:
+2. If the prompt is broad or the platform cannot explicitly choose among skills, run:
 
-- baseline happy path
-- at least three gremlin scenarios
-- keyboard-only check where applicable
-- recovery expectations
-- verification command
+   ```bash
+   node scripts/ux-gremlin.mjs auto
+   ```
 
-Use gremlin scenarios to mutate the baseline flow through realistic user behavior, timing, browser navigation, accessibility paths, auth state, reloads, stale state, and interrupted flows.
+## Artifact-based phase detection
 
-Do not create destructive tests unless the plan explicitly marks them safe and explains the safety boundary.
+Check the workspace before choosing the next step:
 
-Before final response, run:
+- No `.agent/session/` directory → start with `test-strategy-advisor` (or `baseline-recorder` if the happy path is already known)
+- `.agent/session/ux-gremlin-plan.yaml` missing → use `plan-gremlins`
+- Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or stale → use `validate-plan`
+- Plan validated and `.agent/generated/ux-gremlin.spec.ts` missing → use `generate-playwright`
+- Spec exists but `.agent/session/ux-gremlin-results.json` is missing → use `execute-tests`
+- Results exist but `.agent/reports/ux-gremlin/report.md` is missing → use `report-gremlins`
 
-```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-```
+## Sequencing rules
 
-Required phase sequence:
-
-1. Complete `.agent/session/ux-gremlin-plan.yaml`.
-2. Run `workflow-status --phase plan`, `check`, and `coverage`; fix gaps before continuing.
-3. Run `workflow-status --phase generate`, then `generate-playwright`.
-4. Implement `.agent/generated/ux-gremlin.spec.ts` by replacing generated `TODO:` blocks and removing active `requireImplementation(...)` calls.
-5. Run `workflow-status --phase execute`; do not run Playwright until it passes.
-6. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright-json>` and `ingest`.
-7. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` or `gate`.
-
-If a phase gate fails, repair the reported upstream artifact and rerun the same gate before moving to the next step.
-
-Hooks and CI can enforce the artifact and validation result. They do not force skill selection.
+- If intent is ambiguous, ask one clarifying question.
+- If the user asks to do everything end-to-end, chain:
+  `test-strategy-advisor` → `baseline-recorder` → `plan-gremlins` → `validate-plan` → `generate-playwright` → `selector-discovery` → `execute-tests` → `report-gremlins`.
+- Keep the deprecated `skills/ux-gremlin/` workflow only for backwards compatibility.

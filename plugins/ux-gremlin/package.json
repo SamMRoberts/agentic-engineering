@@ -1,11 +1,11 @@
 {
   "name": "ux-gremlin",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
   "type": "module",
   "private": true,
   "bin": {
-    "ux-gremlin": "./skills/ux-gremlin/scripts/ux-gremlin.mjs"
+    "ux-gremlin": "./scripts/ux-gremlin.mjs"
   },
   "scripts": {
     "test": "node --test test/**/*.test.mjs",

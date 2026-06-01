@@ -1,11 +1,13 @@
 ---
 name: ux-gremlin
-description: Use to turn normal web UX flows into hostile-but-realistic gremlin scenarios for Playwright, browser-agent, or manual UX resilience testing.
+description: Deprecated end-to-end UX Gremlin workflow. Prefer the focused skills or ux-gremlin-auto for new work.
 argument-hint: "Target URL or app area, baseline UX flow, auth requirements, safety constraints, and preferred mode"
 user-invocable: true
 ---
 
 # UX Gremlin
+
+> Deprecated: Prefer the focused skills in `skills/` (for example `test-strategy-advisor`, `plan-gremlins`, `validate-plan`, `generate-playwright`, and `report-gremlins`) or use `ux-gremlin-auto` for artifact-based dispatch. This monolithic skill remains for compatibility.
 
 ## Purpose
 
