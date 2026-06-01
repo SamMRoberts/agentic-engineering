@@ -1,1 +1,49 @@
-../.github/plugin/marketplace.json
+{
+    "name": "sammroberts-marketplace",
+    "metadata": {
+        "description": "SamMRoberts Copilot agent plugin marketplace.",
+        "version": "1.0.0"
+    },
+    "owner": {
+        "name": "SamMRoberts"
+    },
+    "plugins": [
+        {
+            "name": "agent-compat",
+            "source": "./plugins/agent-compat",
+            "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents.",
+            "version": "0.2.0",
+            "skills": [
+                "./plugins/agent-compat/skills/convert-agent"
+            ]
+        },
+        {
+            "name": "agent-on-ramp-coach",
+            "source": "./plugins/agent-on-ramp-coach",
+            "description": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions.",
+            "version": "1.1.0",
+            "skills": [
+                "./plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach"
+            ]
+        },
+        {
+            "name": "ux-gremlin",
+            "source": "./plugins/ux-gremlin",
+            "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
+            "version": "1.4.0",
+            "skills": [
+                "./plugins/ux-gremlin/skills/ux-gremlin"
+            ]
+        },
+        {
+            "name": "vibe-sentinel",
+            "source": "./plugins/vibe-sentinel",
+            "description": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation.",
+            "version": "1.0.0",
+            "skills": [
+                "./plugins/vibe-sentinel/skills/assumption-killer",
+                "./plugins/vibe-sentinel/skills/change-control-compiler"
+            ]
+        }
+    ]
+}
