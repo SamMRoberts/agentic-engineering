@@ -1,0 +1,40 @@
+{
+    "hooks": [
+        {
+            "event": "SessionStart",
+            "name": "vibe-sentinel-assumption-init",
+            "command": "node plugins/vibe-sentinel/bin/assumption-gate.mjs init",
+            "timeoutSeconds": 10
+        },
+        {
+            "event": "SessionStart",
+            "name": "vibe-sentinel-change-control-init",
+            "command": "node plugins/vibe-sentinel/bin/change-control.mjs init",
+            "timeoutSeconds": 10
+        },
+        {
+            "event": "PostToolUse",
+            "name": "vibe-sentinel-change-control-drift",
+            "command": "node plugins/vibe-sentinel/bin/change-control.mjs drift",
+            "timeoutSeconds": 10
+        },
+        {
+            "event": "Stop",
+            "name": "vibe-sentinel-assumption-check",
+            "command": "node plugins/vibe-sentinel/bin/assumption-gate.mjs check",
+            "timeoutSeconds": 10
+        },
+        {
+            "event": "Stop",
+            "name": "vibe-sentinel-change-control-check",
+            "command": "node plugins/vibe-sentinel/bin/change-control.mjs check",
+            "timeoutSeconds": 10
+        },
+        {
+            "event": "Stop",
+            "name": "vibe-sentinel-change-control-final-drift",
+            "command": "node plugins/vibe-sentinel/bin/change-control.mjs drift",
+            "timeoutSeconds": 10
+        }
+    ]
+}

@@ -1,7 +1,0 @@
-{
-  "name": "assumption-killer",
-  "agents": "agents",
-  "skills": "skills",
-  "entrypointAgent": "assumption-killer",
-  "privateAgents": []
-}

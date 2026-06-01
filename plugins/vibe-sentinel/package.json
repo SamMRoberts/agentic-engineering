@@ -1,0 +1,20 @@
+{
+    "name": "vibe-sentinel",
+    "version": "1.0.0",
+    "description": "Combined assumption gate and change-control contract enforcement for vibe-coding agents.",
+    "type": "module",
+    "private": true,
+    "bin": {
+        "assumption-gate": "./bin/assumption-gate.mjs",
+        "change-control": "./bin/change-control.mjs"
+    },
+    "scripts": {
+        "test": "node --test test/**/*.test.mjs",
+        "validate": "node bin/assumption-gate.mjs check --root test/fixtures/valid-workspace && node bin/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json",
+        "summary:assumption": "node bin/assumption-gate.mjs summary --root test/fixtures/valid-workspace",
+        "summary:change-control": "node bin/change-control.mjs summary --contract skills/change-control-compiler/examples/valid-contract.json"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}

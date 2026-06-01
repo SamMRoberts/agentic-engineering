@@ -9,8 +9,9 @@ agentic-engineering/
 ├── plugins/                  # Installable plugins (this is what the marketplace serves)
 │   ├── marketplace.json      # Auto-generated marketplace descriptor
 │   ├── agent-compat/         # Copilot custom agent compatibility for Codex/Claude
-│   ├── assumption-killer/    # Assumption-gate workflow enforcement
-│   ├── change-control-compiler/ # Scope contract and drift-control enforcement
+│   ├── agent-on-ramp-coach/  # Confidence-graded coding-agent adoption coach
+│   ├── ux-gremlin/           # Hostile-but-realistic UX resilience test plans and Playwright generation
+│   ├── vibe-sentinel/        # Assumption gate + change-control contract guardrails (vibe-coding sentinel)
 │   └── web-ux-test/          # Workflow-enforced Playwright UX testing pack
 ├── agents/                   # Standalone custom agents (not packaged as plugins)
 ├── instructions/             # Repository-scoped AGENTS.md instructions
@@ -41,8 +42,9 @@ Current plugins:
 | Plugin | Purpose |
 | --- | --- |
 | [agent-compat](plugins/agent-compat/) | Convert Copilot `*.agent.md` custom agents into Codex `AGENTS.md` and Claude `custom-instructions.md` overlays. |
-| [assumption-killer](plugins/assumption-killer/) | Enforce assumption discovery, evidence, and blocking checks before implementation work. |
-| [change-control-compiler](plugins/change-control-compiler/) | Compile vague change requests into enforceable scope, verification, and drift-control contracts. |
+| [agent-on-ramp-coach](plugins/agent-on-ramp-coach/) | Help engineers adopt coding agents safely through confidence levels and reviewable sessions. |
+| [ux-gremlin](plugins/ux-gremlin/) | Turn happy-path web flows into hostile-but-realistic gremlin scenarios with a Playwright recipe DSL and executive reports. |
+| [vibe-sentinel](plugins/vibe-sentinel/) | One plugin combining the assumption gate (verify assumptions before edits) and the change-control contract (lock scope, detect drift). Replaces the former `assumption-killer` and `change-control-compiler` plugins. |
 | [web-ux-test](plugins/web-ux-test/) | Plan, run, classify, repair, and report structured web UX tests with a stateful CLI and MCP workflow server. |
 
 ## Using the marketplace
