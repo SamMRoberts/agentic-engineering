@@ -12,16 +12,25 @@
             "name": "agent-compat",
             "source": "./plugins/agent-compat",
             "description": "Generate compact Codex and Claude routing stubs with per-agent references from Copilot *.agent.md custom agents.",
-            "version": "1.0.0",
+            "version": "0.2.0",
             "skills": [
                 "./plugins/agent-compat/skills/convert-agent"
+            ]
+        },
+        {
+            "name": "agent-on-ramp-coach",
+            "source": "./plugins/agent-on-ramp-coach",
+            "description": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions.",
+            "version": "1.1.0",
+            "skills": [
+                "./plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach"
             ]
         },
         {
             "name": "assumption-killer",
             "source": "./plugins/assumption-killer",
             "description": "Force agents to identify, verify, and record assumptions before implementation.",
-            "version": "1.0.0",
+            "version": "0.1.0",
             "skills": [
                 "./plugins/assumption-killer/skills/assumption-killer"
             ]
@@ -30,25 +39,16 @@
             "name": "change-control-compiler",
             "source": "./plugins/change-control-compiler",
             "description": "Turn vague change requests into enforceable scope, verification, and drift-control contracts.",
-            "version": "1.0.0",
+            "version": "0.1.0",
             "skills": [
                 "./plugins/change-control-compiler/skills/change-control-compiler"
-            ]
-        },
-        {
-            "name": "agent-on-ramp-coach",
-            "source": "./plugins/agent-on-ramp-coach",
-            "description": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions.",
-            "version": "1.0.0",
-            "skills": [
-                "./plugins/agent-on-ramp-coach/skills/agent-on-ramp-coach"
             ]
         },
         {
             "name": "ux-gremlin",
             "source": "./plugins/ux-gremlin",
             "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
-            "version": "1.0.0",
+            "version": "1.4.0",
             "skills": [
                 "./plugins/ux-gremlin/skills/ux-gremlin"
             ]

@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 /**
- * Rebuilds the SamMRoberts marketplace.json from this repo's plugins/.
+ * Rebuilds the SamMRoberts marketplace descriptors from this repo's plugins/.
  *
- * Source of truth: each plugin's .codex-plugin/plugin.json (rich metadata).
- * Fallback: each plugin's root plugin.json (name only).
+ * Source of truth: each plugin's .codex-plugin/plugin.json (rich metadata),
+ * with package.json and .claude-plugin/plugin.json consulted for fallback
+ * version and description data.
+ *
+ * Two outputs are kept in sync from the same plugin metadata:
+ *
+ *   plugins/marketplace.json            Codex CLI marketplace descriptor.
+ *   .github/plugin/marketplace.json     Claude Code marketplace descriptor.
  *
  * Per-plugin overrides may be provided via a `marketplace` block in either
  * manifest, e.g.:
@@ -11,18 +17,19 @@
  *   "marketplace": {
  *     "ref": "main",
  *     "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
- *     "category": "Testing"
+ *     "category": "Testing",
+ *     "version": "1.4.0"
  *   }
  *
  * Usage:
- *   node scripts/sync-marketplace.mjs                       # write to default path
- *   node scripts/sync-marketplace.mjs --out path.json       # custom output path
- *   node scripts/sync-marketplace.mjs --check               # exit 1 if out-of-date
+ *   node scripts/sync-marketplace.mjs                          # write both outputs
+ *   node scripts/sync-marketplace.mjs --out path.json          # override Codex output path
+ *   node scripts/sync-marketplace.mjs --github-out path.json   # override Claude output path
+ *   node scripts/sync-marketplace.mjs --check                  # exit 1 if either is out-of-date
  *
- * Defaults to writing <repo>/plugins/marketplace.json so the marketplace
- * descriptor is versioned alongside the plugins it lists. Override with --out
- * to write somewhere else (e.g. ~/.agents/plugins/marketplace.json for a
- * local-only copy).
+ * Defaults to writing <repo>/plugins/marketplace.json and
+ * <repo>/.github/plugin/marketplace.json so both descriptors are versioned
+ * alongside the plugins they list.
  */
 
 import fs from "node:fs";
@@ -43,17 +50,26 @@ const MARKETPLACE_NAME = "SamMRoberts Marketplace";
 const MARKETPLACE_DISPLAY_NAME = "SamMRoberts Marketplace";
 const DEFAULT_OUT = path.join(pluginsDir, "marketplace.json");
 
+const CLAUDE_MARKETPLACE_NAME = "sammroberts-marketplace";
+const CLAUDE_MARKETPLACE_DESCRIPTION = "SamMRoberts Copilot agent plugin marketplace.";
+const CLAUDE_MARKETPLACE_VERSION = "1.0.0";
+const CLAUDE_MARKETPLACE_OWNER = "SamMRoberts";
+const DEFAULT_GITHUB_OUT = path.join(repoRoot, ".github", "plugin", "marketplace.json");
+const CLAUDE_INDENT = 4;
+
 function parseArgs(argv) {
-    const args = { out: DEFAULT_OUT, check: false };
+    const args = { out: DEFAULT_OUT, githubOut: DEFAULT_GITHUB_OUT, check: false };
     for (let i = 2; i < argv.length; i++) {
         const a = argv[i];
         if (a === "--out") args.out = path.resolve(argv[++i]);
+        else if (a === "--github-out") args.githubOut = path.resolve(argv[++i]);
         else if (a === "--check") args.check = true;
         else if (a === "-h" || a === "--help") {
             console.log(
-                "Usage: sync-marketplace.mjs [--out <path>] [--check]\n" +
-                "  --out <path>   Write marketplace.json to <path> (default: plugins/marketplace.json)\n" +
-                "  --check        Exit 1 if the file would change; do not write"
+                "Usage: sync-marketplace.mjs [--out <path>] [--github-out <path>] [--check]\n" +
+                "  --out <path>          Write Codex marketplace.json to <path> (default: plugins/marketplace.json)\n" +
+                "  --github-out <path>   Write Claude marketplace.json to <path> (default: .github/plugin/marketplace.json)\n" +
+                "  --check               Exit 1 if either file would change; do not write"
             );
             process.exit(0);
         } else {
@@ -84,6 +100,7 @@ function discoverPlugins() {
         const codex = readJsonIfExists(path.join(dir, ".codex-plugin", "plugin.json"));
         const root = readJsonIfExists(path.join(dir, "plugin.json"));
         const claude = readJsonIfExists(path.join(dir, ".claude-plugin", "plugin.json"));
+        const pkg = readJsonIfExists(path.join(dir, "package.json"));
 
         if (!codex && !root && !claude) {
             console.warn(`WARN: skipping ${entry.name} — no plugin.json found`);
@@ -93,7 +110,8 @@ function discoverPlugins() {
             folderName: entry.name,
             codex,
             root,
-            claude
+            claude,
+            pkg
         });
     }
     plugins.sort((a, b) => a.folderName.localeCompare(b.folderName));
@@ -144,37 +162,119 @@ function buildMarketplace(plugins) {
     };
 }
 
-function formatJson(value) {
-    return JSON.stringify(value, null, 2) + "\n";
+function resolvePluginVersion(plugin) {
+    const override =
+        plugin.codex?.marketplace?.version ??
+        plugin.root?.marketplace?.version ??
+        plugin.claude?.marketplace?.version;
+    if (override) return override;
+    return (
+        plugin.codex?.version ??
+        plugin.pkg?.version ??
+        plugin.root?.metadata?.version ??
+        plugin.claude?.version ??
+        "1.0.0"
+    );
+}
+
+function discoverSkills(folderName) {
+    const skillsDir = path.join(pluginsDir, folderName, "skills");
+    if (!fs.existsSync(skillsDir)) return [];
+    return fs
+        .readdirSync(skillsDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .filter((entry) => fs.existsSync(path.join(skillsDir, entry.name, "SKILL.md")))
+        .map((entry) => `./plugins/${folderName}/skills/${entry.name}`)
+        .sort();
+}
+
+function buildClaudeEntry(plugin) {
+    const { folderName, codex, claude, root } = plugin;
+    const manifest = codex ?? claude ?? root ?? {};
+    const override = manifest.marketplace ?? {};
+
+    const name = override.name ?? manifest.name ?? folderName;
+    const description =
+        override.description ??
+        manifest.interface?.shortDescription ??
+        manifest.description ??
+        "";
+    const version = resolvePluginVersion(plugin);
+
+    const entry = {
+        name,
+        source: `./plugins/${folderName}`,
+        description,
+        version
+    };
+
+    const skills = discoverSkills(folderName);
+    if (skills.length > 0) entry.skills = skills;
+
+    return entry;
+}
+
+function buildClaudeMarketplace(plugins) {
+    return {
+        name: CLAUDE_MARKETPLACE_NAME,
+        metadata: {
+            description: CLAUDE_MARKETPLACE_DESCRIPTION,
+            version: CLAUDE_MARKETPLACE_VERSION
+        },
+        owner: { name: CLAUDE_MARKETPLACE_OWNER },
+        plugins: plugins.map(buildClaudeEntry)
+    };
+}
+
+function formatJson(value, indent = 2) {
+    return JSON.stringify(value, null, indent) + "\n";
 }
 
 function main() {
     const args = parseArgs(process.argv);
     const plugins = discoverPlugins();
-    const next = formatJson(buildMarketplace(plugins));
-
-    const existing = fs.existsSync(args.out) ? fs.readFileSync(args.out, "utf-8") : "";
-    const changed = existing !== next;
+    const outputs = [
+        {
+            path: args.out,
+            content: formatJson(buildMarketplace(plugins), 2),
+            label: "Codex marketplace"
+        },
+        {
+            path: args.githubOut,
+            content: formatJson(buildClaudeMarketplace(plugins), CLAUDE_INDENT),
+            label: "Claude marketplace"
+        }
+    ];
 
     if (args.check) {
-        if (changed) {
-            console.error(`marketplace.json is out of date at ${args.out}`);
+        const stale = outputs.filter((o) => {
+            const existing = fs.existsSync(o.path) ? fs.readFileSync(o.path, "utf-8") : "";
+            return existing !== o.content;
+        });
+        if (stale.length > 0) {
+            for (const o of stale) console.error(`${o.label} is out of date at ${o.path}`);
             console.error("Run: node scripts/sync-marketplace.mjs");
             process.exit(1);
         }
-        console.log(`marketplace.json is up to date (${plugins.length} plugin(s))`);
+        console.log(`marketplace files are up to date (${plugins.length} plugin(s))`);
         return;
     }
 
-    if (!changed) {
-        console.log(`No change (${plugins.length} plugin(s)). Skipping write.`);
-        return;
+    const writes = [];
+    for (const o of outputs) {
+        const existing = fs.existsSync(o.path) ? fs.readFileSync(o.path, "utf-8") : "";
+        if (existing === o.content) {
+            console.log(`No change for ${o.label} at ${o.path}`);
+            continue;
+        }
+        fs.mkdirSync(path.dirname(o.path), { recursive: true });
+        fs.writeFileSync(o.path, o.content, "utf-8");
+        writes.push(o);
+        console.log(`Wrote ${o.path} (${o.label}) with ${plugins.length} plugin(s)`);
     }
-
-    fs.mkdirSync(path.dirname(args.out), { recursive: true });
-    fs.writeFileSync(args.out, next, "utf-8");
-    console.log(`Wrote ${args.out} with ${plugins.length} plugin(s):`);
-    for (const p of plugins) console.log(`  - ${p.folderName}`);
+    if (writes.length > 0) {
+        for (const p of plugins) console.log(`  - ${p.folderName}`);
+    }
 }
 
 main();
