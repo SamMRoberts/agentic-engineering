@@ -45,7 +45,7 @@ Ask for clarification when auth, destructive actions, production data, or mutati
 - `init`, `check`, `summary`: create and validate the plan.
 - `coverage`: report missing mandatory categories for the declared `flow_type` and declared-but-uncovered conditions.
 - `workflow-status --phase <plan|generate|execute|ingest|report>`: verify required upstream artifacts before moving to the next phase.
-- `generate-playwright`: emit a runnable, failing-by-default spec annotated with scenario id and risk.
+- `generate-playwright`: emit a runnable spec annotated with scenario id and risk. When `playwright_steps` is present, scenarios with at least one `expect_*` action drop the `requireImplementation` guard so the spec is execution-ready.
 - `ingest --input <playwright.json> [--axe <axe.json>]`: convert executed Playwright JSON results into a results file, mapping specs to scenarios and blocking mutations when the baseline fails.
 - `report [--results <file>] [--fail-on <severity>] [--no-history]`: render all report artifacts with an executive summary, risk score, Top Issues table, and trend.
 - `gate --results <file> [--fail-on <severity>]`: exit non-zero when the highest open severity meets or exceeds the threshold.
@@ -60,7 +60,7 @@ Follow this order. Before moving to a phase, run `workflow-status --phase <phase
 2. Run `init` and complete `.agent/session/ux-gremlin-plan.yaml`.
 3. Run `workflow-status --phase plan`, `check`, and `coverage`; fix plan gaps.
 4. Run `workflow-status --phase generate`, then `generate-playwright`.
-5. Implement `.agent/generated/ux-gremlin.spec.ts`: replace generated `TODO:` blocks with real steps/assertions and remove active `requireImplementation(...)` calls.
+5. Implement `.agent/generated/ux-gremlin.spec.ts`: either hand-edit `TODO:` blocks and remove active `requireImplementation(...)` calls, or author a `playwright_steps` recipe for the baseline and each scenario so `generate-playwright` produces an execution-ready spec.
 6. Run `workflow-status --phase execute`; do not run Playwright until this passes.
 7. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright.json>` and `ingest`.
 8. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` or `gate`.

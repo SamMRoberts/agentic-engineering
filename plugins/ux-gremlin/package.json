@@ -1,6 +1,6 @@
 {
   "name": "ux-gremlin",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
   "type": "module",
   "private": true,

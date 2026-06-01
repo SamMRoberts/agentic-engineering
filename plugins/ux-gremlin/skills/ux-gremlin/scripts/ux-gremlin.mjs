@@ -85,6 +85,23 @@ const allowedCategories = new Set([
   "long_running_operation"
 ]);
 
+// Bounded vocabulary for the optional playwright_steps recipe DSL. Selectors
+// stay restricted to role+name/label/testid so generated Playwright cannot be
+// injected through untrusted strings.
+const allowedRecipeActions = new Set([
+  "goto",
+  "click",
+  "fill",
+  "press",
+  "wait_for_url",
+  "expect_visible",
+  "expect_text",
+  "expect_count",
+  "screenshot"
+]);
+
+const recipeAssertionActions = new Set(["expect_visible", "expect_text", "expect_count"]);
+
 function usage(exitCode = 2) {
   const out = exitCode === 0 ? console.log : console.error;
   out(`Usage: node skills/ux-gremlin/scripts/ux-gremlin.mjs <command> [options]
@@ -435,6 +452,146 @@ function computeCoverage(plan) {
   return { flowTypes, invalidFlowTypes, missing, conditionWarnings, authSignal };
 }
 
+function recipeStepHasSelector(step) {
+  if (isNonEmptyString(step.role) && isNonEmptyString(step.name)) return true;
+  if (isNonEmptyString(step.label)) return true;
+  if (isNonEmptyString(step.testid)) return true;
+  return false;
+}
+
+function validateRecipeSteps(steps, label) {
+  const errors = [];
+  if (steps == null) return errors;
+  if (!Array.isArray(steps)) {
+    errors.push(`${label}.playwright_steps must be an array of step objects`);
+    return errors;
+  }
+  if (steps.length === 0) {
+    errors.push(`${label}.playwright_steps must contain at least one step when provided`);
+    return errors;
+  }
+  steps.forEach((step, index) => {
+    const itemLabel = `${label}.playwright_steps[${index}]`;
+    if (!step || typeof step !== "object" || Array.isArray(step)) {
+      errors.push(`${itemLabel} must be an object`);
+      return;
+    }
+    if (!allowedRecipeActions.has(step.action)) {
+      errors.push(`${itemLabel}.action must be one of: ${[...allowedRecipeActions].join(", ")}`);
+      return;
+    }
+    switch (step.action) {
+      case "goto":
+      case "wait_for_url":
+        if (!isNonEmptyString(step.url)) {
+          errors.push(`${itemLabel}.url must be a non-empty string`);
+        }
+        break;
+      case "press":
+        if (!isNonEmptyString(step.key)) {
+          errors.push(`${itemLabel}.key must be a non-empty string`);
+        }
+        break;
+      case "fill":
+        if (!recipeStepHasSelector(step)) {
+          errors.push(`${itemLabel} requires a selector: role+name, label, or testid`);
+        }
+        if (typeof step.value !== "string") {
+          errors.push(`${itemLabel}.value must be a string`);
+        }
+        break;
+      case "click":
+      case "expect_visible":
+        if (!recipeStepHasSelector(step)) {
+          errors.push(`${itemLabel} requires a selector: role+name, label, or testid`);
+        }
+        break;
+      case "expect_text":
+        if (!recipeStepHasSelector(step)) {
+          errors.push(`${itemLabel} requires a selector: role+name, label, or testid`);
+        }
+        if (!isNonEmptyString(step.text)) {
+          errors.push(`${itemLabel}.text must be a non-empty string`);
+        }
+        break;
+      case "expect_count":
+        if (!recipeStepHasSelector(step)) {
+          errors.push(`${itemLabel} requires a selector: role+name, label, or testid`);
+        }
+        if (!Number.isInteger(step.count) || step.count < 0) {
+          errors.push(`${itemLabel}.count must be a non-negative integer`);
+        }
+        break;
+      case "screenshot":
+        if (!isNonEmptyString(step.name)) {
+          errors.push(`${itemLabel}.name must be a non-empty string`);
+        }
+        break;
+    }
+  });
+  return errors;
+}
+
+function recipeHasAssertion(steps) {
+  return Array.isArray(steps) && steps.some((step) => step && recipeAssertionActions.has(step.action));
+}
+
+function recipeStepLocator(step) {
+  if (isNonEmptyString(step.role) && isNonEmptyString(step.name)) {
+    return `page.getByRole(${JSON.stringify(step.role)}, { name: ${JSON.stringify(step.name)} })`;
+  }
+  if (isNonEmptyString(step.label)) {
+    return `page.getByLabel(${JSON.stringify(step.label)})`;
+  }
+  if (isNonEmptyString(step.testid)) {
+    return `page.getByTestId(${JSON.stringify(step.testid)})`;
+  }
+  return null;
+}
+
+function recipeStepTitle(step, index) {
+  if (isNonEmptyString(step.note)) return step.note;
+  const subject = step.name || step.label || step.testid || step.url || step.key || step.text || step.action;
+  return `${index + 1}. ${step.action} ${subject}`.trim();
+}
+
+function emitRecipeStep(step) {
+  switch (step.action) {
+    case "goto":
+      return `      await page.goto(${JSON.stringify(step.url)});`;
+    case "wait_for_url":
+      return `      await page.waitForURL(${JSON.stringify(step.url)});`;
+    case "press":
+      return `      await page.keyboard.press(${JSON.stringify(step.key)});`;
+    case "click":
+      return `      await ${recipeStepLocator(step)}.click();`;
+    case "fill":
+      return `      await ${recipeStepLocator(step)}.fill(${JSON.stringify(step.value)});`;
+    case "expect_visible":
+      return `      await expect(${recipeStepLocator(step)}).toBeVisible();`;
+    case "expect_text":
+      return `      await expect(${recipeStepLocator(step)}).toContainText(${JSON.stringify(step.text)});`;
+    case "expect_count":
+      return `      await expect(${recipeStepLocator(step)}).toHaveCount(${Number(step.count)});`;
+    case "screenshot":
+      return `      {
+        const __body = await page.screenshot({ fullPage: true });
+        await testInfo.attach(${JSON.stringify(step.name)}, { body: __body, contentType: 'image/png' });
+      }`;
+    default:
+      return `      // unsupported action: ${quoteForComment(step.action)}`;
+  }
+}
+
+function emitRecipeBody(steps) {
+  return steps.map((step, index) => {
+    const title = recipeStepTitle(step, index);
+    return `    await test.step(${JSON.stringify(title)}, async () => {
+${emitRecipeStep(step)}
+    });`;
+  }).join("\n");
+}
+
 function validatePlan(plan) {
   const errors = [];
   const requiredTop = [
@@ -476,6 +633,7 @@ function validatePlan(plan) {
     if (!isNonEmptyString(plan.baseline_flow.name)) errors.push("baseline_flow.name is required");
     if (!hasItems(plan.baseline_flow.steps)) errors.push("baseline flow has no steps");
     if (!isNonEmptyString(plan.baseline_flow.expected_result)) errors.push("baseline_flow.expected_result is required");
+    errors.push(...validateRecipeSteps(plan.baseline_flow.playwright_steps, "baseline_flow"));
   }
   if (!hasItems(plan.gremlin_scenarios)) {
     errors.push("no gremlin scenarios are defined");
@@ -502,6 +660,7 @@ function validatePlan(plan) {
       if ((scenario.risk_level === "high" || scenario.risk_level === "critical") && !hasItems(scenario.bug_indicators)) {
         errors.push(`${label} is high risk and must include bug indicators`);
       }
+      errors.push(...validateRecipeSteps(scenario.playwright_steps, label));
     });
   }
   if (!hasItems(plan.assertions)) errors.push("assertions must include at least one item");
@@ -705,30 +864,61 @@ function testName(value) {
 
 function writeGeneratedSpec(plan) {
   ensureDir(path.dirname(outputSpecPath));
-  const baselineSteps = (plan.baseline_flow?.steps ?? []).map((step, index) => `    await test.step(${JSON.stringify(`Baseline ${index + 1}: ${step}`)}, async () => {
+
+  const baselineRecipe = Array.isArray(plan.baseline_flow?.playwright_steps) && plan.baseline_flow.playwright_steps.length > 0
+    ? plan.baseline_flow.playwright_steps
+    : null;
+  const baselineRecipeAsserts = recipeHasAssertion(baselineRecipe);
+  const baselineRecipeHasGoto = baselineRecipe?.some((step) => step?.action === "goto") ?? false;
+  const baselineBody = baselineRecipe
+    ? emitRecipeBody(baselineRecipe)
+    : (plan.baseline_flow?.steps ?? []).map((step, index) => `    await test.step(${JSON.stringify(`Baseline ${index + 1}: ${step}`)}, async () => {
       // TODO: implement with role-based locators and accessible names.
       // Example: await page.getByRole('button', { name: /add new/i }).click();
     });`).join("\n");
+  const baselineGotoLine = baselineRecipe && baselineRecipeHasGoto ? "" : "    await page.goto(targetUrl);\n";
+  const baselineGuard = baselineRecipeAsserts
+    ? ""
+    : `\n    requireImplementation('baseline happy path', [${JSON.stringify(quoteForComment(plan.baseline_flow?.expected_result))}]);`;
 
   const scenarioTests = (plan.gremlin_scenarios ?? []).map((scenario) => {
-    const steps = (scenario.steps ?? []).map((step, index) => `    await test.step(${JSON.stringify(`${index + 1}. ${step}`)}, async () => {
+    const recipe = Array.isArray(scenario.playwright_steps) && scenario.playwright_steps.length > 0
+      ? scenario.playwright_steps
+      : null;
+    const recipeAsserts = recipeHasAssertion(recipe);
+    const recipeHasGoto = recipe?.some((step) => step?.action === "goto") ?? false;
+
+    const stepsBlock = recipe
+      ? emitRecipeBody(recipe)
+      : (scenario.steps ?? []).map((step, index) => `    await test.step(${JSON.stringify(`${index + 1}. ${step}`)}, async () => {
       // TODO: mutate the baseline flow for category "${scenario.category}".
     });`).join("\n");
-    const assertions = (scenario.assertions ?? []).map((assertion) => `      ${JSON.stringify(quoteForComment(assertion))},`).join("\n");
+
     const annotation = `{ annotation: [{ type: 'ux-gremlin-scenario', description: ${JSON.stringify(scenario.id ?? "")} }, { type: 'ux-gremlin-risk', description: ${JSON.stringify(scenario.risk_level ?? "")} }] }`;
-    return `
-  test(${JSON.stringify(`${scenario.id}: ${testName(scenario.name)}`)}, ${annotation}, async ({ page }) => {
-    test.skip(destructiveActionsAllowed === false && ${JSON.stringify(scenario.risk_level)} === "critical", "Critical/destructive UX paths require explicit safety review.");
-    await page.goto(targetUrl);
-${steps}
-    // Expected behavior: ${quoteForComment(scenario.expected_behavior)}
-    // Recovery check: ${quoteForComment(scenario.recovery_expectation)}
-    // Accessibility notes: ${quoteForComment(scenario.accessibility_notes)}
-    // Playwright notes: ${quoteForComment(scenario.playwright_notes)}
+    const gotoLine = recipe && recipeHasGoto ? "" : "    await page.goto(targetUrl);\n";
+
+    const expectationComments = [
+      `    // Expected behavior: ${quoteForComment(scenario.expected_behavior)}`,
+      `    // Recovery check: ${quoteForComment(scenario.recovery_expectation)}`,
+      `    // Accessibility notes: ${quoteForComment(scenario.accessibility_notes)}`,
+      `    // Playwright notes: ${quoteForComment(scenario.playwright_notes)}`
+    ].join("\n");
+
+    let guard = "";
+    if (!recipeAsserts) {
+      const assertionsList = (scenario.assertions ?? []).map((assertion) => `      ${JSON.stringify(quoteForComment(assertion))},`).join("\n");
+      guard = `
     // TODO: replace the guard below with concrete expect(...) assertions.
     requireImplementation(${JSON.stringify(scenario.id ?? "scenario")}, [
-${assertions}
-    ]);
+${assertionsList}
+    ]);`;
+    }
+
+    return `
+  test(${JSON.stringify(`${scenario.id}: ${testName(scenario.name)}`)}, ${annotation}, async ({ page }, testInfo) => {
+    test.skip(destructiveActionsAllowed === false && ${JSON.stringify(scenario.risk_level)} === "critical", "Critical/destructive UX paths require explicit safety review.");
+${gotoLine}${stepsBlock}
+${expectationComments}${guard}
   });`;
   }).join("\n");
 
@@ -751,12 +941,10 @@ function requireImplementation(scenarioId, assertions) {
 }
 
 test.describe(${JSON.stringify(plan.name || "UX Gremlin Plan")}, () => {
-  test('baseline happy path', { annotation: [{ type: 'ux-gremlin-baseline', description: 'true' }] }, async ({ page }) => {
-    await page.goto(targetUrl);
-${baselineSteps || "    // TODO: add baseline happy-path steps."}
+  test('baseline happy path', { annotation: [{ type: 'ux-gremlin-baseline', description: 'true' }] }, async ({ page }, testInfo) => {
+${baselineGotoLine}${baselineBody || "    // TODO: add baseline happy-path steps."}
     // Expected result: ${quoteForComment(plan.baseline_flow?.expected_result)}
-    await expect(page).toHaveURL(/./);
-    requireImplementation('baseline happy path', [${JSON.stringify(quoteForComment(plan.baseline_flow?.expected_result))}]);
+    await expect(page).toHaveURL(/./);${baselineGuard}
   });
 ${scenarioTests}
 });

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0
+
+- Added a `playwright_steps` recipe DSL to `baseline_flow` and `gremlin_scenarios`. `generate-playwright` compiles recipe steps (`goto`, `click`, `fill`, `press`, `wait_for_url`, `expect_visible`, `expect_text`, `expect_count`, `screenshot`) into runnable Playwright code using `getByRole`/`getByLabel`/`getByTestId` locators.
+- When a recipe includes at least one `expect_*` assertion, the generated test omits the `requireImplementation` guard and TODO markers so `workflow-status --phase execute` can pass without manual edits.
+- Plans without `playwright_steps` keep the existing failing-by-default behavior.
+- Recipe screenshots are emitted via `testInfo.attach(...)` so `ingest` copies them into `.agent/evidence/ux-gremlin/<scenario-id>/` through the existing Playwright attachment flow.
+- `validatePlan` rejects unknown actions, missing selectors, missing `value`/`text`/`key`/`url`, and non-integer `count` with actionable error messages.
+- Plan schema, README, and SKILL.md document the recipe DSL and the supported action vocabulary.
+
 ## 1.3.0
 
 - `ingest` now copies Playwright attachment files into `.agent/evidence/ux-gremlin/<scenario-id>/`, classifies screenshots/traces/generic artifacts, and records missing evidence as open risks instead of failing the whole run.

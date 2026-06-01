@@ -135,6 +135,37 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
 
 The generated `.agent/generated/ux-gremlin.spec.ts` includes one baseline test and one test per gremlin scenario. It uses `test.step` blocks, role-based locator examples, and annotates each test with its scenario id and risk so results can be ingested later. Each scenario is **failing-by-default**: an unfinished test throws via `requireImplementation(...)` so an incomplete spec cannot silently pass in CI. Replace the `requireImplementation` guard with concrete `expect(...)` assertions as you implement each scenario. Set `UX_GREMLIN_ALLOW_TODO=true` to soft-skip unfinished scenarios while iterating locally. It intentionally does not pretend unknown selectors are known.
 
+### Playwright Recipe DSL
+
+Add an optional `playwright_steps` recipe under `baseline_flow` or any gremlin scenario to compile real Playwright code instead of `TODO`/`requireImplementation` placeholders:
+
+```yaml
+playwright_steps:
+  - action: goto
+    url: "http://localhost:3000/admin"
+  - action: click
+    role: button
+    name: "Add New"
+  - action: fill
+    label: "Title"
+    value: "ux-gremlin-page-1"
+  - action: click
+    role: button
+    name: "Confirm"
+  - action: expect_count
+    role: row
+    name: "ux-gremlin-page-1"
+    count: 1
+  - action: screenshot
+    name: "double-submit-confirm"
+```
+
+Supported actions: `goto`, `click`, `fill`, `press`, `wait_for_url`, `expect_visible`, `expect_text`, `expect_count`, `screenshot`. Selectors are restricted to `role + name`, `label`, or `testid` so generated code stays safe and accessible. When the recipe includes any `expect_*` action, the generated test drops the `requireImplementation` guard for that scenario, so `generate-playwright` produces an execution-ready spec. Recipes without `expect_*` keep the failing-by-default guard.
+
+Recipe screenshots use `testInfo.attach(...)`, so `ingest` automatically copies them into `.agent/evidence/ux-gremlin/<scenario-id>/` via the existing Playwright attachment flow.
+
+The freeform `steps` field stays as the human-readable intent and is still required by validation.
+
 After replacing placeholders with app-specific locators and fixtures:
 
 ```bash
