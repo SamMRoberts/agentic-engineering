@@ -21,6 +21,15 @@ gremlin-ci-integration
 
 Use `--plan <path>` when a non-default plan file should be validated, generated from, or reported.
 
+## Copilot Guidance
+
+If you are using Copilot, prefer invoking the orchestrator in [ux-gremlin.agent.md](/Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/ux-gremlin/agents/ux-gremlin.agent.md) first. It routes requests to the correct `gremlin-*` skill based on intent and workspace state, so you can stay focused on approvals, edge cases, and results instead of manually selecting each phase.
+
+Common Copilot pattern:
+
+- Ask Copilot to run the UX Gremlin workflow and it will coordinate phases (`baseline → plan → validate → generate → execute → report`) automatically.
+- Use direct skill calls only when you need explicit control for a single step.
+
 ## Plan Workflow
 
 1. Start with `gremlin-test-strategy-advisor` or `gremlin-baseline-recorder` depending on whether the happy path is already known.
