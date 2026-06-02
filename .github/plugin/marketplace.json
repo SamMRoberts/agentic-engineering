@@ -27,12 +27,38 @@
             ]
         },
         {
+            "name": "scope-guard",
+            "source": "./plugins/scope-guard",
+            "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation.",
+            "version": "1.0.0",
+            "skills": [
+                "./plugins/scope-guard/skills/scope-guard"
+            ]
+        },
+        {
             "name": "ux-gremlin",
             "source": "./plugins/ux-gremlin",
             "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
-            "version": "1.4.0",
+            "version": "2.0.0",
             "skills": [
-                "./plugins/ux-gremlin/skills/ux-gremlin"
+                "./plugins/ux-gremlin/skills/accessibility-audit",
+                "./plugins/ux-gremlin/skills/baseline-recorder",
+                "./plugins/ux-gremlin/skills/ci-integration",
+                "./plugins/ux-gremlin/skills/convert-existing",
+                "./plugins/ux-gremlin/skills/execute-tests",
+                "./plugins/ux-gremlin/skills/explain-scenario",
+                "./plugins/ux-gremlin/skills/fix-suggestions",
+                "./plugins/ux-gremlin/skills/generate-playwright",
+                "./plugins/ux-gremlin/skills/plan-from-pr",
+                "./plugins/ux-gremlin/skills/plan-gremlins",
+                "./plugins/ux-gremlin/skills/regression-guard",
+                "./plugins/ux-gremlin/skills/report-gremlins",
+                "./plugins/ux-gremlin/skills/selector-discovery",
+                "./plugins/ux-gremlin/skills/test-strategy-advisor",
+                "./plugins/ux-gremlin/skills/triage-failures",
+                "./plugins/ux-gremlin/skills/ux-gremlin",
+                "./plugins/ux-gremlin/skills/ux-gremlin-auto",
+                "./plugins/ux-gremlin/skills/validate-plan"
             ]
         },
         {
