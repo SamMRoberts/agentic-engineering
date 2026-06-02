@@ -1,0 +1,56 @@
+version: "1.0"
+name: ""
+target:
+  url: ""
+  app_area: ""
+  environment: ""
+mode: "cli"
+workflow:
+  mode: "manual"
+  target_urls:
+    - "http://localhost:3000"
+  objectives:
+    - "Keep baseline flow stable under recovery and ordering stress."
+  risk_tolerance: "medium"
+  mutation_depth: 3
+flow_type: []
+safety:
+  destructive_actions_allowed: false
+  test_data_prefix: "web-ux-gremlin"
+  cleanup_required: true
+  notes: ""
+authentication:
+  required: false
+  method: ""
+  notes: ""
+baseline_flow:
+  name: ""
+  preconditions: []
+  steps: []
+  expected_result: ""
+gremlin_scenarios: []
+accessibility_checks:
+  keyboard_only: true
+  focus_management: true
+  aria_semantics: true
+  screen_reader_notes: []
+network_conditions:
+  include_slow_network: true
+  include_offline_recovery: false
+state_conditions:
+  include_stale_cache: true
+  include_storage_clear: true
+  include_cookie_clear: true
+data_conditions:
+  invalid_inputs: []
+  duplicate_inputs: []
+  boundary_inputs: []
+assertions: []
+bug_indicators: []
+recovery_expectations: []
+verification_commands: []
+reporting:
+  output_dir: ".agent/reports/web-ux-gremlin"
+  include_screenshots: true
+  include_trace: true
+  include_console_errors: true

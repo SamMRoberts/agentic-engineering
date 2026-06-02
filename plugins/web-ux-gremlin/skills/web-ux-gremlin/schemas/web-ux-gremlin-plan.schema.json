@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-gremlin/web-ux-gremlin-plan.schema.json",
+  "title": "UX Gremlin Plan",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "name",
+    "target",
+    "mode",
+    "safety",
+    "baseline_flow",
+    "gremlin_scenarios",
+    "accessibility_checks",
+    "assertions",
+    "bug_indicators",
+    "recovery_expectations",
+    "verification_commands",
+    "reporting"
+  ],
+  "properties": {
+    "version": { "type": "string" },
+    "name": { "type": "string", "minLength": 1 },
+    "target": {
+      "type": "object",
+      "required": ["url", "app_area", "environment"],
+      "properties": {
+        "url": { "type": "string" },
+        "app_area": { "type": "string" },
+        "environment": { "type": "string" }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["cli", "mcp", "playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"],
+      "description": "Canonical execution mode values are `cli` and `mcp`; legacy values are accepted and normalized by the runtime."
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["manual", "guided", "auto"]
+        },
+        "target_urls": { "type": "array", "items": { "type": "string" } },
+        "objectives": { "type": "array", "items": { "type": "string" } },
+        "risk_tolerance": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "mutation_depth": { "type": "integer", "minimum": 1, "maximum": 5 }
+      },
+      "additionalProperties": true
+    },
+    "flow_type": {
+      "description": "Optional flow type(s) used to enforce mandatory scenario coverage during check.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+          }
+        }
+      ]
+    },
+    "safety": {
+      "type": "object",
+      "required": ["destructive_actions_allowed", "test_data_prefix", "cleanup_required"],
+      "properties": {
+        "destructive_actions_allowed": { "type": "boolean" },
+        "test_data_prefix": { "type": "string" },
+        "cleanup_required": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    },
+    "baseline_flow": {
+      "type": "object",
+      "required": ["name", "steps", "expected_result"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "preconditions": { "type": "array" },
+        "steps": { "type": "array", "minItems": 1 },
+        "expected_result": { "type": "string", "minLength": 1 }
+      }
+    },
+    "gremlin_scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "risk_level",
+          "purpose",
+          "preconditions",
+          "steps",
+          "expected_behavior",
+          "assertions",
+          "bug_indicators",
+          "recovery_expectation",
+          "playwright_notes",
+          "accessibility_notes"
+        ],
+        "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "double_submit",
+                "rapid_clicking",
+                "keyboard_only",
+                "screen_reader_semantics",
+                "browser_back_forward",
+                "reload_mid_flow",
+                "modal_escape",
+                "tab_switching",
+                "slow_network",
+                "offline_recovery",
+                "stale_cache",
+                "expired_auth",
+                "permission_denied",
+                "invalid_required_fields",
+                "partial_form_completion",
+                "duplicate_entity_creation",
+                "deep_link_entry",
+                "interrupted_save",
+                "concurrent_edit",
+                "viewport_resize",
+                "mobile_touch",
+                "session_storage_clear",
+                "local_storage_clear",
+                "cookie_clear",
+                "unexpected_navigation",
+                "long_running_operation",
+                "ordering_flip",
+                "backtracking",
+                "delayed_assertion",
+                "invalid_input_mutation"
+              ]
+            },
+          "risk_level": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          }
+        }
+      }
+    },
+    "accessibility_checks": { "type": "object" },
+    "assertions": { "type": "array", "minItems": 1 },
+    "bug_indicators": { "type": "array" },
+    "recovery_expectations": { "type": "array", "minItems": 1 },
+    "verification_commands": { "type": "array", "minItems": 1 },
+    "reporting": { "type": "object" }
+  }
+}

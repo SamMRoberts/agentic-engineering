@@ -1,0 +1,18 @@
+{
+  "name": "web-ux-gremlin",
+  "version": "1.2.0",
+  "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "web-ux-gremlin": "./skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.mjs",
+    "validate": "node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check --plan skills/web-ux-gremlin/examples/valid-plan.yaml",
+    "summary": "node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs summary --plan skills/web-ux-gremlin/examples/valid-plan.yaml"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

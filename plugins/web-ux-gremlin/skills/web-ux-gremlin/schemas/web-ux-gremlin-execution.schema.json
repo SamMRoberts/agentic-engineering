@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-gremlin/web-ux-gremlin-execution.schema.json",
+  "title": "UX Gremlin Execution",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "run", "scenario_results"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "run": {
+      "type": "object",
+      "required": ["executed_at", "mode"],
+      "additionalProperties": true,
+      "properties": {
+        "executed_at": { "type": "string" },
+        "mode": { "type": "string", "enum": ["cli", "mcp", "playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"] },
+        "executor": { "type": "string" },
+        "environment": { "type": "string" },
+        "build": { "type": "string" },
+        "commit": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "executed_commands": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "open_risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "scenario_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["scenario_id", "status"],
+        "properties": {
+          "scenario_id": { "type": "string", "minLength": 1 },
+          "status": { "type": "string", "enum": ["passed", "failed", "blocked", "not_run", "needs_review"] },
+          "severity": { "type": "string", "enum": ["info", "low", "medium", "high", "critical"] },
+          "outcome": { "type": "string" },
+          "findings": { "type": "array", "items": { "type": "string" } },
+          "suspected_bugs": { "type": "array", "items": { "type": "string" } },
+          "accessibility_issues": { "type": "array", "items": { "type": "string" } },
+          "console_errors": { "type": "array", "items": { "type": "string" } },
+          "screenshots": { "type": "array", "items": { "type": "string" } },
+          "traces": { "type": "array", "items": { "type": "string" } },
+          "recovery_notes": { "type": "array", "items": { "type": "string" } },
+          "executed_commands": { "type": "array", "items": { "type": "string" } },
+          "open_risks": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
