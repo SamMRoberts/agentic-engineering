@@ -1,0 +1,86 @@
+{
+  "version": "1.0",
+  "taskId": "webhook-payload-validation",
+  "userGoal": "Validate incoming webhook payloads before processing and return structured 400 errors for malformed or incomplete payloads.",
+  "scope": {
+    "inScope": [
+      "Validate required webhook fields.",
+      "Reject malformed JSON payloads.",
+      "Return structured validation errors as HTTP 400.",
+      "Add tests for valid and invalid payloads."
+    ],
+    "outOfScope": [
+      "Changing webhook authentication.",
+      "Adding retry behavior for failed webhooks.",
+      "Changing the persistence schema.",
+      "Rewriting webhook processing."
+    ],
+    "assumptions": [
+      "Existing payload formats must remain backward compatible.",
+      "Validation rules are static for this iteration."
+    ],
+    "openQuestions": []
+  },
+  "design": {
+    "components": [
+      {
+        "name": "WebhookHandler",
+        "responsibility": "Coordinates webhook request processing.",
+        "dependencies": ["WebhookPayloadValidator", "WebhookProcessor", "ValidationErrorMapper"],
+        "extensionPoints": []
+      },
+      {
+        "name": "WebhookPayloadValidator",
+        "responsibility": "Validates payload shape and required fields.",
+        "dependencies": [],
+        "extensionPoints": ["Add new validation rules via ValidationRule."]
+      },
+      {
+        "name": "ValidationErrorMapper",
+        "responsibility": "Converts validation failures into API responses.",
+        "dependencies": [],
+        "extensionPoints": ["Add new error response formats."]
+      }
+    ],
+    "extensionPoints": [
+      "ValidationRule interface for adding future field rules without touching the handler."
+    ],
+    "rejectedAlternatives": [
+      "Inline validation inside WebhookHandler, rejected because it mixes coordination with validation."
+    ]
+  },
+  "pseudocode": {
+    "draft": "function handleWebhook(request):\n    payload = parseJson(request.body)\n    if parse failed:\n        return badRequest(\"Malformed JSON\")\n    validationResult = WebhookPayloadValidator.validate(payload)\n    if validationResult.hasErrors:\n        return ValidationErrorMapper.toResponse(validationResult)\n    result = WebhookProcessor.process(payload)\n    return success(result)",
+    "reviewFindings": [
+      "Success path is covered.",
+      "Malformed JSON path is covered.",
+      "Validation failure path is covered.",
+      "No unrelated retry, auth, or schema behavior added.",
+      "Each component is single-purpose."
+    ],
+    "approved": true
+  },
+  "implementation": {
+    "changedFiles": [
+      "src/webhooks/webhook-handler.js",
+      "src/webhooks/webhook-payload-validator.js",
+      "src/webhooks/validation-error-mapper.js"
+    ],
+    "testsAddedOrUpdated": [
+      "test/webhooks/webhook-payload-validator.test.js",
+      "test/webhooks/webhook-handler.test.js"
+    ],
+    "knownRisks": [
+      "Existing clients sending legacy payload shapes must still pass validation."
+    ]
+  },
+  "docs": {
+    "designDocUpdated": true,
+    "diagramsUpdated": true,
+    "docChanges": [
+      "Added WebhookPayloadValidator as the single validation entry point.",
+      "WebhookHandler now delegates validation instead of performing inline checks.",
+      "Request flow diagram now includes validation before processing."
+    ]
+  }
+}

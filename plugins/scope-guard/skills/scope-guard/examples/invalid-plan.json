@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "taskId": "bad-plan",
+  "userGoal": "Improve parser behavior.",
+  "scope": {
+    "inScope": [],
+    "outOfScope": [],
+    "assumptions": [],
+    "openQuestions": []
+  },
+  "design": {
+    "components": [
+      {
+        "name": "JobHandler",
+        "responsibility": "Validates payloads, talks to the database, retries failures, formats API errors, and emits metrics.",
+        "dependencies": [],
+        "extensionPoints": []
+      }
+    ],
+    "extensionPoints": [],
+    "rejectedAlternatives": []
+  },
+  "pseudocode": {
+    "draft": "",
+    "reviewFindings": [],
+    "approved": false
+  },
+  "implementation": {
+    "changedFiles": ["src/job-handler.js"],
+    "testsAddedOrUpdated": [],
+    "knownRisks": []
+  },
+  "docs": {
+    "designDocUpdated": false,
+    "diagramsUpdated": false,
+    "docChanges": []
+  }
+}

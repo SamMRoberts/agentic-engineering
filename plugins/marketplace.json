@@ -35,6 +35,21 @@
       "description": "Help engineers adopt coding agents through safe confidence levels and reviewable sessions."
     },
     {
+      "name": "scope-guard",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/scope-guard",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation."
+    },
+    {
       "name": "ux-gremlin",
       "source": {
         "source": "git-subdir",
