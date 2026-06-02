@@ -5,7 +5,7 @@
   "entrypointAgent": "ux-gremlin",
   "privateAgents": [],
   "metadata": {
-    "version": "2.1.0",
+    "version": "3.0.0",
     "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
     "scripts": [
       "scripts/ux-gremlin.mjs",
@@ -42,32 +42,6 @@
       "skills/gremlin-generate-playwright/SKILL.md",
       "skills/gremlin-execute-tests/SKILL.md",
       "skills/gremlin-report/SKILL.md"
-    ],
-    "deprecated_skills": [
-      "skills/gremlin-test-strategy-advisor/SKILL.md",
-      "skills/gremlin-baseline-recorder/SKILL.md",
-      "skills/gremlin-selector-discovery/SKILL.md",
-      "skills/gremlin-triage-failures/SKILL.md",
-      "skills/gremlin-fix-suggestions/SKILL.md",
-      "skills/gremlin-regression-guard/SKILL.md",
-      "skills/gremlin-explain-scenario/SKILL.md",
-      "skills/gremlin-accessibility-audit/SKILL.md",
-      "skills/gremlin-plan-from-pr/SKILL.md",
-      "skills/gremlin-ci-integration/SKILL.md",
-      "skills/gremlin-convert-existing/SKILL.md"
-    ],
-    "deprecated_scripts": [
-      "skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs",
-      "skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs",
-      "skills/gremlin-selector-discovery/scripts/selector-discovery.mjs",
-      "skills/gremlin-triage-failures/scripts/triage-failures.mjs",
-      "skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs",
-      "skills/gremlin-regression-guard/scripts/regression-guard.mjs",
-      "skills/gremlin-explain-scenario/scripts/explain-scenario.mjs",
-      "skills/gremlin-accessibility-audit/scripts/accessibility-audit.mjs",
-      "skills/gremlin-plan-from-pr/scripts/plan-from-pr.mjs",
-      "skills/gremlin-ci-integration/scripts/ci-integration.mjs",
-      "skills/gremlin-convert-existing/scripts/convert-existing.mjs"
     ]
   }
 }

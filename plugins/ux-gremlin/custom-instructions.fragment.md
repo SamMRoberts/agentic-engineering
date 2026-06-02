@@ -27,4 +27,4 @@ When a request is about UX resilience testing, Playwright generation, selector r
 - `gremlin-report`
 - `gremlin-auto`
 
-Deprecated compatibility skills are retained for one major-version cycle but should not be selected for new work. If the intent is ambiguous, ask one clarifying question. If the user asks for the full workflow, chain the core pipeline in order. If the platform cannot confidently pick a focused skill, run `node scripts/ux-gremlin.mjs auto`.
+Removed compatibility skills should not be selected for new work. If the intent is ambiguous, ask one clarifying question. If the user asks for the full workflow, chain the core pipeline in order. If the platform cannot confidently pick a focused skill, run `node scripts/ux-gremlin.mjs auto`.

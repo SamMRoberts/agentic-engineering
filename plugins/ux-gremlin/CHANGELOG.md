@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.0
+
+- Removed deprecated compatibility skill directories for advisory and analysis entrypoints that were consolidated in 2.1.0.
+- BREAKING CHANGE: `gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario` are no longer plugin skill entrypoints.
+- Use `gremlin-plan`, `gremlin-generate-playwright`, and `gremlin-report` for the removed responsibilities.
+
 ## 2.1.0
 
 - Consolidated the active UX Gremlin skill surface to `gremlin-auto`, `gremlin-plan`, `gremlin-validate-plan`, `gremlin-generate-playwright`, `gremlin-execute-tests`, and `gremlin-report`.

@@ -19,7 +19,7 @@ gremlin-auto
 
 Use `--plan <path>` when a non-default plan file should be validated, generated from, or reported.
 
-Deprecated compatibility skills are still present for one major-version deprecation window, but new requests should route to the consolidated skills above.
+The formerly separate advisory and analysis skills have been removed. New requests should route to the consolidated skills above.
 
 ## Copilot Guidance
 
@@ -137,11 +137,11 @@ Active skills:
 - `gremlin-report`: reporting, severity gates, triage, fix recommendations, scenario explanation, and trend summaries.
 - `gremlin-auto`: artifact-based routing for hosts that cannot select a focused skill.
 
-Deprecated compatibility skills:
+Removed skills:
 
 - `gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario`.
 
-These files remain in the plugin for compatibility and hand off to their replacement skills, but they are no longer user-invocable entrypoints.
+Their responsibilities are handled by `gremlin-plan`, `gremlin-generate-playwright`, and `gremlin-report`.
 
 ## Playwright CLI
 

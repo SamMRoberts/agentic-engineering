@@ -34,7 +34,7 @@ If the intent is ambiguous, ask exactly one clarifying question before choosing 
 If the user says "do everything end-to-end", chain the core pipeline in this order:
 `gremlin-plan` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-execute-tests` → `gremlin-report`.
 
-Deprecated compatibility skills (`gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario`) must not be chosen for new requests.
+Removed skills (`gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario`) must not be referenced for new requests.
 
 ## Artifact-Based Routing
 

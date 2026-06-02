@@ -33,4 +33,4 @@ Check the workspace before choosing the next step:
 - If intent is ambiguous, ask one clarifying question.
 - If the user asks to do everything end-to-end, chain:
   `gremlin-plan` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-execute-tests` → `gremlin-report`.
-- Do not route new requests to deprecated compatibility skills.
+- Do not route new requests to removed compatibility skills.
