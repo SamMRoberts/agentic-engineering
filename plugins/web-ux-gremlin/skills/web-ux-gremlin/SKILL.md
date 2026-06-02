@@ -1,6 +1,6 @@
 ---
 name: web-ux-gremlin
-description: Use to create and validate hostile-but-realistic UX Gremlin plans, generate Playwright specs, and run CLI or MCP execution workflows for UX resilience.
+description: Use to create and validate hostile-but-realistic UX Gremlin plans, generate Playwright specs, and run Playwright CLI or Playwright MCP execution workflows for UX resilience.
 argument-hint: "Target URL or app area, baseline UX flow, auth requirements, risk policy, workflow mode, and execution mode"
 user-invocable: true
 ---
@@ -27,7 +27,7 @@ Required:
 - Target URL or app area
 - Baseline happy-path flow
 - Workflow mode (`manual`, `guided`, `auto`)
-- Execution mode (`cli` default, or `mcp`)
+- Execution mode (`playwright-cli` default, or `playwright-mcp`; aliases `cli` and `mcp` are accepted)
 - Safety boundaries (`destructive_actions_allowed`, notes, cleanup expectations)
 
 `manual`
@@ -39,10 +39,10 @@ Required:
 `auto`
 : auto-adds uncommon-path gremlin scenarios from the script while preserving user-defined ones.
 
-`cli`
+`playwright-cli`
 : execute generated Playwright specs via Playwright CLI (`npx playwright test`).
 
-`mcp`
+`playwright-mcp`
 : execute using Playwright MCP (`playwright-mcp`) for longer, persistent browser-agent-like runs.
 
 ## Plan and workflow contract
@@ -70,7 +70,7 @@ Plan file defaults to `.agent/session/web-ux-gremlin-plan.yaml` and must include
 - `summary` -> print concise plan summary
 - `generate` / `generate-playwright` -> write `.agent/generated/web-ux-gremlin.spec.ts`
 - `workflow-status` -> read or set phase (`init`, `plan`, `generate`, `execute`, `report`)
-- `run` -> execute spec (supports `--mode cli|mcp`, supports `--mcp-state`, `--mcp-command`)
+- `run` -> execute spec (supports `--mode playwright-cli|playwright-mcp|cli|mcp`, supports `--mcp-state`, `--mcp-command`)
 - `ingest` -> convert Playwright JSON report to normalized scenario results
 - `report` -> produce `report.md`, `report.json`, `report.html`, `report.junit.xml`, `report.pr.md`
 - `gate` -> fail when highest open severity meets threshold

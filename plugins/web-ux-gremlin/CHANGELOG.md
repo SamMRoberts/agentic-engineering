@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+- Added explicit `playwright-cli` and `playwright-mcp` execution mode inputs. They normalize to the existing `cli` and `mcp` runner paths while preserving shorthand and legacy underscore aliases.
+- Updated execution-mode schemas, templates, docs, and tests so Playwright CLI and Playwright MCP modes are accepted consistently.
+- Fixed web-ux-gremlin script parsing issues in usage text and YAML numeric scalar handling so the existing valid plan validates correctly.
+
 ## 1.2.0
 
 - Added `ingest` command to convert Playwright JSON reporter output (and optional axe-core JSON) into a results file, mapping specs to scenarios by annotation and enforcing baseline-first blocking.

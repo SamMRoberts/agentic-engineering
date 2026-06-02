@@ -20,33 +20,83 @@
     "reporting"
   ],
   "properties": {
-    "version": { "type": "string" },
-    "name": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "target": {
       "type": "object",
-      "required": ["url", "app_area", "environment"],
+      "required": [
+        "url",
+        "app_area",
+        "environment"
+      ],
       "properties": {
-        "url": { "type": "string" },
-        "app_area": { "type": "string" },
-        "environment": { "type": "string" }
+        "url": {
+          "type": "string"
+        },
+        "app_area": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        }
       }
     },
     "mode": {
       "type": "string",
-      "enum": ["cli", "mcp", "playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"],
-      "description": "Canonical execution mode values are `cli` and `mcp`; legacy values are accepted and normalized by the runtime."
+      "enum": [
+        "cli",
+        "mcp",
+        "playwright-cli",
+        "playwright-mcp",
+        "playwright_cli",
+        "playwright_mcp",
+        "agent_browser",
+        "manual_checklist"
+      ],
+      "description": "Preferred execution mode values are `playwright-cli` and `playwright-mcp`; shorthand `cli`/`mcp` and legacy values are accepted and normalized by the runtime."
     },
     "workflow": {
       "type": "object",
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["manual", "guided", "auto"]
+          "enum": [
+            "manual",
+            "guided",
+            "auto"
+          ]
         },
-        "target_urls": { "type": "array", "items": { "type": "string" } },
-        "objectives": { "type": "array", "items": { "type": "string" } },
-        "risk_tolerance": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
-        "mutation_depth": { "type": "integer", "minimum": 1, "maximum": 5 }
+        "target_urls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk_tolerance": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "mutation_depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        }
       },
       "additionalProperties": true
     },
@@ -55,35 +105,78 @@
       "oneOf": [
         {
           "type": "string",
-          "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+          "enum": [
+            "form",
+            "authenticated",
+            "long_running",
+            "crud",
+            "read_only",
+            "navigation",
+            "generic"
+          ]
         },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["form", "authenticated", "long_running", "crud", "read_only", "navigation", "generic"]
+            "enum": [
+              "form",
+              "authenticated",
+              "long_running",
+              "crud",
+              "read_only",
+              "navigation",
+              "generic"
+            ]
           }
         }
       ]
     },
     "safety": {
       "type": "object",
-      "required": ["destructive_actions_allowed", "test_data_prefix", "cleanup_required"],
+      "required": [
+        "destructive_actions_allowed",
+        "test_data_prefix",
+        "cleanup_required"
+      ],
       "properties": {
-        "destructive_actions_allowed": { "type": "boolean" },
-        "test_data_prefix": { "type": "string" },
-        "cleanup_required": { "type": "boolean" },
-        "notes": { "type": "string" }
+        "destructive_actions_allowed": {
+          "type": "boolean"
+        },
+        "test_data_prefix": {
+          "type": "string"
+        },
+        "cleanup_required": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "baseline_flow": {
       "type": "object",
-      "required": ["name", "steps", "expected_result"],
+      "required": [
+        "name",
+        "steps",
+        "expected_result"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "preconditions": { "type": "array" },
-        "steps": { "type": "array", "minItems": 1 },
-        "expected_result": { "type": "string", "minLength": 1 }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preconditions": {
+          "type": "array"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1
+        },
+        "expected_result": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "gremlin_scenarios": {
@@ -107,53 +200,73 @@
           "accessibility_notes"
         ],
         "properties": {
-            "category": {
-              "type": "string",
-              "enum": [
-                "double_submit",
-                "rapid_clicking",
-                "keyboard_only",
-                "screen_reader_semantics",
-                "browser_back_forward",
-                "reload_mid_flow",
-                "modal_escape",
-                "tab_switching",
-                "slow_network",
-                "offline_recovery",
-                "stale_cache",
-                "expired_auth",
-                "permission_denied",
-                "invalid_required_fields",
-                "partial_form_completion",
-                "duplicate_entity_creation",
-                "deep_link_entry",
-                "interrupted_save",
-                "concurrent_edit",
-                "viewport_resize",
-                "mobile_touch",
-                "session_storage_clear",
-                "local_storage_clear",
-                "cookie_clear",
-                "unexpected_navigation",
-                "long_running_operation",
-                "ordering_flip",
-                "backtracking",
-                "delayed_assertion",
-                "invalid_input_mutation"
-              ]
-            },
+          "category": {
+            "type": "string",
+            "enum": [
+              "double_submit",
+              "rapid_clicking",
+              "keyboard_only",
+              "screen_reader_semantics",
+              "browser_back_forward",
+              "reload_mid_flow",
+              "modal_escape",
+              "tab_switching",
+              "slow_network",
+              "offline_recovery",
+              "stale_cache",
+              "expired_auth",
+              "permission_denied",
+              "invalid_required_fields",
+              "partial_form_completion",
+              "duplicate_entity_creation",
+              "deep_link_entry",
+              "interrupted_save",
+              "concurrent_edit",
+              "viewport_resize",
+              "mobile_touch",
+              "session_storage_clear",
+              "local_storage_clear",
+              "cookie_clear",
+              "unexpected_navigation",
+              "long_running_operation",
+              "ordering_flip",
+              "backtracking",
+              "delayed_assertion",
+              "invalid_input_mutation"
+            ]
+          },
           "risk_level": {
             "type": "string",
-            "enum": ["low", "medium", "high", "critical"]
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
           }
         }
       }
     },
-    "accessibility_checks": { "type": "object" },
-    "assertions": { "type": "array", "minItems": 1 },
-    "bug_indicators": { "type": "array" },
-    "recovery_expectations": { "type": "array", "minItems": 1 },
-    "verification_commands": { "type": "array", "minItems": 1 },
-    "reporting": { "type": "object" }
+    "accessibility_checks": {
+      "type": "object"
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1
+    },
+    "bug_indicators": {
+      "type": "array"
+    },
+    "recovery_expectations": {
+      "type": "array",
+      "minItems": 1
+    },
+    "verification_commands": {
+      "type": "array",
+      "minItems": 1
+    },
+    "reporting": {
+      "type": "object"
+    }
   }
 }

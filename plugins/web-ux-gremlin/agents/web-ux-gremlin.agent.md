@@ -1,6 +1,6 @@
 ---
 name: web-ux-gremlin
-description: "Use to plan, generate, and run web UX resilience gremlin workflows using manual, guided, or auto planning modes with CLI/MCP execution."
+description: "Use to plan, generate, and run web UX resilience gremlin workflows using manual, guided, or auto planning modes with Playwright CLI/MCP execution."
 argument-hint: "Target area, baseline flow, auth model, workflow mode, execution mode, and safety policy"
 tools: [read, search, edit, execute, todo]
 user-invocable: true
@@ -26,7 +26,7 @@ Do not use it for:
 3. Keep manual/ guided/ auto workflow intent explicit via plan `workflow.mode` or command `--workflow`.
 4. Validate plan with `check` and fix any coverage warnings/errors.
 5. Generate Playwright when automation artifacts are desired.
-6. Use `run --mode cli|mcp` only after `generate` is complete.
+6. Use `run --mode playwright-cli|playwright-mcp` only after `generate` is complete (`cli` and `mcp` aliases remain accepted).
 7. Ingest execution results and generate report artifacts.
 8. Gate for CI when required (`gate` or `report --fail-on`).
 

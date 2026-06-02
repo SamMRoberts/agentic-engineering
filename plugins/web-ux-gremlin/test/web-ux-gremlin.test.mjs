@@ -133,6 +133,17 @@ test("check validates workflow mode input", () => {
   assert.match(result.stderr, /--workflow must be one of:/);
 });
 
+test("check accepts hyphenated Playwright execution mode aliases", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const planPath = copyPlanToDir(dir);
+  const source = fs.readFileSync(planPath, "utf-8").replace('mode: "cli"', 'mode: "playwright-mcp"');
+  fs.writeFileSync(planPath, source, "utf-8");
+
+  const result = run(["check", "--plan", planPath], { cwd: dir });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Execution mode: mcp/);
+});
+
 test("invalid example fails with actionable errors", () => {
   const result = run(["check", "--plan", invalidPlan]);
   assert.equal(result.status, 1);
@@ -220,6 +231,13 @@ test("run command supports workflow-aware dry-run mode and command builders", ()
   assert.match(cliDryRun.stdout, /\"playwright\"/);
   assert.match(cliDryRun.stdout, /\"test\"/);
 
+  const playwrightCliDryRun = run(["run", "--plan", planPath, "--dry-run", "--mode", "playwright-cli"], { cwd: dir });
+  assert.equal(playwrightCliDryRun.status, 0, playwrightCliDryRun.stderr);
+  assert.match(playwrightCliDryRun.stdout, /Would run \(cli\):/);
+  assert.match(playwrightCliDryRun.stdout, /\"npx\"/);
+  assert.match(playwrightCliDryRun.stdout, /\"playwright\"/);
+  assert.match(playwrightCliDryRun.stdout, /\"test\"/);
+
   const mcpStatePath = path.join(dir, ".agent/session/web-ux-gremlin-mcp-state.json");
   const mcpCommandPath = path.join(dir, "bin", "mcp-runner");
   const mcpDryRun = run(
@@ -240,6 +258,25 @@ test("run command supports workflow-aware dry-run mode and command builders", ()
   assert.equal(mcpDryRun.status, 0, mcpDryRun.stderr);
   assert.match(mcpDryRun.stdout, /Would run \(mcp\):/);
   assert.match(mcpDryRun.stdout, new RegExp(mcpCommandPath));
+
+  const playwrightMcpDryRun = run(
+    [
+      "run",
+      "--plan",
+      planPath,
+      "--dry-run",
+      "--mode",
+      "playwright-mcp",
+      "--mcp-state",
+      mcpStatePath,
+      "--mcp-command",
+      mcpCommandPath
+    ],
+    { cwd: dir }
+  );
+  assert.equal(playwrightMcpDryRun.status, 0, playwrightMcpDryRun.stderr);
+  assert.match(playwrightMcpDryRun.stdout, /Would run \(mcp\):/);
+  assert.match(playwrightMcpDryRun.stdout, new RegExp(mcpCommandPath));
 });
 
 test("run rejects unimplemented placeholders before execution", () => {
@@ -437,6 +474,41 @@ test("run executes against a mocked MCP command and persists mode", () => {
       planPath,
       "--mode",
       "mcp",
+      "--mcp-command",
+      mcpPath,
+      "--mcp-state",
+      statePath,
+      "--run-report",
+      runReportPath,
+      "--out",
+      resultPath
+    ],
+    { cwd: dir }
+  );
+  assert.equal(result.status, 0, result.stderr);
+  const payload = JSON.parse(fs.readFileSync(resultPath, "utf-8"));
+  assert.equal(payload.run.mode, "mcp");
+});
+
+test("run executes playwright-mcp alias against the MCP command", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const planPath = copyPlanToDir(dir);
+  const generate = run(["generate", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+  writeSafeSpec(dir);
+
+  const mcpPath = path.join(dir, "mcp-runner");
+  writeMockRunCommand(mcpPath);
+  const runReportPath = path.join(dir, ".agent/session/web-ux-gremlin-run-report.json");
+  const resultPath = path.join(dir, ".agent/session/web-ux-gremlin-results.json");
+  const statePath = path.join(dir, ".agent/session/web-ux-gremlin-mcp-state.json");
+  const result = run(
+    [
+      "run",
+      "--plan",
+      planPath,
+      "--mode",
+      "playwright-mcp",
       "--mcp-command",
       mcpPath,
       "--mcp-state",

@@ -22,8 +22,8 @@ Use workflow modes:
 
 Use execution modes:
 
-- `cli` (default): Playwright CLI execution
-- `mcp`: Playwright MCP with persistent state and richer interaction loops
+- `playwright-cli` (default, alias `cli`): Playwright CLI execution
+- `playwright-mcp` (alias `mcp`): Playwright MCP with persistent state and richer interaction loops
 
 Validate before final response:
 

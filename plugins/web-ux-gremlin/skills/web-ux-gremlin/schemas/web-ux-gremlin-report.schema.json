@@ -16,112 +16,266 @@
     "artifacts"
   ],
   "properties": {
-    "generated_at": { "type": "string" },
+    "generated_at": {
+      "type": "string"
+    },
     "source": {
       "type": "object",
-      "required": ["has_results"],
+      "required": [
+        "has_results"
+      ],
       "properties": {
-        "has_results": { "type": "boolean" },
-        "results_version": { "type": "string" }
+        "has_results": {
+          "type": "boolean"
+        },
+        "results_version": {
+          "type": "string"
+        }
       }
     },
     "plan": {
       "type": "object",
-      "required": ["name", "target", "mode"],
+      "required": [
+        "name",
+        "target",
+        "mode"
+      ],
       "properties": {
-        "version": { "type": "string" },
-        "name": { "type": "string" },
+        "version": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
         "target": {
           "type": "object",
-          "required": ["url", "app_area", "environment"],
+          "required": [
+            "url",
+            "app_area",
+            "environment"
+          ],
           "properties": {
-            "url": { "type": "string" },
-            "app_area": { "type": "string" },
-            "environment": { "type": "string" }
+            "url": {
+              "type": "string"
+            },
+            "app_area": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            }
           }
         },
         "mode": {
           "type": "string",
-          "enum": ["cli", "mcp", "playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"],
-          "description": "Canonical values are `cli` and `mcp`; legacy values are accepted and normalized by the runtime."
+          "enum": [
+            "cli",
+            "mcp",
+            "playwright-cli",
+            "playwright-mcp",
+            "playwright_cli",
+            "playwright_mcp",
+            "agent_browser",
+            "manual_checklist"
+          ],
+          "description": "Preferred input values are `playwright-cli` and `playwright-mcp`; runtime-generated reports use canonical `cli` or `mcp`, and legacy values are accepted for compatibility."
         },
         "safety": {
           "type": "object",
           "properties": {
-            "destructive_actions_allowed": { "type": "boolean" },
-            "test_data_prefix": { "type": "string" },
-            "cleanup_required": { "type": "boolean" },
-            "notes": { "type": "string" }
+            "destructive_actions_allowed": {
+              "type": "boolean"
+            },
+            "test_data_prefix": {
+              "type": "string"
+            },
+            "cleanup_required": {
+              "type": "boolean"
+            },
+            "notes": {
+              "type": "string"
+            }
           }
         }
       }
     },
     "run": {
       "type": "object",
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "properties": {
-        "executed_at": { "type": "string" },
-        "executor": { "type": "string" },
-        "environment": { "type": "string" },
+        "executed_at": {
+          "type": "string"
+        },
+        "executor": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
         "mode": {
           "type": "string",
-          "enum": ["cli", "mcp", "playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"],
-          "description": "Canonical values are `cli` and `mcp`; legacy values are accepted and normalized by the runtime."
+          "enum": [
+            "cli",
+            "mcp",
+            "playwright-cli",
+            "playwright-mcp",
+            "playwright_cli",
+            "playwright_mcp",
+            "agent_browser",
+            "manual_checklist"
+          ],
+          "description": "Preferred input values are `playwright-cli` and `playwright-mcp`; runtime-generated reports use canonical `cli` or `mcp`, and legacy values are accepted for compatibility."
         },
-        "build": { "type": "string" },
-        "commit": { "type": "string" },
-        "notes": { "type": "string" }
+        "build": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "baseline_flow": {
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
-        "steps": { "type": "array", "items": { "type": "string" } },
-        "expected_result": { "type": "string" }
+        "name": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expected_result": {
+          "type": "string"
+        }
       }
     },
     "summary": {
       "type": "object",
-      "required": ["scenario_count", "status_counts", "severity_counts", "category_counts", "finding_count", "suspected_bug_count", "accessibility_issue_count", "console_error_count"],
+      "required": [
+        "scenario_count",
+        "status_counts",
+        "severity_counts",
+        "category_counts",
+        "finding_count",
+        "suspected_bug_count",
+        "accessibility_issue_count",
+        "console_error_count"
+      ],
       "properties": {
-        "scenario_count": { "type": "number" },
-        "status_counts": { "type": "object" },
-        "severity_counts": { "type": "object" },
-        "category_counts": { "type": "object" },
-        "finding_count": { "type": "number" },
-        "suspected_bug_count": { "type": "number" },
-        "accessibility_issue_count": { "type": "number" },
-        "console_error_count": { "type": "number" }
+        "scenario_count": {
+          "type": "number"
+        },
+        "status_counts": {
+          "type": "object"
+        },
+        "severity_counts": {
+          "type": "object"
+        },
+        "category_counts": {
+          "type": "object"
+        },
+        "finding_count": {
+          "type": "number"
+        },
+        "suspected_bug_count": {
+          "type": "number"
+        },
+        "accessibility_issue_count": {
+          "type": "number"
+        },
+        "console_error_count": {
+          "type": "number"
+        }
       }
     },
     "executive_summary": {
       "type": "object",
-      "required": ["verdict", "pass_rate", "executed_count", "risk_score", "risk_band", "highest_open_severity"],
+      "required": [
+        "verdict",
+        "pass_rate",
+        "executed_count",
+        "risk_score",
+        "risk_band",
+        "highest_open_severity"
+      ],
       "properties": {
-        "verdict": { "type": "string" },
-        "pass_rate": { "type": ["number", "null"] },
-        "executed_count": { "type": "number" },
-        "suspected_bug_count": { "type": "number" },
-        "accessibility_blocker_count": { "type": "number" },
-        "highest_open_severity": { "type": "string" },
-        "risk_score": { "type": "number" },
-        "risk_band": { "type": "string", "enum": ["low", "medium", "high", "critical"] }
+        "verdict": {
+          "type": "string"
+        },
+        "pass_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "executed_count": {
+          "type": "number"
+        },
+        "suspected_bug_count": {
+          "type": "number"
+        },
+        "accessibility_blocker_count": {
+          "type": "number"
+        },
+        "highest_open_severity": {
+          "type": "string"
+        },
+        "risk_score": {
+          "type": "number"
+        },
+        "risk_band": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        }
       }
     },
     "top_issues": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "category", "status", "severity", "impact", "recommended_action"],
+        "required": [
+          "id",
+          "name",
+          "category",
+          "status",
+          "severity",
+          "impact",
+          "recommended_action"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "category": { "type": "string" },
-          "status": { "type": "string" },
-          "severity": { "type": "string" },
-          "impact": { "type": "string" },
-          "recommended_action": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "recommended_action": {
+            "type": "string"
+          }
         }
       }
     },
@@ -129,57 +283,175 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "category", "status", "severity"],
+        "required": [
+          "id",
+          "name",
+          "category",
+          "status",
+          "severity"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "category": { "type": "string" },
-          "risk_level": { "type": "string" },
-          "status": { "type": "string" },
-          "severity": { "type": "string" },
-          "purpose": { "type": "string" },
-          "expected_behavior": { "type": "string" },
-          "expected_recovery": { "type": "string" },
-          "outcome": { "type": "string" },
-          "findings": { "type": "array", "items": { "type": "string" } },
-          "suspected_bugs": { "type": "array", "items": { "type": "string" } },
-          "accessibility_issues": { "type": "array", "items": { "type": "string" } },
-          "console_errors": { "type": "array", "items": { "type": "string" } }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "risk_level": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "expected_behavior": {
+            "type": "string"
+          },
+          "expected_recovery": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "suspected_bugs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accessibility_issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "console_errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       }
     },
     "artifacts": {
       "type": "object",
-      "required": ["markdown", "json", "html", "junit", "pr"],
+      "required": [
+        "markdown",
+        "json",
+        "html",
+        "junit",
+        "pr"
+      ],
       "properties": {
-        "markdown": { "type": "string" },
-        "json": { "type": "string" },
-        "html": { "type": "string" },
-        "junit": { "type": "string" },
-        "pr": { "type": "string" }
+        "markdown": {
+          "type": "string"
+        },
+        "json": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "junit": {
+          "type": "string"
+        },
+        "pr": {
+          "type": "string"
+        }
       }
     },
     "trend": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "previous_generated_at": { "type": "string" },
-        "pass_rate": { "type": "number" },
-        "pass_rate_delta": { "type": ["number", "null"] },
-        "suspected_bug_count": { "type": "number" },
-        "suspected_bug_delta": { "type": ["number", "null"] },
-        "accessibility_issue_count": { "type": "number" },
-        "accessibility_issue_delta": { "type": ["number", "null"] }
+        "previous_generated_at": {
+          "type": "string"
+        },
+        "pass_rate": {
+          "type": "number"
+        },
+        "pass_rate_delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "suspected_bug_count": {
+          "type": "number"
+        },
+        "suspected_bug_delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "accessibility_issue_count": {
+          "type": "number"
+        },
+        "accessibility_issue_delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
       }
     },
-    "executed_commands": { "type": "array", "items": { "type": "string" } },
-    "verification_commands": { "type": "array", "items": { "type": "string" } },
-    "recovery_expectations": { "type": "array", "items": { "type": "string" } },
-    "open_risks": { "type": "array", "items": { "type": "string" } },
+    "executed_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recovery_expectations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "open_risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "evidence": {
       "type": "object",
       "properties": {
-        "screenshots": { "type": "array", "items": { "type": "string" } },
-        "traces": { "type": "array", "items": { "type": "string" } }
+        "screenshots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "traces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

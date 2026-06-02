@@ -4,7 +4,7 @@ target:
   url: ""
   app_area: ""
   environment: ""
-mode: "cli"
+mode: "playwright-cli"
 workflow:
   mode: "manual"
   target_urls:

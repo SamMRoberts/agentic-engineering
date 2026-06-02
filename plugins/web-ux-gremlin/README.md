@@ -1,6 +1,6 @@
 # UX Gremlin
 
-UX Gremlin turns normal web UX flows into hostile-but-realistic resilience scenarios for Playwright execution and reporting using either CLI mode (`cli`) or MCP mode (`mcp`).
+UX Gremlin turns normal web UX flows into hostile-but-realistic resilience scenarios for Playwright execution and reporting using either Playwright CLI mode (`playwright-cli`) or Playwright MCP mode (`playwright-mcp`). Short aliases (`cli`, `mcp`) remain supported.
 
 Happy-path tests prove that the ideal route works. They usually miss the behavior users actually trigger: double submits, reloads during save, keyboard-only navigation, browser back/forward, stale state, expired sessions, duplicate data, slow networks, interrupted forms, and recovery from ambiguous states. UX Gremlin keeps the happy path as the baseline, then mutates it through realistic stress cases.
 
@@ -112,8 +112,8 @@ node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs gate \
 
 ## Execution Modes
 
-- `cli` (default): execute the generated spec through `npx playwright test` with token-efficient CLI runs.
-- `mcp`: execute using `playwright-mcp` for persistent sessions and richer exploratory automation.
+- `playwright-cli` (default, alias `cli`): execute the generated spec through `npx playwright test` with token-efficient CLI runs.
+- `playwright-mcp` (alias `mcp`): execute using `playwright-mcp` for persistent sessions and richer exploratory automation.
 
 ## Playwright CLI
 
@@ -131,9 +131,19 @@ After replacing placeholders with app-specific locators and fixtures:
 npx playwright test .agent/generated/web-ux-gremlin.spec.ts
 ```
 
+Or run through UX Gremlin's command wrapper:
+
+```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs run --mode playwright-cli
+```
+
 ## Playwright MCP
 
 Use the plan as the source of truth. Run the baseline first, then each gremlin mutation. Record observed behavior, console errors, screenshots, traces, and recovery behavior in the report. When selectors are unknown, prefer accessible roles and names discovered from the page instead of brittle CSS or pixel coordinates.
+
+```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs run --mode playwright-mcp
+```
 
 ## Hooks
 

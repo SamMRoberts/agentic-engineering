@@ -19,13 +19,17 @@ const defaultRunReportPath = ".agent/session/web-ux-gremlin-playwright-report.js
 const baselineTestTitle = "baseline happy path";
 
 const canonicalExecutionModes = new Set(["cli", "mcp"]);
+const publicExecutionModeAliases = new Set(["playwright-cli", "playwright-mcp"]);
 const legacyExecutionModes = new Set(["playwright_cli", "playwright_mcp", "agent_browser", "manual_checklist"]);
-const allowedPlanModes = new Set([...canonicalExecutionModes, ...legacyExecutionModes]);
+const deprecatedExecutionModeAliases = new Set(["playwright_cli", "playwright_mcp"]);
+const allowedPlanModes = new Set([...canonicalExecutionModes, ...publicExecutionModeAliases, ...legacyExecutionModes]);
 const executionAliases = new Map([
+  ["playwright-cli", "cli"],
+  ["playwright-mcp", "mcp"],
   ["playwright_cli", "cli"],
   ["playwright_mcp", "mcp"]
 ]);
-const executionModes = new Set([...canonicalExecutionModes, ...legacyExecutionModes]);
+const executionModes = new Set([...canonicalExecutionModes, ...publicExecutionModeAliases, ...legacyExecutionModes]);
 const allowedWorkflowModes = new Set(["manual", "guided", "auto"]);
 const allowedRiskLevels = new Set(["low", "medium", "high", "critical"]);
 const allowedResultStatuses = new Set(["passed", "failed", "blocked", "not_run", "needs_review"]);
@@ -223,10 +227,10 @@ Options:
   --workflow <value>   Workflow mode for check/generate/report commands.
                        One of manual|guided|auto. Defaults to manual or plan.workflow.mode.
   --mode <value>       Execution mode for run/report/ingest/check/commands.
-                       One of cli|mcp (default cli).
+                       One of playwright-cli|playwright-mcp|cli|mcp (default cli).
   --results <path>     Executed results file for report/gate.
-  --phase <phase>      workflow phase for `workflow-status`.
-  --phase-dry-run      Set workflow phase without validation (used by `workflow-status`).
+  --phase <phase>      workflow phase for workflow-status.
+  --phase-dry-run      Set workflow phase without validation (used by workflow-status).
   --out-dir <path>     Report output directory (defaults to reporting.output_dir, then ${defaultReportDir}).
   --input <path>       Playwright JSON report consumed by ingest.
   --axe <path>         Optional axe-core JSON consumed by ingest.
@@ -235,7 +239,7 @@ Options:
   --fail-on <severity> Severity gate threshold for report/gate (info|low|medium|high|critical; default high).
   --dry-run            Print run command and exit without executing.
   --mcp-command <path> Override MCP executable command.
-  --mcp-state <path>   MCP state file for mode mcp.
+  --mcp-state <path>   MCP state file for mode playwright-mcp or mcp.
   --no-history         Do not read or append run history during report.
   --no-update-plan      generate-run does not write auto-scenario updates back to plan.
   --skip-phase-check    Skip phase validation for ad-hoc/manual recoveries.
@@ -366,6 +370,8 @@ function parseScalar(value) {
   if (trimmed === "true") return true;
   if (trimmed === "false") return false;
   if (trimmed === "null") return null;
+  if (/^-?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
+  if (/^-?\d+\.\d+$/.test(trimmed)) return Number.parseFloat(trimmed);
   if ((trimmed.startsWith(`"`) && trimmed.endsWith(`"`)) || (trimmed.startsWith(`'`) && trimmed.endsWith(`'`))) {
     return trimmed.slice(1, -1);
   }
@@ -508,13 +514,13 @@ function normalizeExecutionMode(rawMode, fallback = "cli") {
   const normalizedAlias = executionAliases.get(rawMode);
   const normalizedMode = normalizedAlias ?? rawMode;
   if (executionModes.has(normalizedMode)) return normalizedMode;
-  throw new Error(`execution mode must be one of: ${[...canonicalExecutionModes, ...legacyExecutionModes].join(", ")}`);
+  throw new Error(`execution mode must be one of: ${[...canonicalExecutionModes, ...publicExecutionModeAliases, ...legacyExecutionModes].join(", ")}`);
 }
 
 function normalizeRequestedExecutionMode(rawMode, fallback = "cli") {
   if (!rawMode) return fallback;
   const resolved = normalizeExecutionMode(rawMode, fallback);
-  if (executionAliases.has(rawMode)) {
+  if (deprecatedExecutionModeAliases.has(rawMode)) {
     console.warn(`WARN: execution mode ${rawMode} is deprecated; using ${resolved}.`);
   }
   return resolved;
@@ -590,7 +596,7 @@ function assertWorkflowPhase(minimumPhase, context, args = {}) {
     return;
   }
   if (current < required) {
-    console.error(`ERROR: ${context} requires workflow phase ${minimumPhase} or later (current=${readWorkflowState().phase || "init"]).`);
+    console.error(`ERROR: ${context} requires workflow phase ${minimumPhase} or later (current=${readWorkflowState().phase || "init"}).`);
     process.exit(2);
   }
 }
@@ -911,8 +917,8 @@ function workflowSummary(plan, workflowMode) {
     mutation_depth: Number.isFinite(plan?.workflow?.mutation_depth)
       ? plan.workflow.mutation_depth
       : isFinite(plan?.workflow?.mutation_depth)
-      ? Number(plan.workflow.mutation_depth)
-      : 3
+        ? Number(plan.workflow.mutation_depth)
+        : 3
   };
 }
 
@@ -962,9 +968,12 @@ function commandCheck(planPath, workflowMode, cliMode) {
   let plan;
   try {
     plan = readPlan(planPath);
-    const requestedMode = normalizeRequestedExecutionMode(cliMode || plan.mode, "cli");
-    plan = { ...plan, mode: normalizeExecutionMode(plan.mode, "cli") };
-    if (requestedMode !== plan.mode) {
+    const rawPlanMode = plan.mode;
+    if (allowedPlanModes.has(rawPlanMode)) {
+      plan = { ...plan, mode: normalizeExecutionMode(rawPlanMode, "cli") };
+    }
+    const requestedMode = cliMode ? normalizeRequestedExecutionMode(cliMode, "cli") : plan.mode;
+    if (cliMode && requestedMode !== plan.mode) {
       console.warn(`WARN: --mode override (${requestedMode}) does not match plan mode (${plan.mode}); planning checks use canonical plan mode.`);
     }
   } catch (err) {
@@ -1063,9 +1072,9 @@ async function readGuidedWorkflow(promptedWorkflow) {
       workflow: {
         target_urls: focus
           ? focus
-              .split(",")
-              .map((entry) => entry.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((entry) => entry.trim())
+            .filter(Boolean)
           : [],
         objectives: objectives ? objectives.split(",").map((entry) => entry.trim()).filter(Boolean) : [],
         risk_tolerance: isNonEmptyString(risk) && allowedRiskLevels.has(risk) ? risk : "medium",
@@ -2041,11 +2050,11 @@ function renderHtmlReport(report) {
 
   const trendItems = report.trend
     ? [
-        `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
-        `Pass rate now ${report.trend.pass_rate ?? "n/a"}% (delta ${report.trend.pass_rate_delta ?? "n/a"}).`,
-        `Suspected bugs now ${report.trend.suspected_bug_count} (delta ${report.trend.suspected_bug_delta}).`,
-        `Accessibility issues now ${report.trend.accessibility_issue_count} (delta ${report.trend.accessibility_issue_delta}).`
-      ]
+      `Compared with run from ${report.trend.previous_generated_at || "unknown"}.`,
+      `Pass rate now ${report.trend.pass_rate ?? "n/a"}% (delta ${report.trend.pass_rate_delta ?? "n/a"}).`,
+      `Suspected bugs now ${report.trend.suspected_bug_count} (delta ${report.trend.suspected_bug_delta}).`,
+      `Accessibility issues now ${report.trend.accessibility_issue_count} (delta ${report.trend.accessibility_issue_delta}).`
+    ]
     : ["No previous run recorded; this is the first tracked run."];
 
   const scenarioSections = report.scenarios.map((scenario) => `<section>
