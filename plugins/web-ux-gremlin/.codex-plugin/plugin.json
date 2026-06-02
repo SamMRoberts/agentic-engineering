@@ -1,0 +1,33 @@
+{
+  "name": "web-ux-gremlin",
+  "version": "0.1.0",
+  "description": "TODO: describe what web-ux-gremlin does.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering",
+  "license": "MIT",
+  "keywords": [],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "entrypointAgent": "web-ux-gremlin",
+  "privateAgents": [],
+  "interface": {
+    "displayName": "Web Ux Gremlin",
+    "shortDescription": "TODO: one-line summary of web-ux-gremlin.",
+    "longDescription": "TODO: longer description of web-ux-gremlin's workflow, inputs, and outputs.",
+    "developerName": "Sam Roberts",
+    "category": "Other",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
+    "defaultPrompt": [
+      "TODO: example prompt for web-ux-gremlin."
+    ],
+    "brandColor": "#1D4ED8",
+    "screenshots": []
+  }
+}

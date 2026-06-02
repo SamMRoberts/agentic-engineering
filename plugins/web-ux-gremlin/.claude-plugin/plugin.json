@@ -1,0 +1,20 @@
+{
+  "name": "web-ux-gremlin",
+  "version": "0.1.0",
+  "description": "TODO: describe what web-ux-gremlin does.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SamMRoberts/agentic-engineering"
+  },
+  "license": "MIT",
+  "keywords": [],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json"
+}

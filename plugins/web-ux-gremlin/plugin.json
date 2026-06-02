@@ -1,0 +1,6 @@
+{
+  "agents": "agents",
+  "skills": "skills",
+  "entrypointAgent": "web-ux-gremlin",
+  "privateAgents": []
+}
