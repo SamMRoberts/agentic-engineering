@@ -50,21 +50,6 @@
       "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation."
     },
     {
-      "name": "ux-gremlin",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
-        "path": "plugins/ux-gremlin",
-        "ref": "main"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity",
-      "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs."
-    },
-    {
       "name": "vibe-sentinel",
       "source": {
         "source": "git-subdir",
@@ -78,6 +63,21 @@
       },
       "category": "Productivity",
       "description": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation."
+    },
+    {
+      "name": "web-ux-gremlin",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/web-ux-gremlin",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs."
     }
   ]
 }
