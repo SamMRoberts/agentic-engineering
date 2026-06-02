@@ -58,7 +58,7 @@ const DEFAULT_POLICY = {
     installation: "AVAILABLE",
     authentication: "ON_INSTALL"
 };
-const MARKETPLACE_NAME = "SamMRoberts Marketplace";
+const MARKETPLACE_NAME = "sammroberts-marketplace";
 const MARKETPLACE_DISPLAY_NAME = "SamMRoberts Marketplace";
 const DEFAULT_OUT = path.join(pluginsDir, "marketplace.json");
 
