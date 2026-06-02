@@ -4,44 +4,48 @@ UX Gremlin turns normal web UX flows into hostile-but-realistic resilience scena
 
 Happy-path tests prove that the ideal route works. They usually miss the behavior users actually trigger: double submits, reloads during save, keyboard-only navigation, browser back/forward, stale state, expired sessions, duplicate data, slow networks, interrupted forms, and recovery from ambiguous states. UX Gremlin keeps the happy path as the baseline, then mutates it through realistic stress cases.
 
-## Manual Commands
+## Skill-first Workflow
 
-Run commands from a repository that has copied or installed this plugin:
-
-```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs init
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs coverage
-node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate --results results.yaml --fail-on high
-```
-
-Use `--plan <path>` to validate or generate from a specific plan file:
+Prefer the consolidated active skills:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check --plan skills/ux-gremlin/examples/valid-plan.yaml
+gremlin-plan
+gremlin-validate-plan
+gremlin-generate-playwright
+gremlin-execute-tests
+gremlin-report
+gremlin-auto
 ```
+
+Use `--plan <path>` when a non-default plan file should be validated, generated from, or reported.
+
+The formerly separate advisory and analysis skills have been removed. New requests should route to the consolidated skills above.
+
+## Copilot Guidance
+
+If you are using Copilot, prefer invoking the orchestrator in [ux-gremlin.agent.md](/Users/samroberts/Repo/SamMRoberts/agentic-engineering/plugins/ux-gremlin/agents/ux-gremlin.agent.md) first. It routes requests to the correct `gremlin-*` skill based on intent and workspace state, so you can stay focused on approvals, edge cases, and results instead of manually selecting each phase.
+
+Common Copilot pattern:
+
+- Ask Copilot to run the UX Gremlin workflow and it will coordinate phases (`baseline → plan → validate → generate → execute → report`) automatically.
+- Use direct skill calls only when you need explicit control for a single step.
 
 ## Plan Workflow
 
-1. Run `init` to create `.agent/session/ux-gremlin-plan.yaml`.
+1. Start with `gremlin-plan`; it owns strategy, baseline capture, accessibility planning, PR-aware planning, and existing-test conversion.
 2. Fill in `target`, `mode`, `safety`, `authentication`, and the baseline happy-path flow.
 3. Optionally set `flow_type` (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`, or a list) so `check` can enforce the mandatory scenario categories for that flow.
 4. Add gremlin scenarios that mutate the baseline. Each scenario needs an id, category, risk level, purpose, steps, expected behavior, assertions, bug indicators, recovery expectation, Playwright notes, and accessibility notes.
-5. Run `workflow-status --phase plan`, then `check` until validation passes. `check` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
-6. Run `coverage` to see flow-type category gaps and declared-condition warnings as an actionable list, then fix any gaps.
-7. Run `summary` to review coverage.
-8. Run `workflow-status --phase generate`, then `generate-playwright` when a starter Playwright spec is useful.
+5. Run `gremlin-plan` to prepare the artifact and then `gremlin-validate-plan` until validation passes. `gremlin-validate-plan` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
+6. Use `gremlin-validate-plan` to see flow-type category gaps and declared-condition warnings as an actionable list, then fix any gaps.
+7. Review coverage details from `gremlin-validate-plan` output.
+8. Run `gremlin-generate-playwright` when a starter Playwright spec is useful or selector/recipe guidance needs to be encoded.
 9. Implement `.agent/generated/ux-gremlin.spec.ts` by replacing generated `TODO:` comments with app-specific steps and removing active `requireImplementation(...)` calls.
-10. Run `workflow-status --phase execute`; do not run Playwright until this passes.
-11. Run Playwright with a JSON reporter, then `workflow-status --phase ingest --input <playwright-json>` and `ingest`.
-12. Run `workflow-status --phase report --results .agent/session/ux-gremlin-results.json`, then `report` to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+10. Run `gremlin-execute-tests`; it enforces execute readiness and prints the next Playwright step when implementation is complete.
+11. Run Playwright with a JSON reporter, then run `gremlin-execute-tests --input <playwright-json>` to ingest results.
+12. Run `gremlin-report` to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`. It also owns failure triage, fix recommendations, trend/regression summaries, scenario explanation, and CI severity-gate guidance.
 
-If a `workflow-status` gate fails, repair the reported upstream artifact and rerun the same gate before moving on. The command is intentionally phase-specific so agents cannot skip missing plan content, generated spec implementation, Playwright JSON output, or ingested results.
+If a readiness gate fails, fix the reported upstream artifact and rerun the same skill before moving on.
 
 ## Coverage Enforcement
 
@@ -55,27 +59,25 @@ If a `workflow-status` gate fails, repair the reported upstream artifact and rer
 
 Missing required categories fail `check` with actionable errors. Declared `network_conditions`, `state_conditions`, and `data_conditions` that have no covering scenario produce non-blocking warnings. `coverage` prints the same information as a report without failing.
 
-The plan schema is documented in `skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json`. The runtime validator uses only Node.js built-in modules and a conservative YAML parser for this plugin's template shape. JSON is supported as a fallback at `.agent/session/ux-gremlin-plan.json`.
+The plan schema is documented in `schemas/ux-gremlin-plan.schema.json`. The runtime validator uses only Node.js built-in modules and a conservative YAML parser for this plugin's template shape. JSON is supported as a fallback at `.agent/session/ux-gremlin-plan.json`.
 
 ## Reports
 
 Plan-only reports remain supported:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --plan skills/ux-gremlin/examples/valid-plan.yaml
+gremlin-report --plan examples/valid-plan.yaml
 ```
 
 To include executed outcomes, pass a structured results file:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report \
-  --plan skills/ux-gremlin/examples/valid-plan.yaml \
-  --results skills/ux-gremlin/examples/results.example.yaml
+gremlin-report --plan examples/valid-plan.yaml --results examples/results.example.yaml
 ```
 
 Use `--out-dir <path>` to write all report artifacts somewhere other than `reporting.output_dir`.
 
-The results contract is documented in `skills/ux-gremlin/schemas/ux-gremlin-results.schema.json`, with a starter template at `skills/ux-gremlin/templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, generic `evidence_artifacts`, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
+The results contract is documented in `schemas/ux-gremlin-results.schema.json`, with a starter template at `templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, generic `evidence_artifacts`, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
 
 Evidence files should live under `.agent/evidence/ux-gremlin/<scenario-id>/`. Reports link local evidence paths from that directory with paths relative to the report artifact, while non-evidence strings remain plain escaped text.
 
@@ -101,8 +103,8 @@ Instead of authoring results by hand, run the generated spec with Playwright's J
 
 ```bash
 npx playwright test .agent/generated/ux-gremlin.spec.ts --reporter=json > playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
+gremlin-execute-tests --input playwright-report.json --out .agent/session/ux-gremlin-results.json
+gremlin-report --results .agent/session/ux-gremlin-results.json
 ```
 
 `ingest` maps each spec back to its scenario using the `ux-gremlin-scenario` annotation emitted by the generated spec (falling back to the `id:` title prefix). It copies readable Playwright attachment files into `.agent/evidence/ux-gremlin/<scenario-id>/`, classifies images as `screenshots`, trace/zip artifacts as `traces`, and other files as `evidence_artifacts`. Missing or unreadable attachment files are recorded as open risks so the run remains reportable. If the baseline test failed, every mutation scenario is marked `blocked` and the failure is surfaced as an open risk. Pass `--axe <axe.json>` to attach axe-core violations (a single run attaches globally; an array of `{ scenario_id, violations }` attaches per scenario). Set `UX_GREMLIN_BUILD` and `UX_GREMLIN_COMMIT` to stamp build metadata.
@@ -112,8 +114,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux
 `gate` (or `report --fail-on <severity>`) exits non-zero when the highest open severity is at or above a threshold, so CI can block merges on real regressions:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate \
-  --results .agent/session/ux-gremlin-results.json --fail-on high
+gremlin-report --fail-on high --results .agent/session/ux-gremlin-results.json
 ```
 
 `report --fail-on <severity>` writes all artifacts first and then applies the gate, so the report is always available even when the gate fails.
@@ -125,12 +126,29 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs gate \
 - `agent_browser`: use the plan as a browser-agent checklist with recorded observations.
 - `manual_checklist`: use the plan for human QA when automation is unavailable.
 
+## Consolidated Skills
+
+Active skills:
+
+- `gremlin-plan`: strategy, baseline capture, plan authoring, accessibility planning, PR context, and existing-test conversion.
+- `gremlin-validate-plan`: plan readiness and coverage gates.
+- `gremlin-generate-playwright`: Playwright generation plus recipe/locator guidance.
+- `gremlin-execute-tests`: execution readiness and Playwright JSON ingestion.
+- `gremlin-report`: reporting, severity gates, triage, fix recommendations, scenario explanation, and trend summaries.
+- `gremlin-auto`: artifact-based routing for hosts that cannot select a focused skill.
+
+Removed skills:
+
+- `gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario`.
+
+Their responsibilities are handled by `gremlin-plan`, `gremlin-generate-playwright`, and `gremlin-report`.
+
 ## Playwright CLI
 
 Generate a starter spec:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
+gremlin-generate-playwright
 ```
 
 The generated `.agent/generated/ux-gremlin.spec.ts` includes one baseline test and one test per gremlin scenario. It uses `test.step` blocks, role-based locator examples, and annotates each test with its scenario id and risk so results can be ingested later. Each scenario is **failing-by-default**: an unfinished test throws via `requireImplementation(...)` so an incomplete spec cannot silently pass in CI. Replace the `requireImplementation` guard with concrete `expect(...)` assertions as you implement each scenario. Set `UX_GREMLIN_ALLOW_TODO=true` to soft-skip unfinished scenarios while iterating locally. It intentionally does not pretend unknown selectors are known.
@@ -169,7 +187,7 @@ The freeform `steps` field stays as the human-readable intent and is still requi
 After replacing placeholders with app-specific locators and fixtures:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
+gremlin-execute-tests
 npx playwright test .agent/generated/ux-gremlin.spec.ts
 ```
 
@@ -188,9 +206,8 @@ The `hooks/` examples show how to initialize the plan near session start, valida
 CI is the stronger enforcement layer because it can block merges when `.agent/session/ux-gremlin-plan.yaml` is malformed or incomplete, and because the severity gate blocks merges on executed regressions:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs coverage
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate --results .agent/session/ux-gremlin-results.json --fail-on high
+gremlin-validate-plan
+gremlin-report --fail-on high --results .agent/session/ux-gremlin-results.json
 ```
 
 See `ci/github-action.example.yml` for a copy-ready workflow.
@@ -210,25 +227,20 @@ Every applicable flow should include keyboard-only operation, visible focus, cor
 ## Example Workflow
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs init
+gremlin-plan
 $EDITOR .agent/session/ux-gremlin-plan.yaml
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase generate
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
+gremlin-validate-plan
+gremlin-generate-playwright
 # implement .agent/generated/ux-gremlin.spec.ts
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
+gremlin-execute-tests
 npx playwright test .agent/generated/ux-gremlin.spec.ts --reporter=json > playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase ingest --input playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase report --results .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
+gremlin-execute-tests --input playwright-report.json
+gremlin-report --results .agent/session/ux-gremlin-results.json
 ```
 
 ## Troubleshooting
 
-- `ERROR: plan file is missing`: run `init` or pass `--plan <path>`.
+- `ERROR: plan file is missing`: run `gremlin-plan` (or pass a custom `--plan <path>` to the relevant skill later in the flow).
 - `ERROR: baseline flow has no steps`: fill `baseline_flow.steps` before adding scenarios.
 - `ERROR: no gremlin scenarios are defined`: add at least one scenario, and normally at least three for useful coverage.
 - `ERROR: destructive actions are enabled without explicit safety notes`: either set destructive actions to false or document the approved safety boundary.

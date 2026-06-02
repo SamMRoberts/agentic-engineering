@@ -1,6 +1,6 @@
 {
   "name": "ux-gremlin",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
   "type": "module",
   "private": true,
@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "node --test test/**/*.test.mjs",
-    "validate": "node skills/ux-gremlin/scripts/ux-gremlin.mjs check --plan skills/ux-gremlin/examples/valid-plan.yaml",
-    "summary": "node skills/ux-gremlin/scripts/ux-gremlin.mjs summary --plan skills/ux-gremlin/examples/valid-plan.yaml"
+    "validate": "node scripts/ux-gremlin-core.mjs check --plan examples/valid-plan.yaml",
+    "summary": "node scripts/ux-gremlin-core.mjs summary --plan examples/valid-plan.yaml"
   },
   "engines": {
     "node": ">=20"

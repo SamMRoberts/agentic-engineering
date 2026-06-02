@@ -6,17 +6,28 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const pluginRoot = path.resolve(import.meta.dirname, "..");
-const script = path.join(pluginRoot, "skills/ux-gremlin/scripts/ux-gremlin.mjs");
+const script = path.join(pluginRoot, "scripts/ux-gremlin-core.mjs");
 const routerScript = path.join(pluginRoot, "scripts/ux-gremlin.mjs");
 const pluginManifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf-8"));
-const validPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/valid-plan.yaml");
-const invalidPlan = path.join(pluginRoot, "skills/ux-gremlin/examples/invalid-plan.yaml");
-const resultsExample = path.join(pluginRoot, "skills/ux-gremlin/examples/results.example.yaml");
-const playwrightExample = path.join(pluginRoot, "skills/ux-gremlin/examples/playwright-report.example.json");
+const validPlan = path.join(pluginRoot, "examples/valid-plan.yaml");
+const invalidPlan = path.join(pluginRoot, "examples/invalid-plan.yaml");
+const resultsExample = path.join(pluginRoot, "examples/results.example.yaml");
+const playwrightExample = path.join(pluginRoot, "examples/playwright-report.example.json");
 const expectedVersion = pluginManifest.metadata.version;
-const focusedSkills = pluginManifest.metadata.skills
-  .map((skillPath) => path.basename(path.dirname(skillPath)))
-  .filter((skill) => skill !== "ux-gremlin");
+const focusedSkills = pluginManifest.metadata.skills.map((skillPath) => path.basename(path.dirname(skillPath)));
+const removedSkills = [
+  "gremlin-test-strategy-advisor",
+  "gremlin-baseline-recorder",
+  "gremlin-selector-discovery",
+  "gremlin-triage-failures",
+  "gremlin-fix-suggestions",
+  "gremlin-regression-guard",
+  "gremlin-explain-scenario",
+  "gremlin-accessibility-audit",
+  "gremlin-plan-from-pr",
+  "gremlin-ci-integration",
+  "gremlin-convert-existing"
+];
 
 // Minimal but schema-complete plan used to exercise coverage enforcement.
 function minimalFormPlan(extra = {}) {
@@ -754,12 +765,16 @@ reporting:
   assert.match(spec, /await expect\(page\.getByLabel\("Title"\)\)\.toBeVisible\(\);/);
 });
 
-test("focused skill scaffolding includes metadata, sections, and scripts", () => {
+test("active skill scaffolding includes metadata, sections, and scripts", () => {
   for (const skill of focusedSkills) {
     const skillPath = path.join(pluginRoot, "skills", skill, "SKILL.md");
-    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", `${skill}.mjs`);
+    const scriptEntries = fs
+      .readdirSync(path.join(pluginRoot, "skills", skill, "scripts"))
+      .filter((entry) => entry.endsWith(".mjs"));
+    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", scriptEntries[0]);
     const content = fs.readFileSync(skillPath, "utf-8");
 
+    assert.equal(scriptEntries.length, 1, `${skill} should contain one script file`);
     assert.equal(fs.existsSync(scriptPath), true, `${skill} script is missing`);
     assert.match(content, new RegExp(`^name: ${skill}$`, "m"));
     assert.match(content, /^user-invocable: true$/m);
@@ -770,9 +785,28 @@ test("focused skill scaffolding includes metadata, sections, and scripts", () =>
   }
 });
 
+test("removed compatibility skills are absent from the plugin surface", () => {
+  assert.deepEqual(focusedSkills, [
+    "gremlin-auto",
+    "gremlin-plan",
+    "gremlin-validate-plan",
+    "gremlin-generate-playwright",
+    "gremlin-execute-tests",
+    "gremlin-report"
+  ]);
+  assert.equal(pluginManifest.metadata.deprecated_skills, undefined);
+  assert.equal(pluginManifest.metadata.deprecated_scripts, undefined);
+  for (const skill of removedSkills) {
+    assert.equal(fs.existsSync(path.join(pluginRoot, "skills", skill)), false, `${skill} should be removed`);
+  }
+});
+
 test("focused skill scripts parse as valid Node.js modules", () => {
   for (const skill of focusedSkills) {
-    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", `${skill}.mjs`);
+    const scriptEntries = fs
+      .readdirSync(path.join(pluginRoot, "skills", skill, "scripts"))
+      .filter((entry) => entry.endsWith(".mjs"));
+    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", scriptEntries[0]);
     const result = spawnSync(process.execPath, ["--check", scriptPath], {
       cwd: pluginRoot,
       encoding: "utf-8"
@@ -781,29 +815,35 @@ test("focused skill scripts parse as valid Node.js modules", () => {
   }
 });
 
-test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
+test("plugin metadata advertises the consolidated UX Gremlin structure", () => {
   const codex = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".codex-plugin/plugin.json"), "utf-8"));
   const claude = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".claude-plugin/plugin.json"), "utf-8"));
+  const pkg = JSON.parse(fs.readFileSync(path.join(pluginRoot, "package.json"), "utf-8"));
   const agent = fs.readFileSync(path.join(pluginRoot, "agents/ux-gremlin.agent.md"), "utf-8");
   const codexFragment = fs.readFileSync(path.join(pluginRoot, "AGENTS.fragment.md"), "utf-8");
   const claudeFragment = fs.readFileSync(path.join(pluginRoot, "custom-instructions.fragment.md"), "utf-8");
-  const legacySkill = fs.readFileSync(path.join(pluginRoot, "skills/ux-gremlin/SKILL.md"), "utf-8");
 
   assert.equal(pluginManifest.metadata.version, expectedVersion);
   assert.equal(codex.version, expectedVersion);
   assert.equal(claude.version, expectedVersion);
-  assert.equal(pluginManifest.metadata.skills.length, focusedSkills.length + 1);
-  assert.match(JSON.stringify(pluginManifest.metadata.skills), /skills\/ux-gremlin-auto\/SKILL\.md/);
+  assert.equal(pkg.version, expectedVersion);
+  assert.equal(pluginManifest.metadata.skills.length, focusedSkills.length);
+  assert.match(JSON.stringify(pluginManifest.metadata.skills), /skills\/gremlin-auto\/SKILL\.md/);
+  assert.doesNotMatch(JSON.stringify(pluginManifest.metadata.skills), /gremlin-test-strategy-advisor/);
+  assert.equal(pluginManifest.metadata.deprecated_skills, undefined);
+  assert.equal(pluginManifest.metadata.deprecated_scripts, undefined);
   assert.match(JSON.stringify(pluginManifest.metadata.scripts), /scripts\/ux-gremlin\.mjs/);
   assert.match(JSON.stringify(pluginManifest.metadata.outputs), /ux-gremlin-plan\.check\.ok/);
 
   assert.match(agent, /If the intent is ambiguous, ask exactly one clarifying question/);
   assert.match(agent, /do everything end-to-end/);
+  assert.match(agent, /Removed skills/);
   assert.match(agent, /ux-gremlin-plan\.check\.ok/);
   assert.match(codexFragment, /node scripts\/ux-gremlin\.mjs auto/);
   assert.match(codexFragment, /artifact-based phase detection/i);
+  assert.match(codexFragment, /Do not route new requests to removed compatibility skills/);
   assert.match(claudeFragment, /Phase detection/);
-  assert.match(legacySkill, /> Deprecated:/);
+  assert.match(claudeFragment, /Removed compatibility skills/);
 });
 
 test("auto router chooses the next skill from artifact state", () => {
@@ -812,34 +852,34 @@ test("auto router chooses the next skill from artifact state", () => {
 
   let result = route(dir);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Next skill: test-strategy-advisor/);
+  assert.match(result.stdout, /Next skill: gremlin-plan/);
 
   fs.mkdirSync(path.join(dir, ".agent/session"), { recursive: true });
   result = route(dir);
-  assert.match(result.stdout, /Next skill: plan-gremlins/);
+  assert.match(result.stdout, /Next skill: gremlin-plan/);
 
   const planPath = path.join(dir, ".agent/session/ux-gremlin-plan.yaml");
   fs.writeFileSync(planPath, fs.readFileSync(validPlan, "utf-8"), "utf-8");
   result = route(dir);
-  assert.match(result.stdout, /Next skill: validate-plan/);
+  assert.match(result.stdout, /Next skill: gremlin-validate-plan/);
 
   const validate = spawnSync(
     process.execPath,
-    [path.join(pluginRoot, "skills/validate-plan/scripts/validate-plan.mjs"), "--plan", planPath],
+    [path.join(pluginRoot, "skills/gremlin-validate-plan/scripts/validate-plan.mjs"), "--plan", planPath],
     { cwd: dir, encoding: "utf-8" }
   );
   assert.equal(validate.status, 0, validate.stderr);
   assert.equal(fs.existsSync(path.join(dir, ".agent/session/ux-gremlin-plan.check.ok")), true);
 
   result = route(dir);
-  assert.match(result.stdout, /Next skill: generate-playwright/);
+  assert.match(result.stdout, /Next skill: gremlin-generate-playwright/);
 
   fs.mkdirSync(path.join(dir, ".agent/generated"), { recursive: true });
   fs.writeFileSync(path.join(dir, ".agent/generated/ux-gremlin.spec.ts"), "// ready\n", "utf-8");
   result = route(dir);
-  assert.match(result.stdout, /Next skill: execute-tests/);
+  assert.match(result.stdout, /Next skill: gremlin-execute-tests/);
 
   fs.writeFileSync(path.join(dir, ".agent/session/ux-gremlin-results.json"), "{\"scenario_results\":[]}\n", "utf-8");
   result = route(dir);
-  assert.match(result.stdout, /Next skill: report-gremlins/);
+  assert.match(result.stdout, /Next skill: gremlin-report/);
 });

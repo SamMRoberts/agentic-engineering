@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.0
+
+- Removed deprecated compatibility skill directories for advisory and analysis entrypoints that were consolidated in 2.1.0.
+- BREAKING CHANGE: `gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario` are no longer plugin skill entrypoints.
+- Use `gremlin-plan`, `gremlin-generate-playwright`, and `gremlin-report` for the removed responsibilities.
+
+## 2.1.0
+
+- Consolidated the active UX Gremlin skill surface to `gremlin-auto`, `gremlin-plan`, `gremlin-validate-plan`, `gremlin-generate-playwright`, `gremlin-execute-tests`, and `gremlin-report`.
+- Deprecated thin advisory and analysis skills while preserving their directories for compatibility; deprecated script wrappers now hand off to the replacement active skill instead of printing TODO stubs.
+- Updated the orchestrator, README, Codex/Claude instruction fragments, and plugin metadata to route strategy, baseline capture, selector guidance, triage, fix recommendations, regression summaries, CI gates, PR planning, accessibility planning, existing-test conversion, and scenario explanation through the consolidated active skills.
+
 ## 1.4.0
 
 - Added a `playwright_steps` recipe DSL to `baseline_flow` and `gremlin_scenarios`. `generate-playwright` compiles recipe steps (`goto`, `click`, `fill`, `press`, `wait_for_url`, `expect_visible`, `expect_text`, `expect_count`, `screenshot`) into runnable Playwright code using `getByRole`/`getByLabel`/`getByTestId` locators.

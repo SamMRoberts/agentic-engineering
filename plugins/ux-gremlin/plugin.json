@@ -5,32 +5,20 @@
   "entrypointAgent": "ux-gremlin",
   "privateAgents": [],
   "metadata": {
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
     "scripts": [
       "scripts/ux-gremlin.mjs",
-      "skills/ux-gremlin/scripts/ux-gremlin.mjs",
-      "skills/test-strategy-advisor/scripts/test-strategy-advisor.mjs",
-      "skills/baseline-recorder/scripts/baseline-recorder.mjs",
-      "skills/plan-gremlins/scripts/plan-gremlins.mjs",
-      "skills/validate-plan/scripts/validate-plan.mjs",
-      "skills/generate-playwright/scripts/generate-playwright.mjs",
-      "skills/selector-discovery/scripts/selector-discovery.mjs",
-      "skills/execute-tests/scripts/execute-tests.mjs",
-      "skills/report-gremlins/scripts/report-gremlins.mjs",
-      "skills/triage-failures/scripts/triage-failures.mjs",
-      "skills/fix-suggestions/scripts/fix-suggestions.mjs",
-      "skills/regression-guard/scripts/regression-guard.mjs",
-      "skills/accessibility-audit/scripts/accessibility-audit.mjs",
-      "skills/plan-from-pr/scripts/plan-from-pr.mjs",
-      "skills/ci-integration/scripts/ci-integration.mjs",
-      "skills/convert-existing/scripts/convert-existing.mjs",
-      "skills/explain-scenario/scripts/explain-scenario.mjs",
-      "skills/ux-gremlin-auto/scripts/ux-gremlin-auto.mjs"
+      "skills/gremlin-auto/scripts/ux-gremlin-auto.mjs",
+      "skills/gremlin-plan/scripts/plan-gremlins.mjs",
+      "skills/gremlin-validate-plan/scripts/validate-plan.mjs",
+      "skills/gremlin-generate-playwright/scripts/generate-playwright.mjs",
+      "skills/gremlin-execute-tests/scripts/execute-tests.mjs",
+      "skills/gremlin-report/scripts/report-gremlins.mjs"
     ],
     "schemas": [
-      "skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json",
-      "skills/ux-gremlin/schemas/ux-gremlin-results.schema.json"
+      "schemas/ux-gremlin-plan.schema.json",
+      "schemas/ux-gremlin-results.schema.json"
     ],
     "recommended_hooks": [
       "hooks/codex-hooks.example.json",
@@ -48,24 +36,12 @@
       ".agent/reports/ux-gremlin/report.pr.md"
     ],
     "skills": [
-      "skills/ux-gremlin/SKILL.md",
-      "skills/test-strategy-advisor/SKILL.md",
-      "skills/baseline-recorder/SKILL.md",
-      "skills/plan-gremlins/SKILL.md",
-      "skills/validate-plan/SKILL.md",
-      "skills/generate-playwright/SKILL.md",
-      "skills/selector-discovery/SKILL.md",
-      "skills/execute-tests/SKILL.md",
-      "skills/report-gremlins/SKILL.md",
-      "skills/triage-failures/SKILL.md",
-      "skills/fix-suggestions/SKILL.md",
-      "skills/regression-guard/SKILL.md",
-      "skills/accessibility-audit/SKILL.md",
-      "skills/plan-from-pr/SKILL.md",
-      "skills/ci-integration/SKILL.md",
-      "skills/convert-existing/SKILL.md",
-      "skills/explain-scenario/SKILL.md",
-      "skills/ux-gremlin-auto/SKILL.md"
+      "skills/gremlin-auto/SKILL.md",
+      "skills/gremlin-plan/SKILL.md",
+      "skills/gremlin-validate-plan/SKILL.md",
+      "skills/gremlin-generate-playwright/SKILL.md",
+      "skills/gremlin-execute-tests/SKILL.md",
+      "skills/gremlin-report/SKILL.md"
     ]
   }
 }
