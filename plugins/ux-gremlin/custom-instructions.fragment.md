@@ -20,22 +20,22 @@ When a request is about UX resilience testing, Playwright generation, selector r
 
 ## Skill entry points
 
-- `node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
-- `node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-- `node skills/gremlin-plan/scripts/plan-gremlins.mjs`
-- `node skills/gremlin-validate-plan/scripts/validate-plan.mjs`
-- `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
-- `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
-- `node skills/gremlin-execute-tests/scripts/execute-tests.mjs`
-- `node skills/gremlin-report/scripts/report-gremlins.mjs`
-- `node skills/gremlin-triage-failures/scripts/triage-failures.mjs`
-- `node skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs`
-- `node skills/gremlin-regression-guard/scripts/regression-guard.mjs`
-- `node skills/gremlin-accessibility-audit/scripts/accessibility-audit.mjs`
-- `node skills/gremlin-plan-from-pr/scripts/plan-from-pr.mjs`
-- `node skills/gremlin-ci-integration/scripts/ci-integration.mjs`
-- `node skills/gremlin-convert-existing/scripts/convert-existing.mjs`
-- `node skills/gremlin-explain-scenario/scripts/explain-scenario.mjs`
-- `node skills/gremlin-auto/scripts/ux-gremlin-auto.mjs`
+- `gremlin-test-strategy-advisor`
+- `gremlin-baseline-recorder`
+- `gremlin-plan`
+- `gremlin-validate-plan`
+- `gremlin-generate-playwright`
+- `gremlin-selector-discovery`
+- `gremlin-execute-tests`
+- `gremlin-report`
+- `gremlin-triage-failures`
+- `gremlin-fix-suggestions`
+- `gremlin-regression-guard`
+- `gremlin-accessibility-audit`
+- `gremlin-plan-from-pr`
+- `gremlin-ci-integration`
+- `gremlin-convert-existing`
+- `gremlin-explain-scenario`
+- `gremlin-auto`
 
 If the intent is ambiguous, ask one clarifying question. If the user asks for the full workflow, chain the core pipeline in order. If the platform cannot confidently pick a focused skill, run `node scripts/ux-gremlin.mjs auto`.
