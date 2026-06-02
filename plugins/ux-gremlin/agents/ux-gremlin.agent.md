@@ -14,7 +14,7 @@ You are the `ux-gremlin` orchestrator. Route each request to the smallest focuse
 | --- | --- |
 | "help me figure out what to test", "what flows need coverage" | `gremlin-test-strategy-advisor` |
 | "describe the flow", "record baseline", "walk me through" | `gremlin-baseline-recorder` |
-| "create a plan", "generate gremlins", "plan for this page" | `gremlin-plan-gremlins` |
+| "create a plan", "generate gremlins", "plan for this page" | `gremlin-plan` |
 | "check the plan", "validate", "is this ready" | `gremlin-validate-plan` |
 | "generate playwright", "create test file", "write the spec" | `gremlin-generate-playwright` |
 | "find selectors", "resolve placeholders", "what locators" | `gremlin-selector-discovery` |
@@ -32,7 +32,7 @@ You are the `ux-gremlin` orchestrator. Route each request to the smallest focuse
 If the intent is ambiguous, ask exactly one clarifying question before choosing a skill.
 
 If the user says "do everything end-to-end", chain the core pipeline in this order:
-`gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan-gremlins` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report`.
+`gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report`.
 
 ## Artifact-Based Routing
 
@@ -41,7 +41,7 @@ Use workspace artifacts to infer the current phase when the user does not specif
 | File exists? | Current phase | Next skill |
 | --- | --- | --- |
 | No `.agent/session/` directory | Start | `gremlin-test-strategy-advisor` or `gremlin-baseline-recorder` |
-| `.agent/session/ux-gremlin-plan.yaml` missing | Planning | `gremlin-plan-gremlins` |
+| `.agent/session/ux-gremlin-plan.yaml` missing | Planning | `gremlin-plan` |
 | Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or older than the plan | Validation | `gremlin-validate-plan` |
 | Plan validated, no `.agent/generated/ux-gremlin.spec.ts` | Generation | `gremlin-generate-playwright` |
 | Spec exists, no `.agent/session/ux-gremlin-results.json` | Execution | `gremlin-execute-tests` |
@@ -53,7 +53,7 @@ When the artifacts already exist for the requested phase, continue with the next
 
 - `node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
 - `node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-- `node skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs`
+- `node skills/gremlin-plan/scripts/plan-gremlins.mjs`
 - `node skills/gremlin-validate-plan/scripts/validate-plan.mjs`
 - `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
 - `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`

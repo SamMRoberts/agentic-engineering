@@ -7,7 +7,7 @@ When the task involves UX resilience testing, Playwright scenario generation, se
 1. Match the user's request to the closest skill:
    - Strategy / coverage questions → `node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
    - Baseline capture / walkthrough → `node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-   - Plan creation → `node skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs`
+   - Plan creation → `node skills/gremlin-plan/scripts/plan-gremlins.mjs`
    - Plan validation / readiness → `node skills/gremlin-validate-plan/scripts/validate-plan.mjs`
    - Playwright generation → `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
    - Selector resolution → `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
@@ -33,7 +33,7 @@ When the task involves UX resilience testing, Playwright scenario generation, se
 Check the workspace before choosing the next step:
 
 - No `.agent/session/` directory → start with `gremlin-test-strategy-advisor` (or `gremlin-baseline-recorder` if the happy path is already known)
-- `.agent/session/ux-gremlin-plan.yaml` missing → use `gremlin-plan-gremlins`
+- `.agent/session/ux-gremlin-plan.yaml` missing → use `gremlin-plan`
 - Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or stale → use `gremlin-validate-plan`
 - Plan validated and `.agent/generated/ux-gremlin.spec.ts` missing → use `gremlin-generate-playwright`
 - Spec exists but `.agent/session/ux-gremlin-results.json` is missing → use `gremlin-execute-tests`
@@ -43,4 +43,4 @@ Check the workspace before choosing the next step:
 
 - If intent is ambiguous, ask one clarifying question.
 - If the user asks to do everything end-to-end, chain:
-  `gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan-gremlins` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report`.
+  `gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report`.

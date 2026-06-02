@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const legacyCli = path.join(root, 'scripts/ux-gremlin-core.mjs');
 const skillScripts = {
   'gremlin-test-strategy-advisor': 'skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs',
-  'gremlin-plan-gremlins': 'skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs',
+  'gremlin-plan': 'skills/gremlin-plan/scripts/plan-gremlins.mjs',
   'gremlin-validate-plan': 'skills/gremlin-validate-plan/scripts/validate-plan.mjs',
   'gremlin-generate-playwright': 'skills/gremlin-generate-playwright/scripts/generate-playwright.mjs',
   'gremlin-execute-tests': 'skills/gremlin-execute-tests/scripts/execute-tests.mjs',
@@ -42,7 +42,7 @@ function detectNextSkill(cwd) {
   const plan = fs.existsSync(yamlPlan) ? yamlPlan : (fs.existsSync(jsonPlan) ? jsonPlan : null);
   if (!plan) {
     return {
-      skill: 'gremlin-plan-gremlins',
+      skill: 'gremlin-plan',
       reason: 'No UX Gremlin plan artifact exists yet.'
     };
   }

@@ -1,5 +1,5 @@
 ---
-name: gremlin-plan-gremlins
+name: gremlin-plan
 description: Generate or update `ux-gremlin-plan.yaml` from the baseline flow and strategy decisions.
 argument-hint: "Provide the target route, baseline flow, safety constraints, and any strategy notes to encode in the plan"
 user-invocable: true
@@ -34,7 +34,7 @@ Use this skill to create the canonical UX Gremlin plan artifact that downstream 
 
 ## CLI Entry Point
 
-`node skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs`
+`node skills/gremlin-plan/scripts/plan-gremlins.mjs`
 
 ## Workflow Notes
 

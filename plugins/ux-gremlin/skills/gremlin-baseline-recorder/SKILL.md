@@ -30,7 +30,7 @@ Use this skill to capture the exact happy-path flow before any hostile mutations
 ## Output Artifacts
 
 - A captured baseline narrative in `.agent/session/ux-gremlin-baseline.md`.
-- Inputs ready for `plan-gremlins` and later Playwright generation.
+- Inputs ready for `gremlin-plan` and later Playwright generation.
 
 ## CLI Entry Point
 
@@ -39,4 +39,4 @@ Use this skill to capture the exact happy-path flow before any hostile mutations
 ## Workflow Notes
 
 - Keep the baseline free of mutations and recovery behavior.
-- Escalate to `plan-gremlins` once the steps and expected result are stable.
+- Escalate to `gremlin-plan` once the steps and expected result are stable.

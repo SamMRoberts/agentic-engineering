@@ -40,4 +40,4 @@ Use this skill to turn a vague “what should we test?” request into a focused
 ## Workflow Notes
 
 - Ask short clarifying questions when critical context is missing.
-- Hand off to `baseline-recorder` or `plan-gremlins` once scope is clear.
+- Hand off to `baseline-recorder` or `gremlin-plan` once scope is clear.

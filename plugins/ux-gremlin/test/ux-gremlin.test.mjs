@@ -819,7 +819,7 @@ test("auto router chooses the next skill from artifact state", () => {
 
   fs.mkdirSync(path.join(dir, ".agent/session"), { recursive: true });
   result = route(dir);
-  assert.match(result.stdout, /Next skill: gremlin-plan-gremlins/);
+  assert.match(result.stdout, /Next skill: gremlin-plan/);
 
   const planPath = path.join(dir, ".agent/session/ux-gremlin-plan.yaml");
   fs.writeFileSync(planPath, fs.readFileSync(validPlan, "utf-8"), "utf-8");

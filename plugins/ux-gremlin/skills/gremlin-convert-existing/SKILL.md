@@ -38,4 +38,4 @@ Use this skill to accelerate adoption when the team already has end-to-end tests
 ## Workflow Notes
 
 - Keep the original happy path recognizable as the baseline.
-- Route to `plan-gremlins` or `generate-playwright` after extracting the flow.
+- Route to `gremlin-plan` or `generate-playwright` after extracting the flow.

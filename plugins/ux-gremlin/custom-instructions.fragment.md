@@ -7,7 +7,7 @@ When a request is about UX resilience testing, Playwright generation, selector r
 1. No `.agent/session/` directory:
    - Start with `gremlin-test-strategy-advisor`, unless the user already knows the happy path and wants to record it immediately; then use `gremlin-baseline-recorder`.
 2. `.agent/session/ux-gremlin-plan.yaml` missing:
-   - Use `gremlin-plan-gremlins`.
+   - Use `gremlin-plan`.
 3. Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or older than the plan:
    - Use `gremlin-validate-plan`.
 4. Plan validated and `.agent/generated/ux-gremlin.spec.ts` is missing:
@@ -22,7 +22,7 @@ When a request is about UX resilience testing, Playwright generation, selector r
 
 - `node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
 - `node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-- `node skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs`
+- `node skills/gremlin-plan/scripts/plan-gremlins.mjs`
 - `node skills/gremlin-validate-plan/scripts/validate-plan.mjs`
 - `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
 - `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
