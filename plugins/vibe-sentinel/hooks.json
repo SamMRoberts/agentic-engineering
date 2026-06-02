@@ -1,38 +1,40 @@
 {
-    "SessionStart": [
-        {
-            "name": "vibe-sentinel-assumption-init",
-            "command": "node bin/assumption-gate.mjs init",
-            "timeoutSeconds": 10
-        },
-        {
-            "name": "vibe-sentinel-change-control-init",
-            "command": "node bin/change-control.mjs init",
-            "timeoutSeconds": 10
-        }
-    ],
-    "PostToolUse": [
-        {
-            "name": "vibe-sentinel-change-control-drift",
-            "command": "node bin/change-control.mjs drift",
-            "timeoutSeconds": 10
-        }
-    ],
-    "Stop": [
-        {
-            "name": "vibe-sentinel-assumption-check",
-            "command": "node bin/assumption-gate.mjs check",
-            "timeoutSeconds": 10
-        },
-        {
-            "name": "vibe-sentinel-change-control-check",
-            "command": "node bin/change-control.mjs check",
-            "timeoutSeconds": 10
-        },
-        {
-            "name": "vibe-sentinel-change-control-final-drift",
-            "command": "node bin/change-control.mjs drift",
-            "timeoutSeconds": 10
-        }
-    ]
+    "hooks": {
+        "SessionStart": [
+            {
+                "name": "vibe-sentinel-assumption-init",
+                "command": "node bin/assumption-gate.mjs init",
+                "timeoutSeconds": 10
+            },
+            {
+                "name": "vibe-sentinel-change-control-init",
+                "command": "node bin/change-control.mjs init",
+                "timeoutSeconds": 10
+            }
+        ],
+        "PostToolUse": [
+            {
+                "name": "vibe-sentinel-change-control-drift",
+                "command": "node bin/change-control.mjs drift",
+                "timeoutSeconds": 10
+            }
+        ],
+        "Stop": [
+            {
+                "name": "vibe-sentinel-assumption-check",
+                "command": "node bin/assumption-gate.mjs check",
+                "timeoutSeconds": 10
+            },
+            {
+                "name": "vibe-sentinel-change-control-check",
+                "command": "node bin/change-control.mjs check",
+                "timeoutSeconds": 10
+            },
+            {
+                "name": "vibe-sentinel-change-control-final-drift",
+                "command": "node bin/change-control.mjs drift",
+                "timeoutSeconds": 10
+            }
+        ]
+    }
 }
