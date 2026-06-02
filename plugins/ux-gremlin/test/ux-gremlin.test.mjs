@@ -14,9 +14,7 @@ const invalidPlan = path.join(pluginRoot, "examples/invalid-plan.yaml");
 const resultsExample = path.join(pluginRoot, "examples/results.example.yaml");
 const playwrightExample = path.join(pluginRoot, "examples/playwright-report.example.json");
 const expectedVersion = pluginManifest.metadata.version;
-const focusedSkills = pluginManifest.metadata.skills
-  .map((skillPath) => path.basename(path.dirname(skillPath)))
-  .filter((skill) => skill !== "gremlin-ux-gremlin");
+const focusedSkills = pluginManifest.metadata.skills.map((skillPath) => path.basename(path.dirname(skillPath)));
 
 // Minimal but schema-complete plan used to exercise coverage enforcement.
 function minimalFormPlan(extra = {}) {

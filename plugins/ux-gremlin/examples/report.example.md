@@ -356,8 +356,8 @@ Recovery Notes:
 
 ## Follow-up Tests
 
-- node skills/gremlin-ux-gremlin/scripts/ux-gremlin.mjs check
-- node skills/gremlin-ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
+- node scripts/ux-gremlin-core.mjs check
+- node scripts/ux-gremlin-core.mjs generate-playwright
 
 ## Executed Commands
 

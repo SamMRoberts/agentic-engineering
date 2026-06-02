@@ -236,8 +236,8 @@ recovery_expectations:
   - "Users can restart, resume, or cancel from every interrupted state."
   - "No gremlin scenario leaves partial or duplicate entities."
 verification_commands:
-  - "node skills/gremlin-ux-gremlin/scripts/ux-gremlin.mjs check"
-  - "node skills/gremlin-ux-gremlin/scripts/ux-gremlin.mjs generate-playwright"
+  - "node scripts/ux-gremlin-core.mjs check"
+  - "node scripts/ux-gremlin-core.mjs generate-playwright"
 reporting:
   output_dir: ".agent/reports/ux-gremlin"
   include_screenshots: true

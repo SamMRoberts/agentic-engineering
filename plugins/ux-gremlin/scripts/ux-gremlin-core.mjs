@@ -104,7 +104,7 @@ const recipeAssertionActions = new Set(["expect_visible", "expect_text", "expect
 
 function usage(exitCode = 2) {
   const out = exitCode === 0 ? console.log : console.error;
-  out(`Usage: node skills/gremlin-ux-gremlin/scripts/ux-gremlin.mjs <command> [options]
+  out(`Usage: node scripts/ux-gremlin-core.mjs <command> [options]
 
 Commands:
   init                 Create .agent/session/ux-gremlin-plan.yaml and report dir if missing.
