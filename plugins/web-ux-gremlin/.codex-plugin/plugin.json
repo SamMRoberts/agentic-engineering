@@ -1,7 +1,7 @@
 {
   "name": "web-ux-gremlin",
-  "version": "0.1.0",
-  "description": "TODO: describe what web-ux-gremlin does.",
+  "version": "1.5.1",
+  "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
   "author": {
     "name": "Sam Roberts",
     "url": "https://github.com/SamMRoberts"
@@ -16,10 +16,10 @@
   "privateAgents": [],
   "interface": {
     "displayName": "Web Ux Gremlin",
-    "shortDescription": "TODO: one-line summary of web-ux-gremlin.",
-    "longDescription": "TODO: longer description of web-ux-gremlin's workflow, inputs, and outputs.",
+    "shortDescription": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
+    "longDescription": "Web UX Gremlin creates and validates UX resilience plans, then supports CLI or MCP execution workflows for gremlin-style frontend testing.",
     "developerName": "Sam Roberts",
-    "category": "Other",
+    "category": "Productivity",
     "capabilities": [
       "Interactive"
     ],
@@ -29,5 +29,24 @@
     ],
     "brandColor": "#1D4ED8",
     "screenshots": []
+  },
+  "requirements": {
+    "runtime": [
+      {
+        "name": "node",
+        "reason": "Required to run npm, npx, and Playwright-based UX gremlin workflows."
+      }
+    ],
+    "install": [
+      {
+        "name": "playwright",
+        "command": "npm init playwright@latest"
+      },
+      {
+        "name": "playwright-agents",
+        "command": "npx playwright init-agents --loop=vscode",
+        "after": "playwright"
+      }
+    ]
   }
 }

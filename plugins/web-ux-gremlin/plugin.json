@@ -2,5 +2,29 @@
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "web-ux-gremlin",
-  "privateAgents": []
+  "privateAgents": [],
+  "requirements": {
+    "runtime": [
+      {
+        "name": "node",
+        "reason": "Required to run npm, npx, and Playwright-based UX gremlin workflows."
+      }
+    ],
+    "install": [
+      {
+        "name": "playwright",
+        "command": "npm init playwright@latest"
+      },
+      {
+        "name": "playwright-agents",
+        "command": "npx playwright init-agents --loop=vscode",
+        "after": "playwright"
+      }
+    ]
+  },
+  "name": "web-ux-gremlin",
+  "metadata": {
+    "version": "1.5.1",
+    "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs."
+  }
 }

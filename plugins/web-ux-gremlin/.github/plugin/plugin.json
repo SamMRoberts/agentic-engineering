@@ -9,7 +9,7 @@
   "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SamMRoberts/agentic-engineering"
+    "url": "https://github.com/SamMRoberts/agentic-engineering.git"
   },
   "license": "MIT",
   "keywords": [],
