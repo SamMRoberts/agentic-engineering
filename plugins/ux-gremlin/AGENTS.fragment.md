@@ -5,22 +5,22 @@ When the task involves UX resilience testing, Playwright scenario generation, se
 ## Choose the skill from intent + artifact state
 
 1. Match the user's request to the closest skill:
-   - Strategy / coverage questions → `node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
-   - Baseline capture / walkthrough → `node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-   - Plan creation → `node skills/gremlin-plan/scripts/plan-gremlins.mjs`
-   - Plan validation / readiness → `node skills/gremlin-validate-plan/scripts/validate-plan.mjs`
-   - Playwright generation → `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
-   - Selector resolution → `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
-   - Execution / ingestion → `node skills/gremlin-execute-tests/scripts/execute-tests.mjs`
-   - Reporting / severity gates → `node skills/gremlin-report/scripts/report-gremlins.mjs`
-   - Failure triage → `node skills/gremlin-triage-failures/scripts/triage-failures.mjs`
-   - Fix recommendations → `node skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs`
-   - Regression comparison → `node skills/gremlin-regression-guard/scripts/regression-guard.mjs`
-   - Accessibility deep dive → `node skills/gremlin-accessibility-audit/scripts/accessibility-audit.mjs`
-   - PR-aware planning → `node skills/gremlin-plan-from-pr/scripts/plan-from-pr.mjs`
-   - CI setup → `node skills/gremlin-ci-integration/scripts/ci-integration.mjs`
-   - Existing test conversion → `node skills/gremlin-convert-existing/scripts/convert-existing.mjs`
-   - Scenario explanation → `node skills/gremlin-explain-scenario/scripts/explain-scenario.mjs`
+   - Strategy / coverage questions → `gremlin-test-strategy-advisor`
+   - Baseline capture / walkthrough → `gremlin-baseline-recorder`
+   - Plan creation → `gremlin-plan`
+   - Plan validation / readiness → `gremlin-validate-plan`
+   - Playwright generation → `gremlin-generate-playwright`
+   - Selector resolution → `gremlin-selector-discovery`
+   - Execution / ingestion → `gremlin-execute-tests`
+   - Reporting / severity gates → `gremlin-report`
+   - Failure triage → `gremlin-triage-failures`
+   - Fix recommendations → `gremlin-fix-suggestions`
+   - Regression comparison → `gremlin-regression-guard`
+   - Accessibility deep dive → `gremlin-accessibility-audit`
+   - PR-aware planning → `gremlin-plan-from-pr`
+   - CI setup → `gremlin-ci-integration`
+   - Existing test conversion → `gremlin-convert-existing`
+   - Scenario explanation → `gremlin-explain-scenario`
 
 2. If the prompt is broad or the platform cannot explicitly choose among skills, run:
 
