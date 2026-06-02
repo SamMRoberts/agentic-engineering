@@ -1,41 +1,27 @@
 ---
 name: gremlin-triage-failures
-description: Classify failing UX Gremlin scenarios as likely product bugs, flaky tests, or environment issues.
-argument-hint: "Provide the failing scenario ids, evidence, and any run metadata or logs"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-report. Use gremlin-report to summarize failures, open risks, suspected bugs, and recommended actions."
+argument-hint: "Use gremlin-report; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Triage Failures
 
-## Purpose
+## Deprecated
 
-Use this skill to turn raw failing scenarios into prioritized follow-up actions.
+This skill has been consolidated into `gremlin-report` because failure triage now belongs in results reporting.
 
-## When to Use
+## Replacement
 
-- A run produced failures that need classification and priority.
-- The user asks why something failed or whether a failure is flaky.
+Use gremlin-report to summarize failures, open risks, suspected bugs, and recommended actions.
 
-## When Not to Use
+## Compatibility Behavior
 
-- No results or evidence exist yet.
-- The task is to author the initial plan.
-
-## Required Inputs
-
-- Scenario ids, failure evidence, and run metadata.
-- Context about environment instability or known flaky dependencies.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-report` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- A triage summary in `.agent/session/ux-gremlin-triage.md`.
-- Suggested priority labels for follow-up remediation.
-
-## CLI Entry Point
-
-`node skills/gremlin-triage-failures/scripts/triage-failures.mjs`
-
-## Workflow Notes
-
-- Separate product defects from test harness problems.
-- Use `fix-suggestions` once a failure is confirmed as a likely application bug.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

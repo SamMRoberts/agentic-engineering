@@ -1,41 +1,27 @@
 ---
 name: gremlin-fix-suggestions
-description: Suggest likely application-code fixes for failing gremlin scenarios.
-argument-hint: "Provide the failing scenario ids, observed bug indicators, and the affected route or component"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-report. Use gremlin-report to produce the Top Issues and Recommended Actions output from ingested results."
+argument-hint: "Use gremlin-report; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Fix Suggestions
 
-## Purpose
+## Deprecated
 
-Use this skill to translate failing UX Gremlin findings into likely remediation ideas for the application itself.
+This skill has been consolidated into `gremlin-report` because fix recommendations now belong in results reporting.
 
-## When to Use
+## Replacement
 
-- You already have a confirmed or likely product bug from a gremlin run.
-- The user asks what they should fix or how the app could recover better.
+Use gremlin-report to produce the Top Issues and Recommended Actions output from ingested results.
 
-## When Not to Use
+## Compatibility Behavior
 
-- The failure still needs triage.
-- The task is only to generate or execute tests.
-
-## Required Inputs
-
-- Scenario ids, error symptoms, and route/component context.
-- Any logs, screenshots, traces, or recovery failures.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-report` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- Suggested remediation notes in `.agent/session/ux-gremlin-fix-suggestions.md`.
-- Actionable bug-fix hypotheses for engineering follow-up.
-
-## CLI Entry Point
-
-`node skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs`
-
-## Workflow Notes
-
-- Prefer application-code or product-behavior fixes over test-only workarounds.
-- Pair with `triage-failures` when confidence is low.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

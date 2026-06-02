@@ -1,11 +1,11 @@
 # UX Gremlin Skill Router
 
-When a request is about UX resilience testing, Playwright generation, selector resolution, results analysis, or reporting, choose the UX Gremlin phase by inspecting the workspace first.
+When a request is about UX resilience testing, Playwright generation, selector resolution, results analysis, or reporting, choose from the consolidated UX Gremlin skills by inspecting the workspace first.
 
 ## Phase detection
 
 1. No `.agent/session/` directory:
-   - Start with `gremlin-test-strategy-advisor`, unless the user already knows the happy path and wants to record it immediately; then use `gremlin-baseline-recorder`.
+   - Start with `gremlin-plan`.
 2. `.agent/session/ux-gremlin-plan.yaml` missing:
    - Use `gremlin-plan`.
 3. Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or older than the plan:
@@ -16,26 +16,15 @@ When a request is about UX resilience testing, Playwright generation, selector r
    - Use `gremlin-execute-tests`.
 6. Results exist and `.agent/reports/ux-gremlin/report.md` is missing:
    - Use `gremlin-report`.
-7. If the request is specifically about triage, fixes, regression, accessibility, PR-driven planning, CI setup, existing test conversion, or scenario explanation, jump directly to the focused skill that matches that intent.
+7. If the request is specifically about triage, fixes, regression, CI gates, or scenario explanation, use `gremlin-report`. If it is about accessibility planning, PR-driven planning, or existing test conversion, use `gremlin-plan`.
 
 ## Skill entry points
 
-- `gremlin-test-strategy-advisor`
-- `gremlin-baseline-recorder`
 - `gremlin-plan`
 - `gremlin-validate-plan`
 - `gremlin-generate-playwright`
-- `gremlin-selector-discovery`
 - `gremlin-execute-tests`
 - `gremlin-report`
-- `gremlin-triage-failures`
-- `gremlin-fix-suggestions`
-- `gremlin-regression-guard`
-- `gremlin-accessibility-audit`
-- `gremlin-plan-from-pr`
-- `gremlin-ci-integration`
-- `gremlin-convert-existing`
-- `gremlin-explain-scenario`
 - `gremlin-auto`
 
-If the intent is ambiguous, ask one clarifying question. If the user asks for the full workflow, chain the core pipeline in order. If the platform cannot confidently pick a focused skill, run `node scripts/ux-gremlin.mjs auto`.
+Deprecated compatibility skills are retained for one major-version cycle but should not be selected for new work. If the intent is ambiguous, ask one clarifying question. If the user asks for the full workflow, chain the core pipeline in order. If the platform cannot confidently pick a focused skill, run `node scripts/ux-gremlin.mjs auto`.

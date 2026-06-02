@@ -1,42 +1,27 @@
 ---
 name: gremlin-baseline-recorder
-description: Guide the user step-by-step to define or record the happy-path baseline flow that gremlins will mutate.
-argument-hint: "Describe the normal user journey, the expected success state, and any auth or safety boundaries"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-plan. Use gremlin-plan to capture the happy-path baseline before adding gremlin scenarios."
+argument-hint: "Use gremlin-plan; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Baseline Recorder
 
-## Purpose
+## Deprecated
 
-Use this skill to capture the exact happy-path flow before any hostile mutations are introduced.
+This skill has been consolidated into `gremlin-plan` because baseline capture now belongs in the plan phase.
 
-## When to Use
+## Replacement
 
-- The user says “walk me through it”, “record the baseline”, or only knows the happy path verbally.
-- You need a shared source of truth before generating plan scenarios.
+Use gremlin-plan to capture the happy-path baseline before adding gremlin scenarios.
 
-## When Not to Use
+## Compatibility Behavior
 
-- A trustworthy baseline flow is already documented in the plan.
-- The task is about reporting or triaging completed runs.
-
-## Required Inputs
-
-- Entry route or starting URL.
-- Ordered user actions for the happy path.
-- Expected end state, safety limits, and required test data.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-plan` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- A captured baseline narrative in `.agent/session/ux-gremlin-baseline.md`.
-- Inputs ready for `gremlin-plan` and later Playwright generation.
-
-## CLI Entry Point
-
-`node skills/gremlin-baseline-recorder/scripts/baseline-recorder.mjs`
-
-## Workflow Notes
-
-- Keep the baseline free of mutations and recovery behavior.
-- Escalate to `gremlin-plan` once the steps and expected result are stable.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

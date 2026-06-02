@@ -1,3 +1,15 @@
 #!/usr/bin/env node
-console.log('[ux-gremlin:triage-failures] TODO: implement the triage failures workflow.');
-console.log('Capture outputs described in skills/gremlin-triage-failures/SKILL.md and continue with the next focused UX Gremlin phase.');
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const replacement = 'gremlin-report';
+const replacementScript = path.join(root, 'skills/gremlin-report/scripts/report-gremlins.mjs');
+
+console.error('[ux-gremlin:gremlin-triage-failures] Deprecated: use ' + replacement + ' instead.');
+const result = spawnSync(process.execPath, [replacementScript, ...process.argv.slice(2)], {
+  cwd: process.cwd(),
+  stdio: 'inherit'
+});
+process.exit(result.status ?? 1);

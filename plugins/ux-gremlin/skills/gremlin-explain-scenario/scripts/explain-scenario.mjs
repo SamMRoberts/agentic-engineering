@@ -1,3 +1,15 @@
 #!/usr/bin/env node
-console.log('[ux-gremlin:explain-scenario] TODO: implement the explain scenario workflow.');
-console.log('Capture outputs described in skills/gremlin-explain-scenario/SKILL.md and continue with the next focused UX Gremlin phase.');
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const replacement = 'gremlin-report';
+const replacementScript = path.join(root, 'skills/gremlin-report/scripts/report-gremlins.mjs');
+
+console.error('[ux-gremlin:gremlin-explain-scenario] Deprecated: use ' + replacement + ' instead.');
+const result = spawnSync(process.execPath, [replacementScript, ...process.argv.slice(2)], {
+  cwd: process.cwd(),
+  stdio: 'inherit'
+});
+process.exit(result.status ?? 1);

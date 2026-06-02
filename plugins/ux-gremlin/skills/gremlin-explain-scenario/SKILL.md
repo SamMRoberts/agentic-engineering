@@ -1,41 +1,27 @@
 ---
 name: gremlin-explain-scenario
-description: Explain why a specific UX Gremlin scenario matters in plain language for engineers, QA, or product stakeholders.
-argument-hint: "Provide the scenario id and any route or customer-impact context that should shape the explanation"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-report. Use gremlin-report for scenario impact, expected recovery, findings, and recommended actions."
+argument-hint: "Use gremlin-report; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Explain Scenario
 
-## Purpose
+## Deprecated
 
-Use this skill to make a scenario understandable when the user needs rationale rather than execution.
+This skill has been consolidated into `gremlin-report` because scenario explanation now belongs in plan/report context.
 
-## When to Use
+## Replacement
 
-- The user asks why a scenario matters or wants a plain-language explanation of a scenario id.
-- You need to translate resilience jargon into product impact.
+Use gremlin-report for scenario impact, expected recovery, findings, and recommended actions.
 
-## When Not to Use
+## Compatibility Behavior
 
-- The task is to author or validate the plan itself.
-- No scenario id or comparable scenario context is available.
-
-## Required Inputs
-
-- Scenario id and the affected route or workflow.
-- Optional customer, business, or accessibility impact context.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-report` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- A scenario explanation in `.agent/session/ux-gremlin-scenario-explanations.md`.
-- Plain-language rationale that can be reused in reports or reviews.
-
-## CLI Entry Point
-
-`node skills/gremlin-explain-scenario/scripts/explain-scenario.mjs`
-
-## Workflow Notes
-
-- Translate technical failure modes into user-visible consequences.
-- Link back to the plan or report artifacts whenever possible.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

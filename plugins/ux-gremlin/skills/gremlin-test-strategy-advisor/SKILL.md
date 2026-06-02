@@ -1,43 +1,27 @@
 ---
 name: gremlin-test-strategy-advisor
-description: Interview the user about their app and recommend gremlin categories, priorities, and coverage depth.
-argument-hint: "Describe the app, critical journeys, user roles, risks, and what you already know about the flow"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-plan. Use gremlin-plan to capture strategy notes, baseline context, safety constraints, and coverage priorities in the plan artifact."
+argument-hint: "Use gremlin-plan; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Test Strategy Advisor
 
-## Purpose
+## Deprecated
 
-Use this skill to turn a vague “what should we test?” request into a focused UX Gremlin coverage strategy before plan authoring begins.
+This skill has been consolidated into `gremlin-plan` because strategy and coverage scoping now belong in the plan phase.
 
-## When to Use
+## Replacement
 
-- The user is unsure which routes, personas, or failure modes deserve coverage.
-- You need to recommend gremlin categories before writing a baseline or plan.
-- You want to scope effort for a new UX resilience initiative.
+Use gremlin-plan to capture strategy notes, baseline context, safety constraints, and coverage priorities in the plan artifact.
 
-## When Not to Use
+## Compatibility Behavior
 
-- A concrete baseline flow and draft plan already exist.
-- The task is to validate, generate, execute, or report on an existing plan.
-
-## Required Inputs
-
-- Application type, route, or product area under test.
-- Critical user goals, risky states, and failure consequences.
-- Known auth, data, browser, accessibility, or recovery constraints.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-plan` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- Coverage recommendations to capture in `.agent/session/ux-gremlin-strategy.md`.
-- A prioritized list of gremlin categories to carry into `ux-gremlin-plan.yaml`.
-
-## CLI Entry Point
-
-`node skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs`
-
-## Workflow Notes
-
-- Ask short clarifying questions when critical context is missing.
-- Hand off to `baseline-recorder` or `gremlin-plan` once scope is clear.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

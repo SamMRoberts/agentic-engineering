@@ -1,41 +1,27 @@
 ---
 name: gremlin-regression-guard
-description: Compare the latest results against historical baselines and highlight regressions or trend shifts.
-argument-hint: "Provide the latest results plus any baseline or prior report artifacts to compare against"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-report. Use gremlin-report with run history enabled to compare current results against previous runs."
+argument-hint: "Use gremlin-report; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Regression Guard
 
-## Purpose
+## Deprecated
 
-Use this skill to identify what changed since the last run and whether the UX risk trend is worsening.
+This skill has been consolidated into `gremlin-report` because trend and regression signals now belong in reporting.
 
-## When to Use
+## Replacement
 
-- Historical results exist and you need a regression summary.
-- The user asks what changed since the last run or wants trend tracking.
+Use gremlin-report with run history enabled to compare current results against previous runs.
 
-## When Not to Use
+## Compatibility Behavior
 
-- There is only a single isolated run with no baseline to compare against.
-- The task is still in planning or generation.
-
-## Required Inputs
-
-- Latest results and any prior result/report artifacts.
-- Context about expected behavior changes in the app.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-report` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- A regression summary in `.agent/reports/ux-gremlin/regression.md`.
-- Trend notes for severity shifts, new failures, and recovered scenarios.
-
-## CLI Entry Point
-
-`node skills/gremlin-regression-guard/scripts/regression-guard.mjs`
-
-## Workflow Notes
-
-- Use after reporting when historical context matters.
-- Escalate newly introduced high-severity issues quickly.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

@@ -15,6 +15,7 @@ const resultsExample = path.join(pluginRoot, "examples/results.example.yaml");
 const playwrightExample = path.join(pluginRoot, "examples/playwright-report.example.json");
 const expectedVersion = pluginManifest.metadata.version;
 const focusedSkills = pluginManifest.metadata.skills.map((skillPath) => path.basename(path.dirname(skillPath)));
+const deprecatedSkills = (pluginManifest.metadata.deprecated_skills ?? []).map((skillPath) => path.basename(path.dirname(skillPath)));
 
 // Minimal but schema-complete plan used to exercise coverage enforcement.
 function minimalFormPlan(extra = {}) {
@@ -752,7 +753,7 @@ reporting:
   assert.match(spec, /await expect\(page\.getByLabel\("Title"\)\)\.toBeVisible\(\);/);
 });
 
-test("focused skill scaffolding includes metadata, sections, and scripts", () => {
+test("active skill scaffolding includes metadata, sections, and scripts", () => {
   for (const skill of focusedSkills) {
     const skillPath = path.join(pluginRoot, "skills", skill, "SKILL.md");
     const scriptEntries = fs
@@ -772,8 +773,44 @@ test("focused skill scaffolding includes metadata, sections, and scripts", () =>
   }
 });
 
+test("deprecated compatibility skills are hidden and point to active replacements", () => {
+  assert.deepEqual(focusedSkills, [
+    "gremlin-auto",
+    "gremlin-plan",
+    "gremlin-validate-plan",
+    "gremlin-generate-playwright",
+    "gremlin-execute-tests",
+    "gremlin-report"
+  ]);
+  assert.ok(deprecatedSkills.length > 0);
+  for (const skill of deprecatedSkills) {
+    const skillPath = path.join(pluginRoot, "skills", skill, "SKILL.md");
+    const content = fs.readFileSync(skillPath, "utf-8");
+
+    assert.match(content, new RegExp(`^name: ${skill}$`, "m"));
+    assert.match(content, /^deprecated: true$/m);
+    assert.match(content, /^user-invocable: false$/m);
+    assert.match(content, /## Replacement/);
+    assert.match(content, /must not be chosen|Do not route new user requests here|Use gremlin-/);
+  }
+});
+
+test("deprecated compatibility scripts hand off instead of exposing TODO stubs", () => {
+  for (const skill of deprecatedSkills) {
+    const scriptEntries = fs
+      .readdirSync(path.join(pluginRoot, "skills", skill, "scripts"))
+      .filter((entry) => entry.endsWith(".mjs"));
+    const scriptPath = path.join(pluginRoot, "skills", skill, "scripts", scriptEntries[0]);
+    const content = fs.readFileSync(scriptPath, "utf-8");
+
+    assert.doesNotMatch(content, /TODO: implement/);
+    assert.match(content, /Deprecated: use/);
+    assert.match(content, /spawnSync/);
+  }
+});
+
 test("focused skill scripts parse as valid Node.js modules", () => {
-  for (const skill of focusedSkills) {
+  for (const skill of [...focusedSkills, ...deprecatedSkills]) {
     const scriptEntries = fs
       .readdirSync(path.join(pluginRoot, "skills", skill, "scripts"))
       .filter((entry) => entry.endsWith(".mjs"));
@@ -786,9 +823,10 @@ test("focused skill scripts parse as valid Node.js modules", () => {
   }
 });
 
-test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
+test("plugin metadata advertises the consolidated UX Gremlin structure", () => {
   const codex = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".codex-plugin/plugin.json"), "utf-8"));
   const claude = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".claude-plugin/plugin.json"), "utf-8"));
+  const pkg = JSON.parse(fs.readFileSync(path.join(pluginRoot, "package.json"), "utf-8"));
   const agent = fs.readFileSync(path.join(pluginRoot, "agents/ux-gremlin.agent.md"), "utf-8");
   const codexFragment = fs.readFileSync(path.join(pluginRoot, "AGENTS.fragment.md"), "utf-8");
   const claudeFragment = fs.readFileSync(path.join(pluginRoot, "custom-instructions.fragment.md"), "utf-8");
@@ -796,17 +834,24 @@ test("plugin metadata advertises the multi-skill UX Gremlin structure", () => {
   assert.equal(pluginManifest.metadata.version, expectedVersion);
   assert.equal(codex.version, expectedVersion);
   assert.equal(claude.version, expectedVersion);
+  assert.equal(pkg.version, expectedVersion);
   assert.equal(pluginManifest.metadata.skills.length, focusedSkills.length);
+  assert.equal(pluginManifest.metadata.deprecated_skills.length, deprecatedSkills.length);
   assert.match(JSON.stringify(pluginManifest.metadata.skills), /skills\/gremlin-auto\/SKILL\.md/);
+  assert.doesNotMatch(JSON.stringify(pluginManifest.metadata.skills), /gremlin-test-strategy-advisor/);
+  assert.match(JSON.stringify(pluginManifest.metadata.deprecated_skills), /gremlin-test-strategy-advisor/);
   assert.match(JSON.stringify(pluginManifest.metadata.scripts), /scripts\/ux-gremlin\.mjs/);
   assert.match(JSON.stringify(pluginManifest.metadata.outputs), /ux-gremlin-plan\.check\.ok/);
 
   assert.match(agent, /If the intent is ambiguous, ask exactly one clarifying question/);
   assert.match(agent, /do everything end-to-end/);
+  assert.match(agent, /Deprecated compatibility skills/);
   assert.match(agent, /ux-gremlin-plan\.check\.ok/);
   assert.match(codexFragment, /node scripts\/ux-gremlin\.mjs auto/);
   assert.match(codexFragment, /artifact-based phase detection/i);
+  assert.match(codexFragment, /Do not route new requests to deprecated compatibility skills/);
   assert.match(claudeFragment, /Phase detection/);
+  assert.match(claudeFragment, /Deprecated compatibility skills/);
 });
 
 test("auto router chooses the next skill from artifact state", () => {
@@ -815,7 +860,7 @@ test("auto router chooses the next skill from artifact state", () => {
 
   let result = route(dir);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Next skill: gremlin-test-strategy-advisor/);
+  assert.match(result.stdout, /Next skill: gremlin-plan/);
 
   fs.mkdirSync(path.join(dir, ".agent/session"), { recursive: true });
   result = route(dir);

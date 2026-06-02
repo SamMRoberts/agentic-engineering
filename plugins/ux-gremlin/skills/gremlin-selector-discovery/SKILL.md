@@ -1,41 +1,27 @@
 ---
 name: gremlin-selector-discovery
-description: Explore the page or codebase to replace generated selector placeholders with real locators.
-argument-hint: "Provide the route, component, or generated TODO block that still needs real selectors"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-generate-playwright. Use gremlin-generate-playwright for recipe-backed locator generation, then gremlin-execute-tests for readiness checks."
+argument-hint: "Use gremlin-generate-playwright; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Selector Discovery
 
-## Purpose
+## Deprecated
 
-Use this skill to resolve unknown locators after Playwright generation but before execution.
+This skill has been consolidated into `gremlin-generate-playwright` because selector and recipe guidance now belongs in Playwright generation and execution readiness.
 
-## When to Use
+## Replacement
 
-- Generated specs still contain TODO placeholders or unresolved locator questions.
-- The user asks for selectors, locators, or placeholder resolution.
+Use gremlin-generate-playwright for recipe-backed locator generation, then gremlin-execute-tests for readiness checks.
 
-## When Not to Use
+## Compatibility Behavior
 
-- There is no generated spec to improve yet.
-- The task is about strategy, reporting, or CI setup.
-
-## Required Inputs
-
-- The generated spec or TODO block to fix.
-- Relevant route, component, or accessibility context.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-generate-playwright` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- Selector notes in `.agent/session/ux-gremlin-selector-notes.md`.
-- An updated `.agent/generated/ux-gremlin.spec.ts` ready for execution.
-
-## CLI Entry Point
-
-`node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
-
-## Workflow Notes
-
-- Prefer role-based locators and accessible names.
-- Escalate to `execute-tests` once the spec is runnable.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

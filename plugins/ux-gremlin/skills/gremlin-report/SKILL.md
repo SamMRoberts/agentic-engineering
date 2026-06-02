@@ -1,6 +1,6 @@
 ---
 name: gremlin-report
-description: Render UX Gremlin reports and optionally gate on severity thresholds.
+description: Render UX Gremlin reports, summarize failures, recommend fixes, compare trends, explain scenarios, and optionally gate on severity thresholds.
 argument-hint: "Provide the results path and any severity threshold to enforce"
 user-invocable: true
 ---
@@ -10,11 +10,13 @@ user-invocable: true
 ## Purpose
 
 Use this skill to turn plan or run results into human-readable and machine-readable artifacts for reviewers and CI.
+It now owns former failure triage, fix suggestion, regression guard, scenario explanation, and CI gate guidance entrypoints.
 
 ## When to Use
 
 - Results have been ingested and you need reports or gating.
 - The user asks to summarize results or enforce a severity threshold.
+- The user asks why a scenario failed, what to fix, what changed since last run, why a scenario matters, or how to gate CI on findings.
 
 ## When Not to Use
 
@@ -25,6 +27,7 @@ Use this skill to turn plan or run results into human-readable and machine-reada
 
 - A plan path and optional results path.
 - Optional `--fail-on <severity>` gate threshold.
+- Optional failing scenario ids, run metadata, trend/history context, or product impact notes.
 
 ## Output Artifacts
 
@@ -41,4 +44,5 @@ Use this skill to turn plan or run results into human-readable and machine-reada
 ## Workflow Notes
 
 - Use `gate` or `report --fail-on` when the workflow must block on severity.
-- Follow with `triage-failures` or `regression-guard` for deeper analysis.
+- Treat failures as product bugs only when evidence supports that; otherwise label environment, flaky, or needs-review risk clearly.
+- Use report history and Top Issues output for regression summaries and recommended actions.

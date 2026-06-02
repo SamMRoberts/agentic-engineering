@@ -1,41 +1,27 @@
 ---
 name: gremlin-convert-existing
-description: Import existing Playwright or Cypress flows and wrap them with gremlin mutations.
-argument-hint: "Provide the existing test file, framework, and which flow should be adapted into gremlin coverage"
-user-invocable: true
+description: "Deprecated: consolidated into gremlin-plan. Use gremlin-plan to convert an existing Playwright/Cypress happy path into baseline_flow and gremlin_scenarios."
+argument-hint: "Use gremlin-plan; this compatibility skill is no longer a direct workflow entrypoint"
+deprecated: true
+user-invocable: false
 ---
 
 # Convert Existing
 
-## Purpose
+## Deprecated
 
-Use this skill to accelerate adoption when the team already has end-to-end tests that can seed gremlin scenarios.
+This skill has been consolidated into `gremlin-plan` because existing test conversion now starts by capturing the existing happy path as a plan baseline.
 
-## When to Use
+## Replacement
 
-- The user wants to convert Cypress or existing Playwright coverage into UX Gremlin format.
-- There is an established happy-path test that should become the baseline.
+Use gremlin-plan to convert an existing Playwright/Cypress happy path into baseline_flow and gremlin_scenarios.
 
-## When Not to Use
+## Compatibility Behavior
 
-- No reusable existing test coverage is available.
-- The task is only about reporting or triage.
-
-## Required Inputs
-
-- The existing test file or flow outline.
-- Framework details and any migration constraints.
+- Keep this file for one major-version deprecation window.
+- Do not route new user requests here.
+- If invoked explicitly, hand off to `gremlin-plan` and preserve any user-provided context.
 
 ## Output Artifacts
 
-- A conversion plan in `.agent/session/ux-gremlin-conversion.md`.
-- Updated baseline/plan artifacts ready for validation.
-
-## CLI Entry Point
-
-`node skills/gremlin-convert-existing/scripts/convert-existing.mjs`
-
-## Workflow Notes
-
-- Keep the original happy path recognizable as the baseline.
-- Route to `gremlin-plan` or `generate-playwright` after extracting the flow.
+No new artifact contract is owned by this deprecated skill. Use the replacement skill's artifacts and validation commands.

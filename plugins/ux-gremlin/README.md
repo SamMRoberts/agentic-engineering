@@ -6,20 +6,20 @@ Happy-path tests prove that the ideal route works. They usually miss the behavio
 
 ## Skill-first Workflow
 
-Prefer invoking skills directly:
+Prefer the consolidated active skills:
 
 ```bash
-gremlin-test-strategy-advisor
-gremlin-baseline-recorder
 gremlin-plan
 gremlin-validate-plan
 gremlin-generate-playwright
 gremlin-execute-tests
 gremlin-report
-gremlin-ci-integration
+gremlin-auto
 ```
 
 Use `--plan <path>` when a non-default plan file should be validated, generated from, or reported.
+
+Deprecated compatibility skills are still present for one major-version deprecation window, but new requests should route to the consolidated skills above.
 
 ## Copilot Guidance
 
@@ -32,18 +32,18 @@ Common Copilot pattern:
 
 ## Plan Workflow
 
-1. Start with `gremlin-test-strategy-advisor` or `gremlin-baseline-recorder` depending on whether the happy path is already known.
+1. Start with `gremlin-plan`; it owns strategy, baseline capture, accessibility planning, PR-aware planning, and existing-test conversion.
 2. Fill in `target`, `mode`, `safety`, `authentication`, and the baseline happy-path flow.
 3. Optionally set `flow_type` (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`, or a list) so `check` can enforce the mandatory scenario categories for that flow.
 4. Add gremlin scenarios that mutate the baseline. Each scenario needs an id, category, risk level, purpose, steps, expected behavior, assertions, bug indicators, recovery expectation, Playwright notes, and accessibility notes.
 5. Run `gremlin-plan` to prepare the artifact and then `gremlin-validate-plan` until validation passes. `gremlin-validate-plan` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
 6. Use `gremlin-validate-plan` to see flow-type category gaps and declared-condition warnings as an actionable list, then fix any gaps.
 7. Review coverage details from `gremlin-validate-plan` output.
-8. Run `gremlin-generate-playwright` when a starter Playwright spec is useful.
+8. Run `gremlin-generate-playwright` when a starter Playwright spec is useful or selector/recipe guidance needs to be encoded.
 9. Implement `.agent/generated/ux-gremlin.spec.ts` by replacing generated `TODO:` comments with app-specific steps and removing active `requireImplementation(...)` calls.
 10. Run `gremlin-execute-tests`; it enforces execute readiness and prints the next Playwright step when implementation is complete.
 11. Run Playwright with a JSON reporter, then run `gremlin-execute-tests --input <playwright-json>` to ingest results.
-12. Run `gremlin-report` to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+12. Run `gremlin-report` to create `.agent/reports/ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`. It also owns failure triage, fix recommendations, trend/regression summaries, scenario explanation, and CI severity-gate guidance.
 
 If a readiness gate fails, fix the reported upstream artifact and rerun the same skill before moving on.
 
@@ -126,6 +126,23 @@ gremlin-report --fail-on high --results .agent/session/ux-gremlin-results.json
 - `agent_browser`: use the plan as a browser-agent checklist with recorded observations.
 - `manual_checklist`: use the plan for human QA when automation is unavailable.
 
+## Consolidated Skills
+
+Active skills:
+
+- `gremlin-plan`: strategy, baseline capture, plan authoring, accessibility planning, PR context, and existing-test conversion.
+- `gremlin-validate-plan`: plan readiness and coverage gates.
+- `gremlin-generate-playwright`: Playwright generation plus recipe/locator guidance.
+- `gremlin-execute-tests`: execution readiness and Playwright JSON ingestion.
+- `gremlin-report`: reporting, severity gates, triage, fix recommendations, scenario explanation, and trend summaries.
+- `gremlin-auto`: artifact-based routing for hosts that cannot select a focused skill.
+
+Deprecated compatibility skills:
+
+- `gremlin-test-strategy-advisor`, `gremlin-baseline-recorder`, `gremlin-selector-discovery`, `gremlin-triage-failures`, `gremlin-fix-suggestions`, `gremlin-regression-guard`, `gremlin-accessibility-audit`, `gremlin-plan-from-pr`, `gremlin-ci-integration`, `gremlin-convert-existing`, and `gremlin-explain-scenario`.
+
+These files remain in the plugin for compatibility and hand off to their replacement skills, but they are no longer user-invocable entrypoints.
+
 ## Playwright CLI
 
 Generate a starter spec:
@@ -190,7 +207,6 @@ CI is the stronger enforcement layer because it can block merges when `.agent/se
 
 ```bash
 gremlin-validate-plan
-gremlin-validate-plan
 gremlin-report --fail-on high --results .agent/session/ux-gremlin-results.json
 ```
 
@@ -211,10 +227,8 @@ Every applicable flow should include keyboard-only operation, visible focus, cor
 ## Example Workflow
 
 ```bash
-gremlin-test-strategy-advisor
-$EDITOR .agent/session/ux-gremlin-plan.yaml
 gremlin-plan
-gremlin-validate-plan
+$EDITOR .agent/session/ux-gremlin-plan.yaml
 gremlin-validate-plan
 gremlin-generate-playwright
 # implement .agent/generated/ux-gremlin.spec.ts
@@ -226,7 +240,7 @@ gremlin-report --results .agent/session/ux-gremlin-results.json
 
 ## Troubleshooting
 
-- `ERROR: plan file is missing`: run `gremlin-baseline-recorder` (or pass a custom `--plan <path>` to the relevant skill later in the flow).
+- `ERROR: plan file is missing`: run `gremlin-plan` (or pass a custom `--plan <path>` to the relevant skill later in the flow).
 - `ERROR: baseline flow has no steps`: fill `baseline_flow.steps` before adding scenarios.
 - `ERROR: no gremlin scenarios are defined`: add at least one scenario, and normally at least three for useful coverage.
 - `ERROR: destructive actions are enabled without explicit safety notes`: either set destructive actions to false or document the approved safety boundary.

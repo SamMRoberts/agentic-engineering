@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const legacyCli = path.join(root, 'scripts/ux-gremlin-core.mjs');
 const skillScripts = {
-  'gremlin-test-strategy-advisor': 'skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs',
   'gremlin-plan': 'skills/gremlin-plan/scripts/plan-gremlins.mjs',
   'gremlin-validate-plan': 'skills/gremlin-validate-plan/scripts/validate-plan.mjs',
   'gremlin-generate-playwright': 'skills/gremlin-generate-playwright/scripts/generate-playwright.mjs',
@@ -34,8 +33,8 @@ function detectNextSkill(cwd) {
 
   if (!fs.existsSync(sessionDir)) {
     return {
-      skill: 'gremlin-test-strategy-advisor',
-      reason: 'No .agent/session/ directory exists yet.'
+      skill: 'gremlin-plan',
+      reason: 'No .agent/session/ directory exists yet; start with the consolidated planning skill.'
     };
   }
 

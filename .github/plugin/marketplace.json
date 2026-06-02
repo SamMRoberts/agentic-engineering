@@ -30,9 +30,25 @@
             "name": "ux-gremlin",
             "source": "./plugins/ux-gremlin",
             "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
-            "version": "1.4.0",
+            "version": "2.1.0",
             "skills": [
-                "./plugins/ux-gremlin/skills/ux-gremlin"
+                "./plugins/ux-gremlin/skills/gremlin-accessibility-audit",
+                "./plugins/ux-gremlin/skills/gremlin-auto",
+                "./plugins/ux-gremlin/skills/gremlin-baseline-recorder",
+                "./plugins/ux-gremlin/skills/gremlin-ci-integration",
+                "./plugins/ux-gremlin/skills/gremlin-convert-existing",
+                "./plugins/ux-gremlin/skills/gremlin-execute-tests",
+                "./plugins/ux-gremlin/skills/gremlin-explain-scenario",
+                "./plugins/ux-gremlin/skills/gremlin-fix-suggestions",
+                "./plugins/ux-gremlin/skills/gremlin-generate-playwright",
+                "./plugins/ux-gremlin/skills/gremlin-plan",
+                "./plugins/ux-gremlin/skills/gremlin-plan-from-pr",
+                "./plugins/ux-gremlin/skills/gremlin-regression-guard",
+                "./plugins/ux-gremlin/skills/gremlin-report",
+                "./plugins/ux-gremlin/skills/gremlin-selector-discovery",
+                "./plugins/ux-gremlin/skills/gremlin-test-strategy-advisor",
+                "./plugins/ux-gremlin/skills/gremlin-triage-failures",
+                "./plugins/ux-gremlin/skills/gremlin-validate-plan"
             ]
         },
         {
