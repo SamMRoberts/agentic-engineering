@@ -1,8 +1,8 @@
-# UX Gremlin
+# Web UX Gremlin
 
-UX Gremlin turns normal web UX flows into hostile-but-realistic resilience scenarios for Playwright execution and reporting using either Playwright CLI mode (`playwright-cli`) or Playwright MCP mode (`playwright-mcp`). Short aliases (`cli`, `mcp`) remain supported.
+Web UX Gremlin turns normal web UX flows into hostile-but-realistic resilience scenarios for Playwright execution and reporting using either Playwright CLI mode (`playwright-cli`) or Playwright MCP mode (`playwright-mcp`). Short aliases (`cli`, `mcp`) remain supported.
 
-Happy-path tests prove that the ideal route works. They usually miss the behavior users actually trigger: double submits, reloads during save, keyboard-only navigation, browser back/forward, stale state, expired sessions, duplicate data, slow networks, interrupted forms, and recovery from ambiguous states. UX Gremlin keeps the happy path as the baseline, then mutates it through realistic stress cases.
+Happy-path tests prove that the ideal route works. They usually miss the behavior users actually trigger: double submits, reloads during save, keyboard-only navigation, browser back/forward, stale state, expired sessions, duplicate data, slow networks, interrupted forms, and recovery from ambiguous states. Web UX Gremlin keeps the happy path as the baseline, then mutates it through realistic stress cases.
 
 ## Manual Commands
 
@@ -13,8 +13,11 @@ node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs init
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs coverage
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs summary
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase generate
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs generate-playwright
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs ingest --input playwright-report.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase report
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs gate --results results.yaml --fail-on high
 ```
@@ -31,11 +34,16 @@ node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check --plan skills/web-ux
 2. Fill in `target`, `mode`, `safety`, `authentication`, and the baseline happy-path flow.
 3. Optionally set `flow_type` (`form`, `authenticated`, `long_running`, `crud`, `read_only`, `navigation`, or a list) so `check` can enforce the mandatory scenario categories for that flow.
 4. Add gremlin scenarios that mutate the baseline. Each scenario needs an id, category, risk level, purpose, steps, expected behavior, assertions, bug indicators, recovery expectation, Playwright notes, and accessibility notes.
-5. Run `check` until validation passes. `check` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
+5. Run `workflow-status --phase plan`, then `check` until validation passes. `check` also prints `WARN:` lines when a declared condition (slow network, storage clear, etc.) has no covering scenario.
 6. Run `coverage` to see flow-type category gaps and declared-condition warnings as an actionable list.
 7. Run `summary` to review coverage.
-8. Run `generate-playwright` when a starter Playwright spec is useful.
-9. Run `report` after planning or execution to create `.agent/reports/web-ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+8. Run `workflow-status --phase generate`, then `generate-playwright` when a starter Playwright spec is useful.
+9. Implement `.agent/generated/web-ux-gremlin.spec.ts` by replacing `TODO:` steps and removing active `requireImplementation(...)` guards.
+10. Run `workflow-status --phase execute`; only then run Playwright.
+11. Run `workflow-status --phase ingest`, then `ingest` with the Playwright JSON report.
+12. Run `workflow-status --phase report`, then `report` to create `.agent/reports/web-ux-gremlin/report.md`, `report.json`, `report.html`, `report.junit.xml`, and `report.pr.md`.
+
+If a phase gate fails, fix the reported upstream artifact and rerun the same `workflow-status --phase <next>` command before continuing.
 
 ## Coverage Enforcement
 
@@ -92,8 +100,11 @@ When a report includes executed results, the run is appended to `history.json` i
 Instead of authoring results by hand, run the generated spec with Playwright's JSON reporter and convert the output:
 
 ```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
 npx playwright test .agent/generated/web-ux-gremlin.spec.ts --reporter=json > playwright-report.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase ingest --input playwright-report.json
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/web-ux-gremlin-results.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase report --results .agent/session/web-ux-gremlin-results.json
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report --results .agent/session/web-ux-gremlin-results.json
 ```
 
@@ -128,6 +139,7 @@ The generated `.agent/generated/web-ux-gremlin.spec.ts` includes one baseline te
 After replacing placeholders with app-specific locators and fixtures:
 
 ```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
 npx playwright test .agent/generated/web-ux-gremlin.spec.ts
 ```
 
@@ -156,6 +168,7 @@ CI is the stronger enforcement layer because it can block merges when `.agent/se
 ```bash
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs coverage
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs gate --results .agent/session/web-ux-gremlin-results.json --fail-on high
 ```
 
@@ -178,11 +191,18 @@ Every applicable flow should include keyboard-only operation, visible focus, cor
 ```bash
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs init
 $EDITOR .agent/session/web-ux-gremlin-plan.yaml
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase plan
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs summary
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase generate
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs generate-playwright
-node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report
-node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report --results skills/web-ux-gremlin/examples/results.example.yaml
+# Implement .agent/generated/web-ux-gremlin.spec.ts, then:
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
+npx playwright test .agent/generated/web-ux-gremlin.spec.ts --reporter=json > playwright-report.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase ingest --input playwright-report.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs ingest --input playwright-report.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase report --results .agent/session/web-ux-gremlin-results.json
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report --results .agent/session/web-ux-gremlin-results.json
 ```
 
 ## Troubleshooting
@@ -194,3 +214,15 @@ node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs report --results skills/we
 - `ERROR: results file is missing`: pass an existing results YAML/JSON file or omit `--results` for a plan-only report.
 - `ERROR: scenario result ... status must be one of`: use `passed`, `failed`, `blocked`, `not_run`, or `needs_review`.
 - YAML parse errors: keep the plan within the provided template shape or use `.agent/session/web-ux-gremlin-plan.json`.
+## Architecture
+
+`web-ux-gremlin` remains the single public entrypoint, but the plugin now splits stage work into narrower private skills:
+
+- `web-ux-gremlin-discovery`
+- `web-ux-gremlin-plan`
+- `web-ux-gremlin-generate`
+- `web-ux-gremlin-implement-spec`
+- `web-ux-gremlin-execute`
+- `web-ux-gremlin-ingest-report`
+
+This split is meant to improve trigger precision and reduce phase drift. The deterministic script remains the enforcement layer, so the skills do not weaken the workflow gates.

@@ -34,7 +34,7 @@ const allowedWorkflowModes = new Set(["manual", "guided", "auto"]);
 const allowedRiskLevels = new Set(["low", "medium", "high", "critical"]);
 const allowedResultStatuses = new Set(["passed", "failed", "blocked", "not_run", "needs_review"]);
 const allowedResultSeverities = new Set(["info", "low", "medium", "high", "critical"]);
-const workflowPhases = ["init", "plan", "generate", "execute", "report"];
+const workflowPhases = ["init", "plan", "generate", "execute", "ingest", "report"];
 const phaseIndexByName = new Map(workflowPhases.map((phase, index) => [phase, index]));
 
 // Ordered low -> high so severities can be compared and thresholds applied.
@@ -217,7 +217,7 @@ Commands:
   generate             Generate runnable .agent/generated/web-ux-gremlin.spec.ts.
   generate-playwright   Back-compat alias for generate.
   run                  Execute the generated spec in CLI or MCP mode.
-  workflow-status      Read or set workflow phase metadata.
+  workflow-status      Validate next-phase readiness and set workflow phase metadata.
   ingest               Convert a Playwright JSON report (+optional axe) into a results file.
   report               Create or update report.md, report.json, report.html, report.junit.xml, and report.pr.md.
   gate                 Exit non-zero when results contain an issue at or above --fail-on severity.
@@ -229,7 +229,7 @@ Options:
   --mode <value>       Execution mode for run/report/ingest/check/commands.
                        One of playwright-cli|playwright-mcp|cli|mcp (default cli).
   --results <path>     Executed results file for report/gate.
-  --phase <phase>      workflow phase for workflow-status.
+  --phase <phase>      workflow phase for workflow-status (init|plan|generate|execute|ingest|report).
   --phase-dry-run      Set workflow phase without validation (used by workflow-status).
   --out-dir <path>     Report output directory (defaults to reporting.output_dir, then ${defaultReportDir}).
   --input <path>       Playwright JSON report consumed by ingest.
@@ -948,11 +948,19 @@ async function commandWorkflowStatus(args) {
       console.error(`ERROR: cannot move workflow phase backwards from ${resolvedCurrent.phase || "init"} to ${nextPhase}`);
       process.exit(2);
     }
+    if (!args.phaseDryRun) {
+      const gateErrors = readinessErrorsForPhase(nextPhase, args);
+      if (gateErrors.length > 0) {
+        printErrors(gateErrors);
+        process.exit(2);
+      }
+    }
     setWorkflowPhase(nextPhase);
     if (args.dryRun) {
       console.log(`[dry-run] set phase ${nextPhase}`);
     } else {
-      console.log(`Phase set to ${nextPhase}`);
+      console.log(`OK: ${nextPhase} phase is ready`);
+      console.log(`Next step: ${nextStepForPhase(nextPhase)}`);
     }
     return;
   }
@@ -962,6 +970,81 @@ async function commandWorkflowStatus(args) {
     phaseHistory: state.phaseHistory || []
   };
   console.log(JSON.stringify(next, null, 2));
+}
+
+function validatePlanForWorkflow(planPath) {
+  const plan = readPlan(planPath);
+  const errors = validatePlan(plan);
+  return { plan, errors };
+}
+
+function readinessErrorsForPhase(phase, args = {}) {
+  const planPath = resolvePlanPath(args.plan);
+  const errors = [];
+  let plan = null;
+
+  if (phase === "init") return errors;
+
+  try {
+    const validation = validatePlanForWorkflow(planPath);
+    plan = validation.plan;
+    errors.push(...validation.errors);
+  } catch (err) {
+    errors.push(`${err.message}. Run init or pass --plan <path>, then complete the required plan fields.`);
+    return errors;
+  }
+
+  if (phase === "plan" || phase === "generate") return errors;
+
+  if (phase === "execute" || phase === "ingest" || phase === "report") {
+    errors.push(...validateSpecExecutionReadiness(path.resolve(outputSpecPath), plan));
+  }
+
+  if (phase === "ingest" || phase === "report") {
+    const runReportPath = path.resolve(args.input || args.runReport || defaultRunReportPath);
+    if (!fs.existsSync(runReportPath)) {
+      errors.push(`Playwright JSON report is missing: ${runReportPath}. Run the implemented spec first, or pass --input <playwright-json>.`);
+    } else {
+      try {
+        readJsonFile(runReportPath, "Playwright report");
+      } catch (err) {
+        errors.push(`${err.message}. Re-run Playwright with the JSON reporter before ingest.`);
+      }
+    }
+  }
+
+  if (phase === "report") {
+    const resultsPath = path.resolve(args.results || defaultIngestOut);
+    if (!fs.existsSync(resultsPath)) {
+      errors.push(`ingested results are missing: ${resultsPath}. Run ingest first, or pass --results <path>.`);
+    } else {
+      try {
+        const results = readResults(resultsPath);
+        errors.push(...validateResults(results, plan));
+      } catch (err) {
+        errors.push(`${err.message}. Re-run ingest or pass a valid results file.`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+function nextStepForPhase(phase) {
+  switch (phase) {
+    case "plan":
+      return "run generate-playwright after the plan and coverage checks are clean.";
+    case "generate":
+      return "implement .agent/generated/web-ux-gremlin.spec.ts by replacing TODO steps and requireImplementation(...) guards.";
+    case "execute":
+      return "run the implemented Playwright spec with the JSON reporter.";
+    case "ingest":
+      return "run ingest to convert the Playwright JSON report into normalized results.";
+    case "report":
+      return "run report, then gate if CI needs a severity threshold.";
+    default:
+      return "complete the plan fields, then run workflow-status --phase plan.";
+  }
 }
 
 function commandCheck(planPath, workflowMode, cliMode) {
@@ -1112,14 +1195,50 @@ function autoScenariosForWorkflow(plan, mode) {
   return [...(plan.gremlin_scenarios ?? []), ...additions];
 }
 
-function assertNoImplementationGaps(specPath, allowTodo = false) {
-  if (allowTodo) return;
+function validateSpecExecutionReadiness(specPath, plan = null, allowTodo = false) {
+  const errors = [];
   if (!fs.existsSync(specPath)) {
-    throw new Error(`generated spec missing: ${specPath}`);
+    return [`generated spec missing: ${specPath}. Run generate-playwright, then implement the generated steps before execution.`];
   }
   const source = fs.readFileSync(specPath, "utf-8");
-  if (source.includes("function requireImplementation") || source.includes("TODO: implement with role-based locators")) {
-    throw new Error("generated spec contains unimplemented placeholders. Finish requireImplementation() blocks or set WEB_UX_GREMLIN_ALLOW_TODO=true");
+  if (source.includes("TODO:")) {
+    errors.push("generated spec still contains TODO placeholders. Replace every placeholder with concrete Playwright actions/assertions.");
+  }
+  const sourceWithoutHelperDefinition = source.replace(/\bfunction\s+requireImplementation\s*\(/g, "function requireImplementationDefinition(");
+  if (!allowTodo && /\brequireImplementation\s*\(/.test(sourceWithoutHelperDefinition)) {
+    errors.push("generated spec still contains active requireImplementation(...) guards. Replace them with concrete expect(...) assertions before execution.");
+  }
+  if (!source.includes("web-ux-gremlin-baseline")) {
+    errors.push("generated spec is missing the web-ux-gremlin-baseline annotation required for ingest.");
+  }
+  if (plan) {
+    for (const scenario of plan.gremlin_scenarios ?? []) {
+      const scenarioId = scenario?.id ?? "";
+      if (!scenarioId) continue;
+      if (!hasScenarioAnnotation(source, scenarioId)) {
+        errors.push(`generated spec is missing the web-ux-gremlin-scenario annotation for ${scenarioId}.`);
+      }
+    }
+  }
+  return errors;
+}
+
+function hasScenarioAnnotation(source, scenarioId) {
+  const escapedId = escapeRegExp(String(scenarioId));
+  const sameAnnotationObject = new RegExp(
+    `type\\s*:\\s*['"]web-ux-gremlin-scenario['"][\\s\\S]*?description\\s*:\\s*['"]${escapedId}['"]`
+  );
+  return sameAnnotationObject.test(source);
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function assertNoImplementationGaps(specPath, plan = null, allowTodo = false) {
+  const errors = validateSpecExecutionReadiness(specPath, plan, allowTodo);
+  if (errors.length > 0) {
+    throw new Error(errors.join(" "));
   }
 }
 
@@ -1301,7 +1420,7 @@ function commandRun(planPath, args = {}) {
     console.log(commandLine.map((entry) => JSON.stringify(entry)).join(" "));
     return;
   }
-  assertNoImplementationGaps(resolvedSpecPath);
+  assertNoImplementationGaps(resolvedSpecPath, plan);
   const runResult = spawnSync(commandSpec.command, commandSpec.args, {
     cwd: process.cwd(),
     encoding: "utf-8",
@@ -1499,6 +1618,7 @@ function commandIngest(planPath, inputPath, axePath, outPath, requestedMode) {
   fs.writeFileSync(resolvedOut, `${JSON.stringify(results, null, 2)}\n`, "utf-8");
   console.log(`Wrote ${resolvedOut}`);
   console.log(`Scenarios ingested: ${results.scenario_results.length}${results.scenario_results.some((scenario) => scenario.status === "blocked") ? " (baseline failed; mutations blocked)" : ""}`);
+  setWorkflowPhase("ingest");
 }
 
 function asArray(value) {

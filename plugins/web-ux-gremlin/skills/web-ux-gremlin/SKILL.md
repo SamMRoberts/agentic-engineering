@@ -1,13 +1,13 @@
 ---
 name: web-ux-gremlin
-description: Use to create and validate hostile-but-realistic UX Gremlin plans, generate Playwright specs, and run Playwright CLI or Playwright MCP execution workflows for UX resilience.
+description: Use to orchestrate Web UX Gremlin workflows across discovery, planning, spec generation, spec implementation, execution, ingest, and reporting while keeping phase-gate enforcement in the script.
 argument-hint: "Target URL or app area, baseline UX flow, auth requirements, risk policy, workflow mode, and execution mode"
 user-invocable: true
 ---
 
 # Web UX Gremlin
 
-Use this skill as the entry point for UX resilience planning and execution.
+Use this skill as the public entry point for UX resilience planning and execution.
 
 ## When to use
 
@@ -69,11 +69,38 @@ Plan file defaults to `.agent/session/web-ux-gremlin-plan.yaml` and must include
 - `coverage` -> print category coverage and warning list
 - `summary` -> print concise plan summary
 - `generate` / `generate-playwright` -> write `.agent/generated/web-ux-gremlin.spec.ts`
-- `workflow-status` -> read or set phase (`init`, `plan`, `generate`, `execute`, `report`)
+- `workflow-status --phase <plan|generate|execute|ingest|report>` -> validate that the next phase is safe before moving on
 - `run` -> execute spec (supports `--mode playwright-cli|playwright-mcp|cli|mcp`, supports `--mcp-state`, `--mcp-command`)
 - `ingest` -> convert Playwright JSON report to normalized scenario results
 - `report` -> produce `report.md`, `report.json`, `report.html`, `report.junit.xml`, `report.pr.md`
 - `gate` -> fail when highest open severity meets threshold
+
+## Private stage skills
+
+The plugin now separates stage-specific work into non-user-invocable skills:
+
+- `web-ux-gremlin-discovery`
+- `web-ux-gremlin-plan`
+- `web-ux-gremlin-generate`
+- `web-ux-gremlin-implement-spec`
+- `web-ux-gremlin-execute`
+- `web-ux-gremlin-ingest-report`
+
+Use `web-ux-gremlin` as the only public entrypoint. The stage skills keep each handoff narrow, but the script remains the source of truth for workflow enforcement.
+
+## Required sequence
+
+1. Collect target, auth, safety, and baseline inputs.
+2. Create or update `.agent/session/web-ux-gremlin-plan.yaml`.
+3. Complete the baseline flow and gremlin scenarios.
+4. Run `workflow-status --phase plan`, then `check` and `coverage`; fix plan gaps before continuing.
+5. Run `workflow-status --phase generate`, then `generate-playwright`.
+6. Implement `.agent/generated/web-ux-gremlin.spec.ts` by replacing `TODO:` steps and removing `requireImplementation(...)` guards.
+7. Run `workflow-status --phase execute`; run Playwright only after this gate passes.
+8. Run `workflow-status --phase ingest`, then `ingest`.
+9. Run `workflow-status --phase report`, then `report` and `gate` when needed.
+
+If any `workflow-status --phase <next>` command fails, repair the reported upstream artifact and rerun the same gate before continuing.
 
 ## Required artifacts
 

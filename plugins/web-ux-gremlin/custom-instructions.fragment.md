@@ -9,5 +9,15 @@ Do not create destructive tests unless explicitly marked safe with notes.
 Validate before final response:
 
 ```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase plan
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs coverage
 ```
+
+Before running Playwright, the generated spec must pass:
+
+```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
+```
+
+If a phase gate fails, fix the reported upstream artifact and rerun the same gate before moving on.

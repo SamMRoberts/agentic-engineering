@@ -63,10 +63,54 @@ function ensureDirectory(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
+function readSkillFrontmatter(skillName) {
+  const source = fs.readFileSync(path.join(pluginRoot, "skills", skillName, "SKILL.md"), "utf-8");
+  const match = source.match(/^---\n([\s\S]*?)\n---/);
+  assert.ok(match, `expected frontmatter for ${skillName}`);
+  return match[1];
+}
+
 function writeSafeSpec(dir) {
   const specPath = path.join(dir, ".agent/generated/web-ux-gremlin.spec.ts");
   ensureDirectory(path.dirname(specPath));
-  const source = "import { test } from '@playwright/test';\n\ntest('baseline happy path', async () => {});\n";
+  const source = `import { test, expect } from '@playwright/test';
+
+test('baseline happy path', { annotation: [{ type: 'web-ux-gremlin-baseline', description: 'true' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('double-submit-confirm: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'double-submit-confirm' }, { type: 'web-ux-gremlin-risk', description: 'high' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('reload-mid-flow: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'reload-mid-flow' }, { type: 'web-ux-gremlin-risk', description: 'medium' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('keyboard-only-create: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'keyboard-only-create' }, { type: 'web-ux-gremlin-risk', description: 'medium' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('invalid-required-fields: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'invalid-required-fields' }, { type: 'web-ux-gremlin-risk', description: 'medium' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('expired-auth-confirm: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'expired-auth-confirm' }, { type: 'web-ux-gremlin-risk', description: 'high' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('slow-network-create: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'slow-network-create' }, { type: 'web-ux-gremlin-risk', description: 'medium' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('browser-back-forward: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'browser-back-forward' }, { type: 'web-ux-gremlin-risk', description: 'medium' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+
+test('duplicate-entity: implemented', { annotation: [{ type: 'web-ux-gremlin-scenario', description: 'duplicate-entity' }, { type: 'web-ux-gremlin-risk', description: 'high' }] }, async ({ page }) => {
+  await expect(page).toHaveURL(/.*/);
+});
+`;
   fs.writeFileSync(specPath, source, "utf-8");
   return specPath;
 }
@@ -152,14 +196,77 @@ test("invalid example fails with actionable errors", () => {
   assert.match(result.stderr, /ERROR: verification commands are empty/);
 });
 
+test("plugin exposes private stage skills under the public orchestrator", () => {
+  const privateSkills = [
+    "web-ux-gremlin-discovery",
+    "web-ux-gremlin-plan",
+    "web-ux-gremlin-generate",
+    "web-ux-gremlin-implement-spec",
+    "web-ux-gremlin-execute",
+    "web-ux-gremlin-ingest-report"
+  ];
+  for (const skillName of privateSkills) {
+    const frontmatter = readSkillFrontmatter(skillName);
+    assert.match(frontmatter, /user-invocable: false/);
+  }
+  const orchestratorFrontmatter = readSkillFrontmatter("web-ux-gremlin");
+  assert.match(orchestratorFrontmatter, /user-invocable: true/);
+});
+
 test("workflow-status enforces monotonic phase transitions", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
-  const first = run(["workflow-status", "--phase", "plan"], { cwd: dir });
+  const planPath = copyPlanToDir(dir);
+  const first = run(["workflow-status", "--phase", "plan", "--plan", planPath], { cwd: dir });
   assert.equal(first.status, 0, first.stderr);
 
   const backward = run(["workflow-status", "--phase", "init"], { cwd: dir });
   assert.equal(backward.status, 2);
   assert.match(backward.stderr, /cannot move workflow phase backwards/);
+});
+
+test("workflow-status plan and generate phases run plan validation", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const invalidPlanGate = run(["workflow-status", "--phase", "plan", "--plan", invalidPlan], { cwd: dir });
+  assert.equal(invalidPlanGate.status, 2);
+  assert.match(invalidPlanGate.stderr, /ERROR: mode must be one of/);
+  assert.match(invalidPlanGate.stderr, /ERROR: baseline flow has no steps/);
+
+  const generateGate = run(["workflow-status", "--phase", "generate", "--plan", validPlan], { cwd: dir });
+  assert.equal(generateGate.status, 0, generateGate.stderr);
+  assert.match(generateGate.stdout, /OK: generate phase is ready/);
+});
+
+test("workflow-status execute fails when no generated spec exists", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const planPath = copyPlanToDir(dir);
+  const ready = run(["workflow-status", "--phase", "execute", "--plan", planPath], { cwd: dir });
+  assert.equal(ready.status, 2);
+  assert.match(ready.stderr, /ERROR: generated spec missing/);
+});
+
+test("workflow-status execute fails on generated placeholders", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const planPath = copyPlanToDir(dir);
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+
+  const ready = run(["workflow-status", "--phase", "execute", "--plan", planPath], { cwd: dir });
+  assert.equal(ready.status, 2);
+  assert.match(ready.stderr, /ERROR: generated spec still contains TODO placeholders/);
+  assert.match(ready.stderr, /ERROR: generated spec still contains active requireImplementation/);
+});
+
+test("workflow-status execute passes for implemented annotated spec", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "web-ux-gremlin-"));
+  const planPath = copyPlanToDir(dir);
+  const generate = run(["generate-playwright", "--plan", planPath], { cwd: dir });
+  assert.equal(generate.status, 0, generate.stderr);
+  writeSafeSpec(dir);
+
+  const ready = run(["workflow-status", "--phase", "execute", "--plan", planPath], { cwd: dir });
+  assert.equal(ready.status, 0, ready.stderr);
+  assert.match(ready.stdout, /OK: execute phase is ready/);
+  assert.match(ready.stdout, /run the implemented Playwright spec/);
 });
 
 test("generate-playwright and report write expected artifacts", () => {
@@ -287,7 +394,8 @@ test("run rejects unimplemented placeholders before execution", () => {
 
   const blocked = run(["run", "--plan", planPath], { cwd: dir });
   assert.equal(blocked.status, 1);
-  assert.match(blocked.stderr, /generated spec contains unimplemented placeholders/);
+  assert.match(blocked.stderr, /generated spec still contains TODO placeholders/);
+  assert.match(blocked.stderr, /active requireImplementation/);
 });
 
 test("report writes all artifacts to custom out-dir", () => {

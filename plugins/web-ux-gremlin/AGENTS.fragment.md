@@ -28,7 +28,17 @@ Use execution modes:
 Validate before final response:
 
 ```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase plan
 node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs check
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs coverage
 ```
+
+Before running Playwright, run:
+
+```bash
+node skills/web-ux-gremlin/scripts/web-ux-gremlin.mjs workflow-status --phase execute
+```
+
+If any `workflow-status --phase <next>` command fails, repair the reported plan, generated spec, Playwright JSON report, or results artifact and rerun the same gate before continuing.
 
 Hooks and CI can enforce the artifact and validation result. They do not force agent selection.

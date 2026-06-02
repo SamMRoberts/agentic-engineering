@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.0
+
+- Split `web-ux-gremlin` into one public orchestrator plus private stage skills for discovery, planning, generation, spec implementation, execution, and ingest/reporting.
+- Updated the orchestrator agent and documentation to route work through the narrower stage skills while keeping `web-ux-gremlin.mjs` as the workflow enforcement layer.
+
+## 1.4.0
+
+- Added readiness gates to `workflow-status --phase <plan|generate|execute|ingest|report>` so agents must repair incomplete upstream artifacts before moving to the next workflow phase.
+- Added an execution gate that blocks Playwright until `.agent/generated/web-ux-gremlin.spec.ts` exists, has no `TODO:` placeholders, has no active `requireImplementation(...)` guards, and preserves baseline/scenario annotations required by ingest.
+- Updated agent, skill, README, and instruction fragments to require the gate-and-repair workflow sequence.
+
 ## 1.3.0
 
 - Added explicit `playwright-cli` and `playwright-mcp` execution mode inputs. They normalize to the existing `cli` and `mcp` runner paths while preserving shorthand and legacy underscore aliases.
