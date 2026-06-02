@@ -9,21 +9,21 @@ Happy-path tests prove that the ideal route works. They usually miss the behavio
 Run commands from a repository that has copied or installed this plugin:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs init
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs coverage
-node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate --results results.yaml --fail-on high
+node scripts/ux-gremlin-core.mjs init
+node scripts/ux-gremlin-core.mjs check
+node scripts/ux-gremlin-core.mjs coverage
+node scripts/ux-gremlin-core.mjs summary
+node scripts/ux-gremlin-core.mjs workflow-status --phase plan
+node scripts/ux-gremlin-core.mjs generate-playwright
+node scripts/ux-gremlin-core.mjs ingest --input playwright-report.json
+node scripts/ux-gremlin-core.mjs report
+node scripts/ux-gremlin-core.mjs gate --results results.yaml --fail-on high
 ```
 
 Use `--plan <path>` to validate or generate from a specific plan file:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check --plan skills/ux-gremlin/examples/valid-plan.yaml
+node scripts/ux-gremlin-core.mjs check --plan examples/valid-plan.yaml
 ```
 
 ## Plan Workflow
@@ -55,27 +55,27 @@ If a `workflow-status` gate fails, repair the reported upstream artifact and rer
 
 Missing required categories fail `check` with actionable errors. Declared `network_conditions`, `state_conditions`, and `data_conditions` that have no covering scenario produce non-blocking warnings. `coverage` prints the same information as a report without failing.
 
-The plan schema is documented in `skills/ux-gremlin/schemas/ux-gremlin-plan.schema.json`. The runtime validator uses only Node.js built-in modules and a conservative YAML parser for this plugin's template shape. JSON is supported as a fallback at `.agent/session/ux-gremlin-plan.json`.
+The plan schema is documented in `schemas/ux-gremlin-plan.schema.json`. The runtime validator uses only Node.js built-in modules and a conservative YAML parser for this plugin's template shape. JSON is supported as a fallback at `.agent/session/ux-gremlin-plan.json`.
 
 ## Reports
 
 Plan-only reports remain supported:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --plan skills/ux-gremlin/examples/valid-plan.yaml
+node scripts/ux-gremlin-core.mjs report --plan examples/valid-plan.yaml
 ```
 
 To include executed outcomes, pass a structured results file:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report \
-  --plan skills/ux-gremlin/examples/valid-plan.yaml \
-  --results skills/ux-gremlin/examples/results.example.yaml
+node scripts/ux-gremlin-core.mjs report \
+  --plan examples/valid-plan.yaml \
+  --results examples/results.example.yaml
 ```
 
 Use `--out-dir <path>` to write all report artifacts somewhere other than `reporting.output_dir`.
 
-The results contract is documented in `skills/ux-gremlin/schemas/ux-gremlin-results.schema.json`, with a starter template at `skills/ux-gremlin/templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, generic `evidence_artifacts`, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
+The results contract is documented in `schemas/ux-gremlin-results.schema.json`, with a starter template at `templates/ux-gremlin-results.yaml`. Results capture scenario status (`passed`, `failed`, `blocked`, `not_run`, `needs_review`), severity, outcome, findings, suspected bugs, accessibility issues, console errors, screenshots, traces, generic `evidence_artifacts`, recovery notes, executed commands, open risks, and optional run `build`/`commit` metadata.
 
 Evidence files should live under `.agent/evidence/ux-gremlin/<scenario-id>/`. Reports link local evidence paths from that directory with paths relative to the report artifact, while non-evidence strings remain plain escaped text.
 
@@ -101,8 +101,8 @@ Instead of authoring results by hand, run the generated spec with Playwright's J
 
 ```bash
 npx playwright test .agent/generated/ux-gremlin.spec.ts --reporter=json > playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
+node scripts/ux-gremlin-core.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
+node scripts/ux-gremlin-core.mjs report --results .agent/session/ux-gremlin-results.json
 ```
 
 `ingest` maps each spec back to its scenario using the `ux-gremlin-scenario` annotation emitted by the generated spec (falling back to the `id:` title prefix). It copies readable Playwright attachment files into `.agent/evidence/ux-gremlin/<scenario-id>/`, classifies images as `screenshots`, trace/zip artifacts as `traces`, and other files as `evidence_artifacts`. Missing or unreadable attachment files are recorded as open risks so the run remains reportable. If the baseline test failed, every mutation scenario is marked `blocked` and the failure is surfaced as an open risk. Pass `--axe <axe.json>` to attach axe-core violations (a single run attaches globally; an array of `{ scenario_id, violations }` attaches per scenario). Set `UX_GREMLIN_BUILD` and `UX_GREMLIN_COMMIT` to stamp build metadata.
@@ -112,7 +112,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux
 `gate` (or `report --fail-on <severity>`) exits non-zero when the highest open severity is at or above a threshold, so CI can block merges on real regressions:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate \
+node scripts/ux-gremlin-core.mjs gate \
   --results .agent/session/ux-gremlin-results.json --fail-on high
 ```
 
@@ -130,7 +130,7 @@ node skills/ux-gremlin/scripts/ux-gremlin.mjs gate \
 Generate a starter spec:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
+node scripts/ux-gremlin-core.mjs generate-playwright
 ```
 
 The generated `.agent/generated/ux-gremlin.spec.ts` includes one baseline test and one test per gremlin scenario. It uses `test.step` blocks, role-based locator examples, and annotates each test with its scenario id and risk so results can be ingested later. Each scenario is **failing-by-default**: an unfinished test throws via `requireImplementation(...)` so an incomplete spec cannot silently pass in CI. Replace the `requireImplementation` guard with concrete `expect(...)` assertions as you implement each scenario. Set `UX_GREMLIN_ALLOW_TODO=true` to soft-skip unfinished scenarios while iterating locally. It intentionally does not pretend unknown selectors are known.
@@ -169,7 +169,7 @@ The freeform `steps` field stays as the human-readable intent and is still requi
 After replacing placeholders with app-specific locators and fixtures:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
+node scripts/ux-gremlin-core.mjs workflow-status --phase execute
 npx playwright test .agent/generated/ux-gremlin.spec.ts
 ```
 
@@ -188,9 +188,9 @@ The `hooks/` examples show how to initialize the plan near session start, valida
 CI is the stronger enforcement layer because it can block merges when `.agent/session/ux-gremlin-plan.yaml` is malformed or incomplete, and because the severity gate blocks merges on executed regressions:
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs coverage
-node skills/ux-gremlin/scripts/ux-gremlin.mjs gate --results .agent/session/ux-gremlin-results.json --fail-on high
+node scripts/ux-gremlin-core.mjs check
+node scripts/ux-gremlin-core.mjs coverage
+node scripts/ux-gremlin-core.mjs gate --results .agent/session/ux-gremlin-results.json --fail-on high
 ```
 
 See `ci/github-action.example.yml` for a copy-ready workflow.
@@ -210,20 +210,20 @@ Every applicable flow should include keyboard-only operation, visible focus, cor
 ## Example Workflow
 
 ```bash
-node skills/ux-gremlin/scripts/ux-gremlin.mjs init
+node scripts/ux-gremlin-core.mjs init
 $EDITOR .agent/session/ux-gremlin-plan.yaml
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase plan
-node skills/ux-gremlin/scripts/ux-gremlin.mjs check
-node skills/ux-gremlin/scripts/ux-gremlin.mjs summary
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase generate
-node skills/ux-gremlin/scripts/ux-gremlin.mjs generate-playwright
+node scripts/ux-gremlin-core.mjs workflow-status --phase plan
+node scripts/ux-gremlin-core.mjs check
+node scripts/ux-gremlin-core.mjs summary
+node scripts/ux-gremlin-core.mjs workflow-status --phase generate
+node scripts/ux-gremlin-core.mjs generate-playwright
 # implement .agent/generated/ux-gremlin.spec.ts
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase execute
+node scripts/ux-gremlin-core.mjs workflow-status --phase execute
 npx playwright test .agent/generated/ux-gremlin.spec.ts --reporter=json > playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase ingest --input playwright-report.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs workflow-status --phase report --results .agent/session/ux-gremlin-results.json
-node skills/ux-gremlin/scripts/ux-gremlin.mjs report --results .agent/session/ux-gremlin-results.json
+node scripts/ux-gremlin-core.mjs workflow-status --phase ingest --input playwright-report.json
+node scripts/ux-gremlin-core.mjs ingest --input playwright-report.json --out .agent/session/ux-gremlin-results.json
+node scripts/ux-gremlin-core.mjs workflow-status --phase report --results .agent/session/ux-gremlin-results.json
+node scripts/ux-gremlin-core.mjs report --results .agent/session/ux-gremlin-results.json
 ```
 
 ## Troubleshooting

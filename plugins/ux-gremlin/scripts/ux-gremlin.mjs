@@ -5,14 +5,14 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const legacyCli = path.join(root, 'skills/ux-gremlin/scripts/ux-gremlin.mjs');
+const legacyCli = path.join(root, 'scripts/ux-gremlin-core.mjs');
 const skillScripts = {
-  'test-strategy-advisor': 'skills/test-strategy-advisor/scripts/test-strategy-advisor.mjs',
-  'plan-gremlins': 'skills/plan-gremlins/scripts/plan-gremlins.mjs',
-  'validate-plan': 'skills/validate-plan/scripts/validate-plan.mjs',
-  'generate-playwright': 'skills/generate-playwright/scripts/generate-playwright.mjs',
-  'execute-tests': 'skills/execute-tests/scripts/execute-tests.mjs',
-  'report-gremlins': 'skills/report-gremlins/scripts/report-gremlins.mjs'
+  'gremlin-test-strategy-advisor': 'skills/gremlin-test-strategy-advisor/scripts/test-strategy-advisor.mjs',
+  'gremlin-plan-gremlins': 'skills/gremlin-plan-gremlins/scripts/plan-gremlins.mjs',
+  'gremlin-validate-plan': 'skills/gremlin-validate-plan/scripts/validate-plan.mjs',
+  'gremlin-generate-playwright': 'skills/gremlin-generate-playwright/scripts/generate-playwright.mjs',
+  'gremlin-execute-tests': 'skills/gremlin-execute-tests/scripts/execute-tests.mjs',
+  'gremlin-report-gremlins': 'skills/gremlin-report-gremlins/scripts/report-gremlins.mjs'
 };
 
 function statMtime(filePath) {
@@ -34,7 +34,7 @@ function detectNextSkill(cwd) {
 
   if (!fs.existsSync(sessionDir)) {
     return {
-      skill: 'test-strategy-advisor',
+      skill: 'gremlin-test-strategy-advisor',
       reason: 'No .agent/session/ directory exists yet.'
     };
   }
@@ -42,7 +42,7 @@ function detectNextSkill(cwd) {
   const plan = fs.existsSync(yamlPlan) ? yamlPlan : (fs.existsSync(jsonPlan) ? jsonPlan : null);
   if (!plan) {
     return {
-      skill: 'plan-gremlins',
+      skill: 'gremlin-plan-gremlins',
       reason: 'No UX Gremlin plan artifact exists yet.'
     };
   }
@@ -50,40 +50,45 @@ function detectNextSkill(cwd) {
   const markerMtime = statMtime(marker);
   if (markerMtime === -1 || markerMtime < statMtime(plan)) {
     return {
-      skill: 'validate-plan',
+      skill: 'gremlin-validate-plan',
       reason: 'The plan exists but there is no fresh validation success marker.'
     };
   }
 
   if (!fs.existsSync(spec)) {
     return {
-      skill: 'generate-playwright',
+      skill: 'gremlin-generate-playwright',
       reason: 'The plan is validated but no generated Playwright spec exists.'
     };
   }
 
   if (!fs.existsSync(results)) {
     return {
-      skill: 'execute-tests',
+      skill: 'gremlin-execute-tests',
       reason: 'The generated spec exists but no ingested results JSON exists yet.'
     };
   }
 
   if (!fs.existsSync(report)) {
     return {
-      skill: 'report-gremlins',
+      skill: 'gremlin-report-gremlins',
       reason: 'Results exist but report artifacts have not been created yet.'
     };
   }
 
   return {
-    skill: 'report-gremlins',
+    skill: 'gremlin-report-gremlins',
     reason: 'Primary artifacts already exist; refresh reporting or inspect downstream analysis skills next.',
     complete: true
   };
 }
 
 const args = process.argv.slice(2);
+if (!args.length) {
+  const result = spawnSync(process.execPath, [legacyCli], { cwd: process.cwd(), stdio: 'inherit' });
+  process.exit(result.status ?? 1);
+}
+
 if (args[0] === 'auto') {
   const dryRun = args.includes('--dry-run');
   const route = detectNextSkill(process.cwd());
