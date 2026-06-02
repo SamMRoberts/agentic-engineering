@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Adds Scope Guard as a third Vibe Sentinel workflow stage alongside `assumption-killer` and `change-control-compiler`.
+- Adds the `scope-guard` skill, private stage agent, CLI binary, schema, templates, examples, tests, hooks, and CI check under `plugins/vibe-sentinel/`.
+- Updates the `vibe-sentinel` orchestrator to require Scope Guard for medium/high/critical implementation tasks, architecture changes, parser changes, CI changes, dependency changes, API changes, and multi-file behavior changes.
+- Keeps Scope Guard as a separate plan artifact instead of merging it into the change-control contract.
+- Keeps change-control responsible for git drift detection and Scope Guard responsible for design, pseudocode review, tests, and documentation/diagram deltas.
+
 ## 1.0.0
 
 - Initial release of Vibe Sentinel, combining the former `assumption-killer` and `change-control-compiler` plugins into one.

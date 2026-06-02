@@ -10,6 +10,11 @@
                 "name": "vibe-sentinel-change-control-init",
                 "command": "node bin/change-control.mjs init",
                 "timeoutSeconds": 10
+            },
+            {
+                "name": "vibe-sentinel-scope-guard-init",
+                "command": "node bin/scope-guard.mjs init",
+                "timeoutSeconds": 10
             }
         ],
         "PostToolUse": [
@@ -28,6 +33,11 @@
             {
                 "name": "vibe-sentinel-change-control-check",
                 "command": "node bin/change-control.mjs check",
+                "timeoutSeconds": 10
+            },
+            {
+                "name": "vibe-sentinel-scope-guard-check",
+                "command": "node bin/scope-guard.mjs check",
                 "timeoutSeconds": 10
             },
             {

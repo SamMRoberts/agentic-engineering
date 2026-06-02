@@ -4,21 +4,25 @@
   "entrypointAgent": "vibe-sentinel",
   "privateAgents": [
     "assumption-killer",
-    "change-control-compiler"
+    "change-control-compiler",
+    "scope-guard"
   ],
   "name": "vibe-sentinel",
   "metadata": {
-    "version": "1.0.0",
-    "description": "Combined vibe-coding guardrails: assumption gate + change-control contract enforcement before implementation.",
+    "version": "1.1.0",
+    "description": "Combined vibe-coding guardrails: assumption gate, change-control contract, and Scope Guard lifecycle enforcement before implementation.",
     "scripts": [
       "bin/assumption-gate.mjs",
       "bin/change-control.mjs",
+      "bin/scope-guard.mjs",
       "skills/assumption-killer/scripts/assumption-gate.mjs",
-      "skills/change-control-compiler/scripts/change-control.mjs"
+      "skills/change-control-compiler/scripts/change-control.mjs",
+      "skills/scope-guard/scripts/scope-guard.mjs"
     ],
     "schemas": [
       "skills/assumption-killer/schemas/assumption-gate.schema.json",
-      "skills/change-control-compiler/schemas/change-control-contract.schema.json"
+      "skills/change-control-compiler/schemas/change-control-contract.schema.json",
+      "skills/scope-guard/schemas/scope-guard-plan.schema.json"
     ],
     "recommended_hooks": [
       "hooks/codex-hooks.example.json",

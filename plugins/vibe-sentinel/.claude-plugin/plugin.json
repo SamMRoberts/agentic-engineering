@@ -1,7 +1,7 @@
 {
   "name": "vibe-sentinel",
-  "version": "1.0.0",
-  "description": "Sentinel for vibe-coding: enforce assumption verification and change-control scope before implementation.",
+  "version": "1.1.0",
+  "description": "Sentinel for vibe-coding: enforce assumption verification, change-control scope, and Scope Guard lifecycle discipline before implementation.",
   "author": {
     "name": "Sam Roberts",
     "url": "https://github.com/SamMRoberts"
@@ -16,8 +16,10 @@
     "agents",
     "assumptions",
     "change-control",
+    "scope-guard",
     "scope",
     "drift",
+    "pseudocode",
     "vibe-coding",
     "guardrails",
     "validation",

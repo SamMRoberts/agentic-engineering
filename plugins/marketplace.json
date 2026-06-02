@@ -62,7 +62,7 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity",
-      "description": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation."
+      "description": "Sentinel for vibe-coding: assumption gate, change-control contract, and Scope Guard plan before implementation."
     },
     {
       "name": "web-ux-gremlin",
