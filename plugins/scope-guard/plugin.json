@@ -1,22 +1,22 @@
 {
-    "name": "scope-guard",
-    "agents": "agents",
-    "skills": "skills",
-    "entrypointAgent": "scope-guard",
-    "privateAgents": [],
-    "metadata": {
-        "version": "1.0.0",
-        "description": "Scoped coding partner: enforce Scope -> Design -> Pseudocode -> Review -> Implement -> Update Docs before and during implementation.",
-        "scripts": [
-            "bin/scope-guard.mjs",
-            "skills/scope-guard/scripts/scope-guard.mjs"
-        ],
-        "schemas": [
-            "skills/scope-guard/schemas/scope-guard-plan.schema.json"
-        ],
-        "recommended_hooks": [
-            "hooks/codex-hooks.example.json",
-            "hooks/copilot-hooks.example.json"
-        ]
-    }
+  "agents": "agents",
+  "skills": "skills",
+  "entrypointAgent": "scope-guard",
+  "privateAgents": [],
+  "name": "scope-guard",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Scoped coding partner: enforce Scope -> Design -> Pseudocode -> Review -> Implement -> Update Docs before and during implementation.",
+    "scripts": [
+      "bin/scope-guard.mjs",
+      "skills/scope-guard/scripts/scope-guard.mjs"
+    ],
+    "schemas": [
+      "skills/scope-guard/schemas/scope-guard-plan.schema.json"
+    ],
+    "recommended_hooks": [
+      "hooks/codex-hooks.example.json",
+      "hooks/copilot-hooks.example.json"
+    ]
+  }
 }

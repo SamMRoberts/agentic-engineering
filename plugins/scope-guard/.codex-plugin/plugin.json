@@ -1,52 +1,53 @@
 {
-    "name": "scope-guard",
-    "version": "1.0.0",
-    "description": "Scoped coding partner: enforce scope, single-purpose design, pseudocode review, and documentation deltas before and during implementation.",
-    "author": {
-        "name": "Sam Roberts"
-    },
-    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
-    "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
-    "license": "MIT",
-    "keywords": [
-        "agents",
-        "scope",
-        "design",
-        "pseudocode",
-        "review",
-        "scope-creep",
-        "single-purpose",
-        "documentation",
-        "guardrails",
-        "validation",
-        "codex",
-        "copilot",
-        "claude",
-        "workflow"
+  "name": "scope-guard",
+  "version": "1.0.0",
+  "description": "Scoped coding partner: enforce scope, single-purpose design, pseudocode review, and documentation deltas before and during implementation.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "scope",
+    "design",
+    "pseudocode",
+    "review",
+    "scope-creep",
+    "single-purpose",
+    "documentation",
+    "guardrails",
+    "validation",
+    "codex",
+    "copilot",
+    "claude",
+    "workflow"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "entrypointAgent": "scope-guard",
+  "privateAgents": [],
+  "interface": {
+    "displayName": "Scope Guard",
+    "shortDescription": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation.",
+    "longDescription": "Scope Guard keeps coding agents disciplined before and during implementation. It enforces a structured lifecycle - clarify scope, define in/out of scope, propose a single-purpose extensible design, write pseudocode, review the pseudocode, and only then implement - then requires a documentation and diagram delta after the change. A deterministic validator (scope-guard.mjs) blocks vague goals, missing scope boundaries, components that bundle multiple responsibilities, implementation before approved pseudocode, missing tests, and stale documentation.",
+    "developerName": "Sam Roberts",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
     ],
-    "agents": "./agents/",
-    "skills": "./skills/",
-    "entrypointAgent": "scope-guard",
-    "privateAgents": [],
-    "interface": {
-        "displayName": "Scope Guard",
-        "shortDescription": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation.",
-        "longDescription": "Scope Guard keeps coding agents disciplined before and during implementation. It enforces a structured lifecycle - clarify scope, define in/out of scope, propose a single-purpose extensible design, write pseudocode, review the pseudocode, and only then implement - then requires a documentation and diagram delta after the change. A deterministic validator (scope-guard.mjs) blocks vague goals, missing scope boundaries, components that bundle multiple responsibilities, implementation before approved pseudocode, missing tests, and stale documentation.",
-        "developerName": "Sam Roberts",
-        "category": "Productivity",
-        "capabilities": [
-            "Read",
-            "Write"
-        ],
-        "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
-        "defaultPrompt": [
-            "Run the scope-guard workflow before implementation.",
-            "Initialize the scope-guard plan artifact.",
-            "Clarify scope, define in and out of scope, and propose single-purpose components.",
-            "Write and review pseudocode, then validate the plan before implementing.",
-            "After implementation, record the design doc and diagram delta and run the final check."
-        ],
-        "brandColor": "#2563EB",
-        "screenshots": []
-    }
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
+    "defaultPrompt": [
+      "Run the scope-guard workflow before implementation.",
+      "Initialize the scope-guard plan artifact.",
+      "Clarify scope, define in and out of scope, and propose single-purpose components.",
+      "Write and review pseudocode, then validate the plan before implementing.",
+      "After implementation, record the design doc and diagram delta and run the final check."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
 }

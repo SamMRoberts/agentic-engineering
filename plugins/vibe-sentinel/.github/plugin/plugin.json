@@ -9,23 +9,10 @@
   "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SamMRoberts/agentic-engineering"
+    "url": "https://github.com/SamMRoberts/agentic-engineering.git"
   },
   "license": "MIT",
-  "keywords": [
-    "agents",
-    "assumptions",
-    "change-control",
-    "scope",
-    "drift",
-    "vibe-coding",
-    "guardrails",
-    "validation",
-    "codex",
-    "copilot",
-    "claude",
-    "workflow"
-  ],
+  "keywords": [],
   "agents": "./agents/",
   "skills": "./skills/",
   "hooks": "./hooks.json",

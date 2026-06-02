@@ -1,52 +1,53 @@
 {
-    "name": "vibe-sentinel",
-    "version": "1.0.0",
-    "description": "Sentinel for vibe-coding: enforce assumption verification and change-control scope before implementation.",
-    "author": {
-        "name": "Sam Roberts"
-    },
-    "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
-    "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
-    "license": "MIT",
-    "keywords": [
-        "agents",
-        "assumptions",
-        "change-control",
-        "scope",
-        "drift",
-        "vibe-coding",
-        "guardrails",
-        "validation",
-        "codex",
-        "copilot",
-        "claude",
-        "workflow"
+  "name": "vibe-sentinel",
+  "version": "1.0.0",
+  "description": "Sentinel for vibe-coding: enforce assumption verification and change-control scope before implementation.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
+  "repository": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "assumptions",
+    "change-control",
+    "scope",
+    "drift",
+    "vibe-coding",
+    "guardrails",
+    "validation",
+    "codex",
+    "copilot",
+    "claude",
+    "workflow"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "entrypointAgent": "vibe-sentinel",
+  "privateAgents": [
+    "assumption-killer",
+    "change-control-compiler"
+  ],
+  "interface": {
+    "displayName": "Vibe Sentinel",
+    "shortDescription": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation.",
+    "longDescription": "Vibe Sentinel combines two cross-agent guardrails into one plugin. The assumption-killer skill makes agents identify, classify, and verify assumptions with repository evidence before editing code. The change-control-compiler skill compiles vague requests into enforceable contracts with scope, allowed/forbidden areas, verification commands, risk, stop conditions, and drift detection. One vibe-sentinel orchestrator routes implementation tasks through both gates and runs the validators before the final response.",
+    "developerName": "Sam Roberts",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
     ],
-    "agents": "./agents/",
-    "skills": "./skills/",
-    "entrypointAgent": "vibe-sentinel",
-    "privateAgents": [
-        "assumption-killer",
-        "change-control-compiler"
+    "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
+    "defaultPrompt": [
+      "Run the vibe-sentinel guardrail workflow before implementation.",
+      "Initialize the assumption gate and change-control contract artifacts.",
+      "Verify high-risk assumptions with repository evidence.",
+      "Validate scope, run the final check, and run drift before the final response."
     ],
-    "interface": {
-        "displayName": "Vibe Sentinel",
-        "shortDescription": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation.",
-        "longDescription": "Vibe Sentinel combines two cross-agent guardrails into one plugin. The assumption-killer skill makes agents identify, classify, and verify assumptions with repository evidence before editing code. The change-control-compiler skill compiles vague requests into enforceable contracts with scope, allowed/forbidden areas, verification commands, risk, stop conditions, and drift detection. One vibe-sentinel orchestrator routes implementation tasks through both gates and runs the validators before the final response.",
-        "developerName": "Sam Roberts",
-        "category": "Productivity",
-        "capabilities": [
-            "Read",
-            "Write"
-        ],
-        "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/vibe-sentinel",
-        "defaultPrompt": [
-            "Run the vibe-sentinel guardrail workflow before implementation.",
-            "Initialize the assumption gate and change-control contract artifacts.",
-            "Verify high-risk assumptions with repository evidence.",
-            "Validate scope, run the final check, and run drift before the final response."
-        ],
-        "brandColor": "#7C3AED",
-        "screenshots": []
-    }
+    "brandColor": "#7C3AED",
+    "screenshots": []
+  }
 }

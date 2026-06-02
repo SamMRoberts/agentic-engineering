@@ -1,9 +1,9 @@
 {
-  "name": "web-ux-gremlin",
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "web-ux-gremlin",
   "privateAgents": [],
+  "name": "web-ux-gremlin",
   "metadata": {
     "version": "1.2.0",
     "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",

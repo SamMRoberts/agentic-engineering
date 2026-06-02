@@ -9,25 +9,10 @@
   "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/scope-guard",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SamMRoberts/agentic-engineering"
+    "url": "https://github.com/SamMRoberts/agentic-engineering.git"
   },
   "license": "MIT",
-  "keywords": [
-    "agents",
-    "scope",
-    "design",
-    "pseudocode",
-    "review",
-    "scope-creep",
-    "single-purpose",
-    "documentation",
-    "guardrails",
-    "validation",
-    "codex",
-    "copilot",
-    "claude",
-    "workflow"
-  ],
+  "keywords": [],
   "agents": "./agents/",
   "skills": "./skills/",
   "hooks": "./hooks.json",

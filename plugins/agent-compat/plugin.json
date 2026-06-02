@@ -1,7 +1,7 @@
 {
-  "name": "agent-compat",
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "agent-compat",
-  "privateAgents": []
+  "privateAgents": [],
+  "name": "agent-compat"
 }

@@ -1,9 +1,9 @@
 {
-  "name": "agent-on-ramp-coach",
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "agent-on-ramp-coach",
   "privateAgents": [],
+  "name": "agent-on-ramp-coach",
   "metadata": {
     "version": "1.1.0",
     "description": "Helps hesitant engineers adopt AI coding agents through safe confidence levels, read-only workflows, approval gates, and reviewable summaries.",

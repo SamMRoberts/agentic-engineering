@@ -50,6 +50,21 @@
       "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation."
     },
     {
+      "name": "ux-gremlin",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/SamMRoberts/agentic-engineering.git",
+        "path": "plugins/ux-gremlin",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Other",
+      "description": "TODO: one-line summary of ux-gremlin."
+    },
+    {
       "name": "vibe-sentinel",
       "source": {
         "source": "git-subdir",
