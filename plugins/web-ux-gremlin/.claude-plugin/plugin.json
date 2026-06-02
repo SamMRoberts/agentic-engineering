@@ -1,0 +1,26 @@
+{
+  "name": "web-ux-gremlin",
+  "version": "1.2.0",
+  "description": "Generate hostile-but-realistic UX resilience scenarios from normal web flows.",
+  "author": {
+    "name": "Sam Roberts",
+    "url": "https://github.com/SamMRoberts"
+  },
+  "homepage": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SamMRoberts/agentic-engineering"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "ux",
+    "playwright",
+    "resilience",
+    "accessibility",
+    "testing"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "hooks": "./hooks.json"
+}

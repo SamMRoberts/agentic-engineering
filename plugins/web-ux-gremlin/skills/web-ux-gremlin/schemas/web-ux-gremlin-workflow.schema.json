@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamMRoberts/agentic-engineering/plugins/web-ux-gremlin/web-ux-gremlin-workflow.schema.json",
+  "title": "UX Gremlin Workflow Contract",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "mode"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "mode": { "type": "string", "enum": ["manual", "guided", "auto"] },
+    "target_urls": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "objectives": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "risk_tolerance": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "mutation_depth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    }
+  }
+}
