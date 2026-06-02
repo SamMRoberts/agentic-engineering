@@ -36,12 +36,6 @@
             ]
         },
         {
-            "name": "ux-gremlin",
-            "source": "./plugins/ux-gremlin",
-            "description": "TODO: one-line summary of ux-gremlin.",
-            "version": "0.1.0"
-        },
-        {
             "name": "vibe-sentinel",
             "source": "./plugins/vibe-sentinel",
             "description": "Sentinel for vibe-coding: assumption gate plus change-control contract before implementation.",
