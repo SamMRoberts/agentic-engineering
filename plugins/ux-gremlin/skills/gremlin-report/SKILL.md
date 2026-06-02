@@ -1,5 +1,5 @@
 ---
-name: gremlin-report-gremlins
+name: gremlin-report
 description: Render UX Gremlin reports and optionally gate on severity thresholds.
 argument-hint: "Provide the results path and any severity threshold to enforce"
 user-invocable: true
@@ -36,7 +36,7 @@ Use this skill to turn plan or run results into human-readable and machine-reada
 
 ## CLI Entry Point
 
-`node skills/gremlin-report-gremlins/scripts/report-gremlins.mjs`
+`node skills/gremlin-report/scripts/report-gremlins.mjs`
 
 ## Workflow Notes
 

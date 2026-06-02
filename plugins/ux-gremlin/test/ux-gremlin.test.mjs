@@ -844,5 +844,5 @@ test("auto router chooses the next skill from artifact state", () => {
 
   fs.writeFileSync(path.join(dir, ".agent/session/ux-gremlin-results.json"), "{\"scenario_results\":[]}\n", "utf-8");
   result = route(dir);
-  assert.match(result.stdout, /Next skill: gremlin-report-gremlins/);
+  assert.match(result.stdout, /Next skill: gremlin-report/);
 });

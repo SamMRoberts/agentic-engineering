@@ -15,7 +15,7 @@ When a request is about UX resilience testing, Playwright generation, selector r
 5. Spec exists and `.agent/session/ux-gremlin-results.json` is missing:
    - Use `gremlin-execute-tests`.
 6. Results exist and `.agent/reports/ux-gremlin/report.md` is missing:
-   - Use `gremlin-report-gremlins`.
+   - Use `gremlin-report`.
 7. If the request is specifically about triage, fixes, regression, accessibility, PR-driven planning, CI setup, existing test conversion, or scenario explanation, jump directly to the focused skill that matches that intent.
 
 ## Skill entry points
@@ -27,7 +27,7 @@ When a request is about UX resilience testing, Playwright generation, selector r
 - `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
 - `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
 - `node skills/gremlin-execute-tests/scripts/execute-tests.mjs`
-- `node skills/gremlin-report-gremlins/scripts/report-gremlins.mjs`
+- `node skills/gremlin-report/scripts/report-gremlins.mjs`
 - `node skills/gremlin-triage-failures/scripts/triage-failures.mjs`
 - `node skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs`
 - `node skills/gremlin-regression-guard/scripts/regression-guard.mjs`

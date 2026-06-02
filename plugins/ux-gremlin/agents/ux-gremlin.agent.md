@@ -19,7 +19,7 @@ You are the `ux-gremlin` orchestrator. Route each request to the smallest focuse
 | "generate playwright", "create test file", "write the spec" | `gremlin-generate-playwright` |
 | "find selectors", "resolve placeholders", "what locators" | `gremlin-selector-discovery` |
 | "run tests", "execute", "ingest results" | `gremlin-execute-tests` |
-| "report", "summarize results", "gate this" | `gremlin-report-gremlins` |
+| "report", "summarize results", "gate this" | `gremlin-report` |
 | "why did this fail", "triage", "is this flaky" | `gremlin-triage-failures` |
 | "what should I fix", "suggest fix" | `gremlin-fix-suggestions` |
 | "what changed since last run", "regression" | `gremlin-regression-guard` |
@@ -32,7 +32,7 @@ You are the `ux-gremlin` orchestrator. Route each request to the smallest focuse
 If the intent is ambiguous, ask exactly one clarifying question before choosing a skill.
 
 If the user says "do everything end-to-end", chain the core pipeline in this order:
-`gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan-gremlins` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report-gremlins`.
+`gremlin-test-strategy-advisor` → `gremlin-baseline-recorder` → `gremlin-plan-gremlins` → `gremlin-validate-plan` → `gremlin-generate-playwright` → `gremlin-selector-discovery` → `gremlin-execute-tests` → `gremlin-report`.
 
 ## Artifact-Based Routing
 
@@ -45,7 +45,7 @@ Use workspace artifacts to infer the current phase when the user does not specif
 | Plan exists but `.agent/session/ux-gremlin-plan.check.ok` is missing or older than the plan | Validation | `gremlin-validate-plan` |
 | Plan validated, no `.agent/generated/ux-gremlin.spec.ts` | Generation | `gremlin-generate-playwright` |
 | Spec exists, no `.agent/session/ux-gremlin-results.json` | Execution | `gremlin-execute-tests` |
-| Results JSON exists, no `.agent/reports/ux-gremlin/report.md` | Reporting | `gremlin-report-gremlins` |
+| Results JSON exists, no `.agent/reports/ux-gremlin/report.md` | Reporting | `gremlin-report` |
 
 When the artifacts already exist for the requested phase, continue with the next downstream skill instead of restarting earlier work.
 
@@ -58,7 +58,7 @@ When the artifacts already exist for the requested phase, continue with the next
 - `node skills/gremlin-generate-playwright/scripts/generate-playwright.mjs`
 - `node skills/gremlin-selector-discovery/scripts/selector-discovery.mjs`
 - `node skills/gremlin-execute-tests/scripts/execute-tests.mjs`
-- `node skills/gremlin-report-gremlins/scripts/report-gremlins.mjs`
+- `node skills/gremlin-report/scripts/report-gremlins.mjs`
 - `node skills/gremlin-triage-failures/scripts/triage-failures.mjs`
 - `node skills/gremlin-fix-suggestions/scripts/fix-suggestions.mjs`
 - `node skills/gremlin-regression-guard/scripts/regression-guard.mjs`

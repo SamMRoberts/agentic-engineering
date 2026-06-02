@@ -12,7 +12,7 @@ const skillScripts = {
   'gremlin-validate-plan': 'skills/gremlin-validate-plan/scripts/validate-plan.mjs',
   'gremlin-generate-playwright': 'skills/gremlin-generate-playwright/scripts/generate-playwright.mjs',
   'gremlin-execute-tests': 'skills/gremlin-execute-tests/scripts/execute-tests.mjs',
-  'gremlin-report-gremlins': 'skills/gremlin-report-gremlins/scripts/report-gremlins.mjs'
+  'gremlin-report': 'skills/gremlin-report/scripts/report-gremlins.mjs'
 };
 
 function statMtime(filePath) {
@@ -71,13 +71,13 @@ function detectNextSkill(cwd) {
 
   if (!fs.existsSync(report)) {
     return {
-      skill: 'gremlin-report-gremlins',
+      skill: 'gremlin-report',
       reason: 'Results exist but report artifacts have not been created yet.'
     };
   }
 
   return {
-    skill: 'gremlin-report-gremlins',
+    skill: 'gremlin-report',
     reason: 'Primary artifacts already exist; refresh reporting or inspect downstream analysis skills next.',
     complete: true
   };
