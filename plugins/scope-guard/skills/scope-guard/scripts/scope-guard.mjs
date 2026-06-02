@@ -14,6 +14,15 @@ const requiredTopLevelFields = [
   "docs"
 ];
 
+// A goal shorter than this is almost always a vague placeholder rather than a
+// specific, observable, testable objective.
+const MIN_GOAL_LENGTH = 24;
+
+// A component whose responsibility names this many or more distinct action verbs
+// is treated as bundling multiple responsibilities (e.g. "validates, persists,
+// and emits metrics") and should be split into single-purpose components.
+const MAX_RESPONSIBILITY_VERBS = 3;
+
 const vagueGoals = [
   /^improve\b/i,
   /^fix (it|bug|bugs|issue|issues)$/i,
@@ -329,7 +338,7 @@ function detectBundledResponsibility(responsibility) {
       }
     }
   }
-  return verbs.size >= 3;
+  return verbs.size >= MAX_RESPONSIBILITY_VERBS;
 }
 
 function normalizeVerb(word) {
@@ -352,7 +361,7 @@ function requireSpecificGoal(goal, errors) {
   }
 
   const trimmed = goal.trim();
-  if (trimmed.length < 24 || vagueGoals.some((pattern) => pattern.test(trimmed))) {
+  if (trimmed.length < MIN_GOAL_LENGTH || vagueGoals.some((pattern) => pattern.test(trimmed))) {
     errors.push("userGoal is empty or vague; make it specific, observable, and testable");
   }
 }
