@@ -27,12 +27,12 @@
             ]
         },
         {
-            "name": "ux-gremlin",
-            "source": "./plugins/ux-gremlin",
-            "description": "Turn happy-path web flows into gremlin UX resilience test plans and starter Playwright specs.",
-            "version": "1.4.0",
+            "name": "scope-guard",
+            "source": "./plugins/scope-guard",
+            "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation.",
+            "version": "1.0.0",
             "skills": [
-                "./plugins/ux-gremlin/skills/ux-gremlin"
+                "./plugins/scope-guard/skills/scope-guard"
             ]
         },
         {
@@ -43,6 +43,15 @@
             "skills": [
                 "./plugins/vibe-sentinel/skills/assumption-killer",
                 "./plugins/vibe-sentinel/skills/change-control-compiler"
+            ]
+        },
+        {
+            "name": "web-ux-gremlin",
+            "source": "./plugins/web-ux-gremlin",
+            "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
+            "version": "1.2.0",
+            "skills": [
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin"
             ]
         }
     ]

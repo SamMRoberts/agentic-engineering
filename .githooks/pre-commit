@@ -6,10 +6,10 @@ set -euo pipefail
 
 # Only run when files relevant to generated plugin manifests changed.
 if git diff --cached --name-only \
-    | grep -Eq '^plugins/|^scripts/sync-marketplace\.mjs$|^\.github/plugin/'; then
+    | grep -Eq '^plugins/|^scripts/sync-marketplace\.mjs$|^\.github/plugin/|^\.codex-plugin/|^\.claude-plugin/'; then
     if ! node scripts/sync-marketplace.mjs --check >/dev/null; then
         echo "Generated plugin manifests or marketplace descriptors are out of date." >&2
-        echo "Run: node scripts/sync-marketplace.mjs && git add plugins .github/plugin" >&2
+        echo "Run: node scripts/sync-marketplace.mjs && git add plugins .github/plugin .codex-plugin .claude-plugin" >&2
         exit 1
     fi
 fi

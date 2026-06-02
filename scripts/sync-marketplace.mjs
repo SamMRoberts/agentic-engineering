@@ -15,10 +15,12 @@
  *   plugins/<name>/.claude-plugin/plugin.json   Claude Code pointers.
  *   plugins/<name>/.github/plugin/plugin.json   GitHub/Copilot pointers.
  *
- * Two marketplace outputs are kept in sync from the generated plugin metadata:
+ * Marketplace outputs are kept in sync from the generated plugin metadata:
  *
  *   plugins/marketplace.json            Codex CLI marketplace descriptor.
  *   .github/plugin/marketplace.json     Claude Code marketplace descriptor.
+ *   .codex-plugin/marketplace.json      Codex host marketplace descriptor.
+ *   .claude-plugin/marketplace.json     Claude host marketplace descriptor.
  *
  * Per-plugin overrides may be provided via a `marketplace` block in either
  * manifest, e.g.:
@@ -34,11 +36,12 @@
  *   node scripts/sync-marketplace.mjs                          # write generated files
  *   node scripts/sync-marketplace.mjs --out path.json          # override Codex output path
  *   node scripts/sync-marketplace.mjs --github-out path.json   # override Claude output path
+ *   node scripts/sync-marketplace.mjs --codex-plugin-out path.json
+ *   node scripts/sync-marketplace.mjs --claude-plugin-out path.json
  *   node scripts/sync-marketplace.mjs --check                  # exit 1 if anything is stale
  *
- * Defaults to writing per-plugin manifests plus <repo>/plugins/marketplace.json
- * and <repo>/.github/plugin/marketplace.json so descriptors are versioned
- * alongside the plugins they list.
+ * Defaults to writing per-plugin manifests plus the marketplace descriptors
+ * above so descriptors are versioned alongside the plugins they list.
  */
 
 import fs from "node:fs";
@@ -64,23 +67,36 @@ const DEFAULT_OUT = path.join(pluginsDir, "marketplace.json");
 
 const CLAUDE_MARKETPLACE_NAME = "sammroberts-marketplace";
 const CLAUDE_MARKETPLACE_DESCRIPTION = "SamMRoberts Copilot agent plugin marketplace.";
+const CODEX_PLUGIN_MARKETPLACE_DESCRIPTION = "SamMRoberts Codex agent plugin marketplace.";
 const CLAUDE_MARKETPLACE_VERSION = "1.0.0";
 const CLAUDE_MARKETPLACE_OWNER = "SamMRoberts";
 const DEFAULT_GITHUB_OUT = path.join(repoRoot, ".github", "plugin", "marketplace.json");
+const DEFAULT_CODEX_PLUGIN_OUT = path.join(repoRoot, ".codex-plugin", "marketplace.json");
+const DEFAULT_CLAUDE_PLUGIN_OUT = path.join(repoRoot, ".claude-plugin", "marketplace.json");
 const CLAUDE_INDENT = 4;
 
 function parseArgs(argv) {
-    const args = { out: DEFAULT_OUT, githubOut: DEFAULT_GITHUB_OUT, check: false };
+    const args = {
+        out: DEFAULT_OUT,
+        githubOut: DEFAULT_GITHUB_OUT,
+        codexPluginOut: DEFAULT_CODEX_PLUGIN_OUT,
+        claudePluginOut: DEFAULT_CLAUDE_PLUGIN_OUT,
+        check: false
+    };
     for (let i = 2; i < argv.length; i++) {
         const a = argv[i];
         if (a === "--out") args.out = path.resolve(argv[++i]);
         else if (a === "--github-out") args.githubOut = path.resolve(argv[++i]);
+        else if (a === "--codex-plugin-out") args.codexPluginOut = path.resolve(argv[++i]);
+        else if (a === "--claude-plugin-out") args.claudePluginOut = path.resolve(argv[++i]);
         else if (a === "--check") args.check = true;
         else if (a === "-h" || a === "--help") {
             console.log(
-                "Usage: sync-marketplace.mjs [--out <path>] [--github-out <path>] [--check]\n" +
+                "Usage: sync-marketplace.mjs [--out <path>] [--github-out <path>] [--codex-plugin-out <path>] [--claude-plugin-out <path>] [--check]\n" +
                 "  --out <path>          Write Codex marketplace.json to <path> (default: plugins/marketplace.json)\n" +
                 "  --github-out <path>   Write Claude marketplace.json to <path> (default: .github/plugin/marketplace.json)\n" +
+                "  --codex-plugin-out <path>   Write Codex host marketplace.json to <path> (default: .codex-plugin/marketplace.json)\n" +
+                "  --claude-plugin-out <path>  Write Claude host marketplace.json to <path> (default: .claude-plugin/marketplace.json)\n" +
                 "  --check               Exit 1 if any generated file would change; do not write"
             );
             process.exit(0);
@@ -351,16 +367,24 @@ function buildClaudeEntry(plugin) {
     return entry;
 }
 
-function buildClaudeMarketplace(plugins) {
+function buildHostMarketplace(plugins, description) {
     return {
         name: CLAUDE_MARKETPLACE_NAME,
         metadata: {
-            description: CLAUDE_MARKETPLACE_DESCRIPTION,
+            description,
             version: CLAUDE_MARKETPLACE_VERSION
         },
         owner: { name: CLAUDE_MARKETPLACE_OWNER },
         plugins: plugins.map(buildClaudeEntry)
     };
+}
+
+function buildClaudeMarketplace(plugins) {
+    return buildHostMarketplace(plugins, CLAUDE_MARKETPLACE_DESCRIPTION);
+}
+
+function buildCodexPluginMarketplace(plugins) {
+    return buildHostMarketplace(plugins, CODEX_PLUGIN_MARKETPLACE_DESCRIPTION);
 }
 
 function formatJson(value, indent = 2) {
@@ -408,6 +432,16 @@ function buildGeneratedOutputs(plugins, args) {
             path: args.githubOut,
             content: formatJson(buildClaudeMarketplace(refreshedPlugins), CLAUDE_INDENT),
             label: "Claude marketplace"
+        },
+        {
+            path: args.codexPluginOut,
+            content: formatJson(buildCodexPluginMarketplace(refreshedPlugins), CLAUDE_INDENT),
+            label: "Codex host marketplace"
+        },
+        {
+            path: args.claudePluginOut,
+            content: formatJson(buildClaudeMarketplace(refreshedPlugins), CLAUDE_INDENT),
+            label: "Claude host marketplace"
         }
     );
     return { outputs, plugins: refreshedPlugins };

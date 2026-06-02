@@ -5,12 +5,18 @@ on:
     branches: [main]
     paths:
       - 'plugins/**'
+      - '.codex-plugin/**'
+      - '.claude-plugin/**'
+      - '.github/plugin/**'
       - 'scripts/sync-marketplace.mjs'
       - '.github/workflows/sync-marketplace.yml'
   pull_request:
     branches: [main]
     paths:
       - 'plugins/**'
+      - '.codex-plugin/**'
+      - '.claude-plugin/**'
+      - '.github/plugin/**'
       - 'scripts/sync-marketplace.mjs'
       - '.github/workflows/sync-marketplace.yml'
   workflow_dispatch:
@@ -49,12 +55,12 @@ jobs:
 
       - name: Commit if changed
         run: |
-          if [[ -z "$(git status --porcelain plugins .github/plugin)" ]]; then
+          if [[ -z "$(git status --porcelain plugins .github/plugin .codex-plugin .claude-plugin)" ]]; then
             echo "generated plugin files already up to date"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins .github/plugin
+          git add plugins .github/plugin .codex-plugin .claude-plugin
           git commit -m "chore: sync plugin manifests [skip ci]"
           git push

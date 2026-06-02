@@ -75,9 +75,17 @@ test("sync writes missing host manifests while preserving existing metadata", ()
     assert.equal(codexMarketplace.plugins[0].category, "Testing");
     assert.equal(codexMarketplace.plugins[0].source.ref, "release");
 
-    const claudeMarketplace = readJson(path.join(root, ".github", "plugin", "marketplace.json"));
-    assert.deepEqual(claudeMarketplace.plugins.map((plugin) => plugin.name), ["curated-plugin", "new-plugin"]);
-    assert.deepEqual(claudeMarketplace.plugins[1].skills, ["./plugins/new-plugin/skills/new-skill"]);
+    const githubMarketplace = readJson(path.join(root, ".github", "plugin", "marketplace.json"));
+    assert.deepEqual(githubMarketplace.plugins.map((plugin) => plugin.name), ["curated-plugin", "new-plugin"]);
+    assert.deepEqual(githubMarketplace.plugins[1].skills, ["./plugins/new-plugin/skills/new-skill"]);
+
+    const rootCodexMarketplace = readJson(path.join(root, ".codex-plugin", "marketplace.json"));
+    assert.equal(rootCodexMarketplace.metadata.description, "SamMRoberts Codex agent plugin marketplace.");
+    assert.deepEqual(rootCodexMarketplace.plugins.map((plugin) => plugin.name), ["curated-plugin", "new-plugin"]);
+
+    const rootClaudeMarketplace = readJson(path.join(root, ".claude-plugin", "marketplace.json"));
+    assert.equal(rootClaudeMarketplace.metadata.description, "SamMRoberts Copilot agent plugin marketplace.");
+    assert.deepEqual(rootClaudeMarketplace.plugins.map((plugin) => plugin.name), ["curated-plugin", "new-plugin"]);
 });
 
 test("check mode reports missing generated files without writing them", () => {
@@ -90,4 +98,6 @@ test("check mode reports missing generated files without writing them", () => {
     assert.match(result.stderr, /out of date/);
     assert.equal(fs.existsSync(pluginPath(root, "missing-plugin", ".codex-plugin", "plugin.json")), false);
     assert.equal(fs.existsSync(path.join(root, "plugins", "marketplace.json")), false);
+    assert.equal(fs.existsSync(path.join(root, ".codex-plugin", "marketplace.json")), false);
+    assert.equal(fs.existsSync(path.join(root, ".claude-plugin", "marketplace.json")), false);
 });
