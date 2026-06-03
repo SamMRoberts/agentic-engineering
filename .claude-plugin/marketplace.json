@@ -50,7 +50,7 @@
             "name": "web-ux-gremlin",
             "source": "./plugins/web-ux-gremlin",
             "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "skills": [
                 "./plugins/web-ux-gremlin/skills/web-ux-gremlin"
             ]
