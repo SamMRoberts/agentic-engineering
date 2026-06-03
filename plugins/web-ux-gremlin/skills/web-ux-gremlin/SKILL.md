@@ -28,6 +28,15 @@ Collect or infer these before delegating:
 - Desired scope: plan only, generate from plan, run existing tests, heal failures, or full workflow.
 - Mode: standard bug hunt or gremlin mode. Default to gremlin mode when the user asks to "release the gremlins", "break the UX", "cause mayhem", "stress UX", or find unusual edge cases.
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
+- Confirm these execution controls with the user before running anything:
+  - Browser: `Chrome (headless)`, `Chrome (headed with remote devtools)`, or `Other`.
+  - Playwright execution method: `MCP`, `CLI`, or `Other`.
+  - If headed mode is selected, whether the user needs to authenticate in the browser session before tests begin.
+  - Optional run mode: run one plan item first vs full generated suite.
+  - Whether existing tests may be reused, replaced, or kept unchanged.
+  - Any explicit destructive-action constraints for mutations and fixtures.
+
+If any required execution control is not provided, stop and ask for it before proceeding.
 
 ## Modes
 
@@ -56,6 +65,7 @@ Stop and ask for clarification when:
 - Authentication requires secrets that the user has not configured outside chat.
 - The Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
+- Required execution-control answers are missing: browser choice, Playwright tool choice, and headed-browser authentication decision.
 - The requested scope would overwrite existing tests without user approval.
 
 Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to configure those directly in their environment.
@@ -75,6 +85,21 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
 6. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
 
 If `npx playwright init-agents --loop=vscode` fails, block progression and ask the user to run it manually, share the exact error, and continue only after it succeeds.
+
+Required execution-control questions to ask before delegation:
+
+- `Browser`
+  - `Chrome (headless)` / `Chrome (headed with remote devtools)` / `Other`
+- `Playwright tool`
+  - `MCP` / `CLI` / `Other`
+- `Headed authentication`
+  - If headed is selected, does the user need to authenticate in the browser before tests begin?
+- `Run scope`
+  - Single generated spec first, then expand, or full generated suite
+- `Test mutability`
+  - Can existing related tests be replaced, appended, or must they stay untouched?
+- `Data and auth safety`
+  - Are safe fixtures and destructive-action limits already configured in the environment?
 
 ## Procedure
 
