@@ -88,18 +88,17 @@ If `npx playwright init-agents --loop=vscode` fails, block progression and ask t
 
 Required execution-control questions to ask before delegation:
 
-- `Browser`
-  - `Chrome (headless)` / `Chrome (headed with remote devtools)` / `Other`
-- `Playwright tool`
-  - `MCP` / `CLI` / `Other`
-- `Headed authentication`
-  - If headed is selected, does the user need to authenticate in the browser before tests begin?
-- `Run scope`
-  - Single generated spec first, then expand, or full generated suite
-- `Test mutability`
-  - Can existing related tests be replaced, appended, or must they stay untouched?
-- `Data and auth safety`
-  - Are safe fixtures and destructive-action limits already configured in the environment?
+```text
+Execution Control:
+- Browser: Chrome (headless) | Chrome (headed with remote devtools) | Other
+- Playwright tool: MCP | CLI | Other
+- Headed auth: Does headed execution require manual authentication before tests begin? yes | no
+- Run mode: single generated spec first | full generated suite
+- Existing tests: replace | append | untouched
+- Safety: safe fixtures available? yes | no
+```
+
+If any required answer is missing or marked `Other`/`no` for any safety requirement, stop and confirm before continuing.
 
 ## Procedure
 
