@@ -111,6 +111,12 @@ Execution Control:
 
 If any required answer is missing or marked `Other`/`no` for any safety requirement, stop and confirm before continuing.
 
+Use this single-line run contract when available:
+
+```text
+Run contract: mode=<standard|gremlin>, intensity=<1-5>, browser=<headless|headed|other>, tool=<mcp|cli|other>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
+```
+
 ## Procedure
 
 ### 1. Plan
