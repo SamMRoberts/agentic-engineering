@@ -54,7 +54,8 @@ Stop and ask for clarification when:
 - No target app, URL, or already-running page is available.
 - The flow would mutate production data or real accounts without explicit approval and safe fixtures.
 - Authentication requires secrets that the user has not configured outside chat.
-- The Playwright MCP tools or required stage agents are unavailable.
+- The Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
+- `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - The requested scope would overwrite existing tests without user approval.
 
 Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to configure those directly in their environment.
