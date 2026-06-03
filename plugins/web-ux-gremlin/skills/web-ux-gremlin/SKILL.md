@@ -30,6 +30,7 @@ Collect or infer these before delegating:
 - Gremlin intensity when in gremlin mode: pick a numeric value from `1` to `5` (higher = more chaotic).
   - `1` = single-tactic chaos, `2` = light, `3` = broad, `4` = aggressive, `5` = maximal chaos.
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
+- Target app URL and explicit app-liveness expectation (for local apps, include a start command and expected readiness URL).
 - Confirm these execution controls with the user before running anything:
   - Browser: `Chrome (headless)`, `Chrome (headed with remote devtools)`, or `Other`.
   - Playwright execution method: `MCP` or `CLI`.
@@ -77,6 +78,8 @@ Stop and ask for clarification when:
 - Required execution-control answers are missing: browser choice, Playwright tool choice, headed-browser authentication decision, and run mode.
 - Required gremlin intensity is missing when mode is gremlin.
 - A required execution-control answer is `Other` (browser or tool). Ask a deterministic clarification with exact alternatives before continuing.
+- The target app is not reachable and the user has not provided a clear “app not running yet” start path.
+- Headed execution is selected, `headed_auth=yes`, and auth/session readiness has not been confirmed.
 - The requested scope would overwrite existing tests without user approval.
 
 Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to configure those directly in their environment.
@@ -89,12 +92,24 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
      - `npm init playwright@latest`
    - Always run and verify:
      - `npx playwright init-agents --loop=vscode`
-3. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
-4. If the selected tool is MCP, confirm the custom agents are available before delegation:
+3. Verify app reachability deterministically before planning or executing:
+   - Run one lightweight reachability probe against the target URL:
+     - `curl -fsS <target_url>` or equivalent HTTP request.
+   - If probe fails, stop and ask for one of:
+     - "app not running yet" start command (for example, `npm run dev` or container command),
+     - expected startup URL (for example, `http://localhost:3000`),
+     - confirmation signal before retrying preflight.
+4. If target app is reachable but the workflow is headed, run a session-ready checkpoint:
+   - Confirm the target URL opens successfully in the selected browser session.
+   - If headed auth is required, confirm the user has completed authentication and capture a clear session-ready statement before running tests.
+   - Use this explicit checkpoint phrase before test execution:
+     - `Session-ready checkpoint: URL open + auth state confirmed` (or `Session-ready checkpoint: URL open; auth not required`).
+5. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
+6. If the selected tool is MCP, confirm the custom agents are available before delegation:
    - If `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are not listed in the project or MCP context, rerun step 2 and stop until they are available.
    - If the selected tool is CLI, continue using CLI runners without requiring Playwright MCP stage agents.
-5. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
-6. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
+7. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
+8. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
 
 If `npx playwright init-agents --loop=vscode` fails, block progression and ask the user to run it manually, share the exact error, and continue only after it succeeds.
 
