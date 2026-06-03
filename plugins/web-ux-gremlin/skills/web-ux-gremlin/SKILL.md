@@ -34,7 +34,7 @@ Collect or infer these before delegating:
   - Browser: `Chrome (headless)`, `Chrome (headed with remote devtools)`, or `Other`.
   - Playwright execution method: `MCP`, `CLI`, or `Other`.
   - If headed mode is selected, whether the user needs to authenticate in the browser session before tests begin.
-  - Optional run mode: run one plan item first vs full generated suite.
+  - Run mode: run one plan item first vs full generated suite.
   - Whether existing tests may be reused, replaced, or kept unchanged.
   - Any explicit destructive-action constraints for mutations and fixtures.
 
@@ -74,7 +74,7 @@ Stop and ask for clarification when:
 - Authentication requires secrets that the user has not configured outside chat.
 - If the selected tool is MCP and the Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
-- Required execution-control answers are missing: browser choice, Playwright tool choice, and headed-browser authentication decision.
+- Required execution-control answers are missing: browser choice, Playwright tool choice, headed-browser authentication decision, and run mode.
 - Required gremlin intensity is missing when mode is gremlin.
 - The requested scope would overwrite existing tests without user approval.
 
@@ -104,8 +104,8 @@ Execution Control:
 - Browser: Chrome (headless) | Chrome (headed with remote devtools) | Other
 - Playwright tool: MCP | CLI | Other
 - Headed auth: Does headed execution require manual authentication before tests begin? yes | no
-- Gremlin intensity (if gremlin mode): 1-5
-- Run mode: single generated spec first | full generated suite
+  - Gremlin intensity: required only when mode is gremlin (1-5)
+  - Run mode: single generated spec first | full generated suite
 - Existing tests: replace | append | untouched
 - Safety: safe fixtures available? yes | no
 ```
@@ -115,7 +115,7 @@ If any required answer is missing or marked `Other`/`no` for any safety requirem
 Use this single-line run contract when available:
 
 ```text
-Run contract: mode=<standard|gremlin>, intensity=<1-5>, browser=<headless|headed|other>, tool=<mcp|cli|other>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
+Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<headless|headed|other>, tool=<mcp|cli|other>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
 ```
 
 ## Procedure
