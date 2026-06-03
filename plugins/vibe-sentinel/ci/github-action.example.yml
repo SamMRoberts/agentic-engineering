@@ -15,10 +15,10 @@ jobs:
         with:
           node-version: "20"
       - name: Assumption gate
-        run: node ./scripts/assumption-gate.mjs check
+        run: node scripts/assumption-gate.mjs check
       - name: Change control contract
-        run: node ./scripts/change-control.mjs check
+        run: node scripts/change-control.mjs check
       - name: Scope Guard plan
-        run: node ./scripts/scope-guard.mjs check
+        run: node scripts/scope-guard.mjs check
       - name: Change control drift
-        run: node ./scripts/change-control.mjs drift
+        run: node scripts/change-control.mjs drift

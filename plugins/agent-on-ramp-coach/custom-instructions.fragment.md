@@ -21,11 +21,11 @@ Do not modify files unless the selected level allows edits and explicit approval
 Before the final response, run:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check
+node skills/agent-on-ramp-coacscripts/onramp.mjs check
 ```
 
 For levels 0 through 3, run:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits
+node skills/agent-on-ramp-coacscripts/onramp.mjs no-edits
 ```

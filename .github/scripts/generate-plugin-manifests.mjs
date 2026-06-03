@@ -8,11 +8,11 @@
  * Only writes files that do not already exist. Never overwrites.
  *
  * Usage (from repo root):
- *   node .github/scripts/generate-plugin-manifests.mjs <plugin-name>
+ *   node .githuscripts/generate-plugin-manifests.mjs <plugin-name>
  *
  * Examples:
- *   node .github/scripts/generate-plugin-manifests.mjs my-plugin
- *   node .github/scripts/generate-plugin-manifests.mjs plugins/my-plugin
+ *   node .githuscripts/generate-plugin-manifests.mjs my-plugin
+ *   node .githuscripts/generate-plugin-manifests.mjs plugins/my-plugin
  *
  * The argument can be a folder name under plugins/, or an absolute/relative
  * path that resolves into plugins/. The plugin folder must exist.
@@ -33,7 +33,7 @@ const AUTHOR = { name: "Sam Roberts", url: "https://github.com/SamMRoberts" };
 
 const arg = process.argv[2];
 if (!arg) {
-    console.error("Usage: node .github/scripts/generate-plugin-manifests.mjs <plugin-name-or-path>");
+    console.error("Usage: node .githuscripts/generate-plugin-manifests.mjs <plugin-name-or-path>");
     process.exit(2);
 }
 
@@ -156,7 +156,7 @@ if (created.length > 0) {
     console.log("  1. Replace the TODO description and longDescription fields.");
     console.log("  2. Fill in keywords, category, and capabilities in .codex-plugin/plugin.json.");
     console.log("  3. Add the entrypoint agent file at agents/<name>.agent.md.");
-    console.log("  4. Run: node .github/scripts/validate-plugin-structure.mjs");
+    console.log("  4. Run: node .githuscripts/validate-plugin-structure.mjs");
 }
 
 function titleCase(kebab) {

@@ -4,24 +4,24 @@
     "SessionStart": [
       {
         "name": "initialize-on-ramp-session",
-        "command": "node skills/agent-on-ramp-coach/scripts/onramp.mjs init",
+        "command": "node skills/agent-on-ramp-coacscripts/onramp.mjs init",
         "timeoutSeconds": 10
       },
       {
         "name": "snapshot-git-state",
-        "command": "node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot",
+        "command": "node skills/agent-on-ramp-coacscripts/onramp.mjs snapshot",
         "timeoutSeconds": 10
       }
     ],
     "BeforeFinalResponse": [
       {
         "name": "check-on-ramp-session",
-        "command": "node skills/agent-on-ramp-coach/scripts/onramp.mjs check",
+        "command": "node skills/agent-on-ramp-coacscripts/onramp.mjs check",
         "timeoutSeconds": 10
       },
       {
         "name": "enforce-no-edits-for-read-only-levels",
-        "command": "node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits",
+        "command": "node skills/agent-on-ramp-coacscripts/onramp.mjs no-edits",
         "timeoutSeconds": 10
       }
     ]

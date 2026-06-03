@@ -38,21 +38,21 @@ Record:
 Before final response, run:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check
+node skills/agent-on-ramp-coacscripts/onramp.mjs check
 ```
 
 For levels 0 through 3, also run:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits
+node skills/agent-on-ramp-coacscripts/onramp.mjs no-edits
 ```
 
 Prefer the driveable commands over hand-editing the session JSON:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs menu
-node skills/agent-on-ramp-coach/scripts/onramp.mjs start --task "<task>" --workflow <type> --risk <level> --selected-level <level>
-node skills/agent-on-ramp-coach/scripts/onramp.mjs record --inspected <file> --command "<cmd>" --finding "<text>"
-node skills/agent-on-ramp-coach/scripts/onramp.mjs status
-node skills/agent-on-ramp-coach/scripts/onramp.mjs complete
+node skills/agent-on-ramp-coacscripts/onramp.mjs menu
+node skills/agent-on-ramp-coacscripts/onramp.mjs start --task "<task>" --workflow <type> --risk <level> --selected-level <level>
+node skills/agent-on-ramp-coacscripts/onramp.mjs record --inspected <file> --command "<cmd>" --finding "<text>"
+node skills/agent-on-ramp-coacscripts/onramp.mjs status
+node skills/agent-on-ramp-coacscripts/onramp.mjs complete
 ```

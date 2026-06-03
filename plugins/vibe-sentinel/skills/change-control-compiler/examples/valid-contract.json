@@ -45,7 +45,7 @@
   "files_allowed_to_modify": [
     "plugins/change-control-compiler/plugin.json",
     "plugins/change-control-compiler/package.json",
-    "plugins/change-control-compiler/skills/change-control-compiler/scripts/change-control.mjs"
+    "plugins/change-control-compiler/skills/change-control-compilescripts/change-control.mjs"
   ],
   "files_forbidden_to_modify": [
     "plugins/agent-compat/plugin.json"

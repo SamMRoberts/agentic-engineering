@@ -9,7 +9,7 @@
     "description": "Scoped coding partner: enforce Scope -> Design -> Pseudocode -> Review -> Implement -> Update Docs before and during implementation.",
     "scripts": [
       "bin/scope-guard.mjs",
-      "skills/scope-guard/scripts/scope-guard.mjs"
+      "skills/scope-guarscripts/scope-guard.mjs"
     ],
     "schemas": [
       "skills/scope-guard/schemas/scope-guard-plan.schema.json"

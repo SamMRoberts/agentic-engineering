@@ -16,7 +16,7 @@ test("canonical hook commands resolve from the repository root", () => {
 
     for (const command of commands) {
         assert.doesNotMatch(command, /^node scripts\//, `${command} should not rely on plugin cwd`);
-        assert.match(command, /^node plugins\/vibe-sentinel\/scripts\//, `${command} should use a repo-root-safe plugin path`);
+        assert.match(command, /^node plugins\/vibe-sentinelscripts\//, `${command} should use a repo-root-safe plugin path`);
 
         const [, scriptPath] = command.split(/\s+/, 3);
         assert.ok(existsSync(join(repoRoot, scriptPath)), `${scriptPath} should exist from the repository root`);

@@ -2,10 +2,10 @@
 
 ## 2.0.0
 
-- **Breaking:** renames `plugins/vibe-sentinel/bin/` to `./scripts/`. Update any hook configurations, CI workflows, custom-instruction fragments, or repository scripts that reference `plugins/vibe-sentinel/bin/<name>.mjs` to use `./scripts/<name>.mjs`.
+- **Breaking:** renames `plugins/vibe-sentinel/bin/` to `scripts/`. Update any hook configurations, CI workflows, custom-instruction fragments, or repository scripts that reference `plugins/vibe-sentinel/bin/<name>.mjs` to use `scripts/<name>.mjs`.
 - Updates the bundled `hooks.json`, `hooks/codex-hooks.example.json`, `hooks/copilot-hooks.example.json`, `ci/github-action.example.yml`, `AGENTS.fragment.md`, `custom-instructions.fragment.md`, `README.md`, `agents/scope-guard.agent.md`, `package.json`, and `plugin.json` to the new path.
 - Updates skill examples and test fixtures (`skills/assumption-killer/examples/*`, `skills/change-control-compiler/examples/*`, `test/fixtures/valid-workspace/.agent/session/*`) to reference the new path.
-- Updates the hooks test to assert canonical commands resolve under `./scripts/`.
+- Updates the hooks test to assert canonical commands resolve under `scripts/`.
 
 ## 1.1.0
 
@@ -30,7 +30,7 @@
 `plugins/assumption-killer/` and `plugins/change-control-compiler/` have been removed. Update any references:
 
 - Replace `node plugins/assumption-killer/bin/assumption-gate.mjs` with `node plugins/vibe-sentinel/bin/assumption-gate.mjs`.
-- Replace `node plugins/change-control-compiler/bin/change-control.mjs` (or `node plugins/change-control-compiler/skills/change-control-compiler/scripts/change-control.mjs`) with `node plugins/vibe-sentinel/bin/change-control.mjs`.
+- Replace `node plugins/change-control-compiler/bin/change-control.mjs` (or `node plugins/change-control-compiler/skills/change-control-compilescripts/change-control.mjs`) with `node plugins/vibe-sentinel/bin/change-control.mjs`.
 - Update AGENTS or custom instruction fragments to point at `plugins/vibe-sentinel/AGENTS.fragment.md` or `plugins/vibe-sentinel/custom-instructions.fragment.md`.
 - Update hook configurations to use `plugins/vibe-sentinel/hooks/codex-hooks.example.json` or `plugins/vibe-sentinel/hooks/copilot-hooks.example.json`.
 - Update CI to use `plugins/vibe-sentinel/ci/github-action.example.yml`.

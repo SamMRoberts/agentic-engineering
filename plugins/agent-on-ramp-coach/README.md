@@ -48,43 +48,43 @@ From the target repository root, drive the whole session with composable command
 
 ```bash
 # Discover a safe starting workflow
-node skills/agent-on-ramp-coach/scripts/onramp.mjs menu
+node skills/agent-on-ramp-coacscripts/onramp.mjs menu
 
 # Start and populate a session in one step
-node skills/agent-on-ramp-coach/scripts/onramp.mjs start \
+node skills/agent-on-ramp-coacscripts/onramp.mjs start \
   --task "Explain how retries work" \
   --workflow explain_code \
   --risk low \
   --selected-level level_1_analyze_only
 
 # Record evidence incrementally as you work (repeatable flags)
-node skills/agent-on-ramp-coach/scripts/onramp.mjs record \
+node skills/agent-on-ramp-coacscripts/onramp.mjs record \
   --inspected src/retry-service.ts \
   --command "rg retry src" \
   --finding "Retries are bounded by maxAttempts"
 
 # Update scalar fields and see what is still missing
-node skills/agent-on-ramp-coach/scripts/onramp.mjs set --status read_only_complete
-node skills/agent-on-ramp-coach/scripts/onramp.mjs status
+node skills/agent-on-ramp-coacscripts/onramp.mjs set --status read_only_complete
+node skills/agent-on-ramp-coacscripts/onramp.mjs status
 
 # Validate, then record the session in the team adoption log
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check
-node skills/agent-on-ramp-coach/scripts/onramp.mjs complete
+node skills/agent-on-ramp-coacscripts/onramp.mjs check
+node skills/agent-on-ramp-coacscripts/onramp.mjs complete
 ```
 
 The session JSON is the single source of truth; `start`, `set`, and `record` regenerate the markdown mirror automatically. The lower-level commands are still available:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs init
-node skills/agent-on-ramp-coach/scripts/onramp.mjs snapshot
-node skills/agent-on-ramp-coach/scripts/onramp.mjs no-edits
-node skills/agent-on-ramp-coach/scripts/onramp.mjs summary
+node skills/agent-on-ramp-coacscripts/onramp.mjs init
+node skills/agent-on-ramp-coacscripts/onramp.mjs snapshot
+node skills/agent-on-ramp-coacscripts/onramp.mjs no-edits
+node skills/agent-on-ramp-coacscripts/onramp.mjs summary
 ```
 
 When running from this plugin package, use the full path:
 
 ```bash
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/valid-adoption-session.json
+node skills/agent-on-ramp-coacscripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/valid-adoption-session.json
 ```
 
 ## Commands
@@ -174,7 +174,7 @@ From this plugin directory:
 ```bash
 npm test
 npm run validate
-node skills/agent-on-ramp-coach/scripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/invalid-adoption-session.json
+node skills/agent-on-ramp-coacscripts/onramp.mjs check --session skills/agent-on-ramp-coach/examples/invalid-adoption-session.json
 ```
 
 The invalid example should fail. A failure there means the validator is blocking malformed or unsafe sessions as intended.

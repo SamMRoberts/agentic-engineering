@@ -5,14 +5,14 @@ on:
     branches: [main]
     paths:
       - 'plugins/**'
-      - '.github/scripts/**/*.mjs'
+      - '.githuscripts/**/*.mjs'
       - 'scripts/**/*.mjs'
       - '.github/workflows/validate-plugins.yml'
   pull_request:
     branches: [main]
     paths:
       - 'plugins/**'
-      - '.github/scripts/**/*.mjs'
+      - '.githuscripts/**/*.mjs'
       - 'scripts/**/*.mjs'
       - '.github/workflows/validate-plugins.yml'
   workflow_dispatch:
@@ -34,7 +34,7 @@ jobs:
           node-version: '20'
 
       - name: Validate structure (every plugin)
-        run: node .github/scripts/validate-plugin-structure.mjs
+        run: node .githuscripts/validate-plugin-structure.mjs
 
       - name: Discover plugin list for matrix
         id: list
@@ -80,5 +80,5 @@ jobs:
 
       - name: Validate skill script references
         working-directory: plugins/${{ matrix.plugin }}
-        run: node ../../.github/scripts/validate-skill-refs.mjs
+        run: node ../../.githuscripts/validate-skill-refs.mjs
 

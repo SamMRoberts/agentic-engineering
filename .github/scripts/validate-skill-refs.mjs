@@ -2,11 +2,11 @@
  * Validates that scripts referenced in SKILL.md files exist and are scoped to the referencing skill.
  *
  * Checks two kinds of references:
- * 1. Direct `node skills/<skill>/scripts/...` invocations
+ * 1. Direct `node skills/<skillscripts/...` invocations
  * 2. `npm run <script>` commands that must be defined in package.json and point to the skill's scripts folder
  *
  * Run from the plugin root directory:
- *   node ../../.github/scripts/validate-skill-refs.mjs
+ *   node ../../.githuscripts/validate-skill-refs.mjs
  */
 
 import { readFileSync, existsSync, readdirSync } from "fs";
@@ -22,9 +22,9 @@ const scriptUsers = new Map();
 const ignoreFile = ".skill-ref-ignore";
 const ignorePatterns = existsSync(ignoreFile)
   ? readFileSync(ignoreFile, "utf8")
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l && !l.startsWith("#"))
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"))
   : [];
 
 function isIgnored(type, ref) {
@@ -89,7 +89,7 @@ for (const skill of skillDirs) {
 
   const content = readFileSync(skillFile, "utf8");
 
-  // Check direct node skills/<skill>/scripts/... references
+  // Check direct node skills/<skillscripts/... references
   const scriptRefs = [...content.matchAll(/`[^`]*node\s+([^\s`"]+)[^`]*`/g)].map((m) =>
     m[1].replace(/[,;)}\]]+$/, "")
   );

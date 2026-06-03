@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-import "../skills/assumption-killer/scripts/assumption-gate.mjs";
+import "../skills/assumption-killescripts/assumption-gate.mjs";

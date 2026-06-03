@@ -20,7 +20,7 @@
  *     folder name.
  *
  * Run from the repo root:
- *   node .github/scripts/validate-plugin-structure.mjs
+ *   node .githuscripts/validate-plugin-structure.mjs
  *
  * Exit codes:
  *   0 — all plugins valid
