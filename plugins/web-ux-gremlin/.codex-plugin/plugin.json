@@ -1,6 +1,6 @@
 {
   "name": "web-ux-gremlin",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
   "author": {
     "name": "Sam Roberts",

@@ -2,11 +2,7 @@
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "web-ux-gremlin",
-  "privateAgents": [
-    "playwright-test-planner",
-    "playwright-test-generator",
-    "playwright-test-healer"
-  ],
+  "privateAgents": [],
   "mcpServers": "./.mcp.json",
   "hooks": "./hooks.json",
   "requirements": {
@@ -30,7 +26,7 @@
   },
   "name": "web-ux-gremlin",
   "metadata": {
-    "version": "1.6.0",
+    "version": "1.6.1",
     "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs."
   }
 }
