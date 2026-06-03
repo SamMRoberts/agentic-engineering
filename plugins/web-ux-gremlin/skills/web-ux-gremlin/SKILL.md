@@ -29,6 +29,8 @@ Collect or infer these before delegating:
 - Mode: standard bug hunt or gremlin mode. Default to gremlin mode when the user asks to "release the gremlins", "break the UX", "cause mayhem", "stress UX", or find unusual edge cases.
 - Gremlin intensity when in gremlin mode: pick a numeric value from `1` to `5` (higher = more chaotic).
   - `1` = single-tactic chaos, `2` = light, `3` = broad, `4` = aggressive, `5` = maximal chaos.
+- If the user asks for gremlin mode and does not specify intensity, pause and ask this exact question before continuing:
+  - `What gremlin intensity should I use (1-5)?`
 - If intensity is `4` or `5`, require explicit reviewer confirmation before running:
   - High-chaos suitability reviewed (target app/flow can tolerate aggressive UX disturbances).
   - Destructive actions and data-loss risk checks completed and accepted.
@@ -82,7 +84,7 @@ Stop and ask for clarification when:
 - If the selected tool is MCP and the Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - Required execution-control answers are missing: browser choice, Playwright tool choice, headed-browser authentication decision, and run mode.
-- Required gremlin intensity is missing when mode is gremlin.
+- Required gremlin intensity is missing when mode is gremlin. Ask: `What gremlin intensity should I use (1-5)?` before proceeding.
 - For intensity 4 or 5, the required high-chaos reviewer confirmation was not provided.
 - A required execution-control answer is `Other` (browser or tool). Ask a deterministic clarification with exact alternatives before continuing.
 - For intensity 4 or 5, if `high_chaos_approved` is not `yes`, stop and ask for explicit high-chaos confirmation.
