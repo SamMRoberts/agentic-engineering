@@ -18,8 +18,8 @@ Scope Guard is not required for read-only explanations or trivial documentation 
 Before the final response, run:
 
 ```bash
-node plugins/vibe-sentinel/scripts/assumption-gate.mjs check
-node plugins/vibe-sentinel/scripts/change-control.mjs check
-node plugins/vibe-sentinel/scripts/change-control.mjs drift
-node plugins/vibe-sentinel/scripts/scope-guard.mjs check # when Scope Guard was required
+node ./scripts/assumption-gate.mjs check
+node ./scripts/change-control.mjs check
+node ./scripts/change-control.mjs drift
+node ./scripts/scope-guard.mjs check # when Scope Guard was required
 ```

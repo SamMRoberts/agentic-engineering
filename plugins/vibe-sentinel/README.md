@@ -61,20 +61,20 @@ From the target repository root:
 
 ```bash
 # Assumption gate
-node plugins/vibe-sentinel/scripts/assumption-gate.mjs init
-node plugins/vibe-sentinel/scripts/assumption-gate.mjs check
-node plugins/vibe-sentinel/scripts/assumption-gate.mjs summary
+node ./scripts/assumption-gate.mjs init
+node ./scripts/assumption-gate.mjs check
+node ./scripts/assumption-gate.mjs summary
 
 # Change-control contract
-node plugins/vibe-sentinel/scripts/change-control.mjs init
-node plugins/vibe-sentinel/scripts/change-control.mjs check
-node plugins/vibe-sentinel/scripts/change-control.mjs summary
-node plugins/vibe-sentinel/scripts/change-control.mjs drift
+node ./scripts/change-control.mjs init
+node ./scripts/change-control.mjs check
+node ./scripts/change-control.mjs summary
+node ./scripts/change-control.mjs drift
 
 # Scope Guard plan
-node plugins/vibe-sentinel/scripts/scope-guard.mjs init
-node plugins/vibe-sentinel/scripts/scope-guard.mjs check
-node plugins/vibe-sentinel/scripts/scope-guard.mjs summary
+node ./scripts/scope-guard.mjs init
+node ./scripts/scope-guard.mjs check
+node ./scripts/scope-guard.mjs summary
 ```
 
 If installed as an npm-style package or exposed by a host, the bins are `assumption-gate`, `change-control`, and `scope-guard`.
