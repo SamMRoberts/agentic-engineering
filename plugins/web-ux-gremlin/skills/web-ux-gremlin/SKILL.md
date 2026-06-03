@@ -42,12 +42,13 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
 
 ## Preflight
 
-1. Check whether the plugin has Playwright setup: `package.json`, `playwright.config.ts`, `tests/`, and `specs/`.
+1. Confirm the current workspace root is the target Playwright project root containing `package.json`, `playwright.config.ts`, `tests/`, and `specs/`.
 2. If setup is missing and the user asked for setup, use the plugin requirements order:
    - `npm init playwright@latest`
    - `npx playwright init-agents --loop=vscode`
-3. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path.
-4. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
+3. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
+4. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
+5. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
 
 ## Procedure
 
@@ -98,6 +99,8 @@ For full-suite validation, use:
 ```bash
 npx playwright test
 ```
+
+Always run Playwright commands from the target project root. Do not use `npm exec --prefix <project> -- playwright test` from another directory, because Playwright can resolve a different config and load tests with a different runner instance.
 
 Capture failing test names, file paths, browser/project names, and the first actionable error. Treat failures as possible UX bugs until the healer determines whether the issue is product behavior, bad test setup, brittle selectors, or environment instability.
 

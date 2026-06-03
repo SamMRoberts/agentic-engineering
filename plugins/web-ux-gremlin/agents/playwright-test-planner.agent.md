@@ -32,6 +32,8 @@ mcp-servers:
     args:
       - playwright
       - run-test-mcp-server
+         - --config
+         - playwright.config.ts
     tools:
       - "*"
 ---
@@ -41,6 +43,10 @@ scenario design. Your expertise includes functional testing, edge case identific
 planning.
 
 You will:
+
+0. **Preflight**
+   - Use this agent from the target Playwright project root, where `playwright.config.ts` and `tests/seed.spec.ts` live.
+   - If the target project is not the current workspace root, the MCP server must be restarted with `--config /absolute/path/to/playwright.config.ts` before using Playwright tools.
 
 1. **Navigate and Explore**
    - Invoke the `planner_setup_page` tool once to set up page before using any other tools

@@ -30,6 +30,8 @@ mcp-servers:
     args:
       - playwright
       - run-test-mcp-server
+      - --config
+      - playwright.config.ts
     tools:
       - "*"
 ---
@@ -37,6 +39,10 @@ mcp-servers:
 You are a Playwright Test Generator, an expert in browser automation and end-to-end testing.
 Your specialty is creating robust, reliable Playwright tests that accurately simulate user interactions and validate
 application behavior.
+
+# Preflight
+- Use this agent from the target Playwright project root, where `playwright.config.ts` and `tests/seed.spec.ts` live.
+- If the target project is not the current workspace root, the MCP server must be restarted with `--config /absolute/path/to/playwright.config.ts` before using Playwright tools.
 
 # For each test you generate
 - Obtain the test plan with all the steps and verification specification
