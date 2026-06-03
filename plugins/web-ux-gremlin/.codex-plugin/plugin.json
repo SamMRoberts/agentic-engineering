@@ -12,8 +12,6 @@
   "keywords": [],
   "agents": "./agents/",
   "skills": "./skills/",
-  "hooks": "./hooks.json",
-  "mcpServers": "./.mcp.json",
   "entrypointAgent": "web-ux-gremlin",
   "privateAgents": [
     "playwright-test-planner",
@@ -37,6 +35,8 @@
     "brandColor": "#1D4ED8",
     "screenshots": []
   },
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json",
   "requirements": {
     "runtime": [
       {
