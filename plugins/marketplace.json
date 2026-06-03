@@ -77,7 +77,7 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity",
-      "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs."
+      "description": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem."
     }
   ]
 }
