@@ -61,13 +61,19 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
 
 ## Preflight
 
-1. Confirm the current workspace root is the target Playwright project root containing `package.json`, `playwright.config.ts`, `tests/`, and `specs/`.
-2. If setup is missing and the user asked for setup, use the plugin requirements order:
-   - `npm init playwright@latest`
-   - `npx playwright init-agents --loop=vscode`
+1. Confirm the current workspace root is the target Playwright project root containing `package.json`, `playwright.config.ts`, `tests/`, and `specs/`. If not, stop and ask the user to open the correct project root.
+2. Ensure the project has Playwright initialized and Playwright custom agents installed before using planner/generator/healer stages:
+   - If `package.json` is missing Playwright setup, run:
+     - `npm init playwright@latest`
+   - Always run and verify:
+     - `npx playwright init-agents --loop=vscode`
 3. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
-4. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
-5. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
+4. Confirm the custom agents are available before delegation:
+   - If `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are not listed in the project or MCP context, rerun step 2 and stop until they are available.
+5. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
+6. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
+
+If `npx playwright init-agents --loop=vscode` fails, block progression and ask the user to run it manually, share the exact error, and continue only after it succeeds.
 
 ## Procedure
 
