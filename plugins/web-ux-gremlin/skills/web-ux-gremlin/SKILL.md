@@ -72,7 +72,7 @@ Stop and ask for clarification when:
 - No target app, URL, or already-running page is available.
 - The flow would mutate production data or real accounts without explicit approval and safe fixtures.
 - Authentication requires secrets that the user has not configured outside chat.
-- The Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
+- If the selected tool is MCP and the Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - Required execution-control answers are missing: browser choice, Playwright tool choice, and headed-browser authentication decision.
 - Required gremlin intensity is missing when mode is gremlin.
@@ -89,8 +89,9 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
    - Always run and verify:
      - `npx playwright init-agents --loop=vscode`
 3. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
-4. Confirm the custom agents are available before delegation:
+4. If the selected tool is MCP, confirm the custom agents are available before delegation:
    - If `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are not listed in the project or MCP context, rerun step 2 and stop until they are available.
+   - If the selected tool is CLI, continue using CLI runners without requiring Playwright MCP stage agents.
 5. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
 6. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
 
