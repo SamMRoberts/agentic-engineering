@@ -1,6 +1,6 @@
 {
     "name": "vibe-sentinel",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Combined assumption gate, change-control contract, and Scope Guard enforcement for vibe-coding agents.",
     "type": "module",
     "private": true,
