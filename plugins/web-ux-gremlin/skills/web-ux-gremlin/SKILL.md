@@ -131,6 +131,8 @@ Target app or URL:
 Scope / flows:
 UX risks or bug classes to hunt:
 Mode: standard or gremlin
+Gremlin intensity: 1-5 (required for gremlin mode; n/a for standard)
+Run contract: <the exact contract captured before delegation>
 Auth and starting state:
 Safety constraints:
 Plan output path:
@@ -158,6 +160,8 @@ Use this handoff shape:
 <test-file>tests/path/to/scenario-name.spec.ts</test-file>
 <seed-file>tests/seed.spec.ts or another seed file from the plan</seed-file>
 <mode>standard or gremlin</mode>
+<intensity>1-5 (or n/a for standard)</intensity>
+<run-contract>mode=..., intensity=..., browser=..., tool=..., headed_auth=..., run_mode=..., tests=..., safe_fixtures=...</run-contract>
 <body>Scenario steps, expected outcomes, and UX failure mode from the saved plan</body>
 ```
 
@@ -198,6 +202,9 @@ Failing test file:
 Failing test name:
 Observed error:
 Expected behavior:
+Mode: standard or gremlin
+Gremlin intensity: 1-5 (required for gremlin mode; n/a for standard)
+Run contract: <the exact contract captured before delegation>
 Suspected UX bug or failure mode:
 Safety constraints:
 ```
