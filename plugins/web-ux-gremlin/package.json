@@ -1,7 +1,7 @@
 {
   "name": "web-ux-gremlin",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.6.0",
+  "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
   "main": "index.js",
   "scripts": {},
   "keywords": [],

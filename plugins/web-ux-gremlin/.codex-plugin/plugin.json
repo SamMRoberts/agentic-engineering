@@ -1,6 +1,6 @@
 {
   "name": "web-ux-gremlin",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
   "author": {
     "name": "Sam Roberts",
@@ -13,7 +13,11 @@
   "agents": "./agents/",
   "skills": "./skills/",
   "entrypointAgent": "web-ux-gremlin",
-  "privateAgents": [],
+  "privateAgents": [
+    "playwright-test-planner",
+    "playwright-test-generator",
+    "playwright-test-healer"
+  ],
   "interface": {
     "displayName": "Web Ux Gremlin",
     "shortDescription": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
@@ -25,7 +29,8 @@
     ],
     "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
     "defaultPrompt": [
-      "TODO: example prompt for web-ux-gremlin."
+      "Plan, generate, run, and heal Playwright tests for this web app.",
+      "Create a Playwright test plan for a target flow, generate specs, run them, and heal failures."
     ],
     "brandColor": "#1D4ED8",
     "screenshots": []
