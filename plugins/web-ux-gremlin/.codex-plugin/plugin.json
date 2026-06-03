@@ -1,7 +1,7 @@
 {
   "name": "web-ux-gremlin",
-  "version": "1.6.1",
-  "description": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
+  "version": "1.7.0",
+  "description": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem.",
   "author": {
     "name": "Sam Roberts",
     "url": "https://github.com/SamMRoberts"
@@ -20,8 +20,8 @@
   ],
   "interface": {
     "displayName": "Web Ux Gremlin",
-    "shortDescription": "Create validated UX resilience plans and execute CLI/MCP gremlin runs.",
-    "longDescription": "Web UX Gremlin creates and validates UX resilience plans, then supports CLI or MCP execution workflows for gremlin-style frontend testing.",
+    "shortDescription": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem.",
+    "longDescription": "Web UX Gremlin creates and validates UX resilience plans, then supports CLI or MCP execution workflows for gremlin-mode frontend testing with unusual but safe UX mayhem.",
     "developerName": "Sam Roberts",
     "category": "Productivity",
     "capabilities": [
@@ -29,8 +29,8 @@
     ],
     "websiteURL": "https://github.com/SamMRoberts/agentic-engineering/tree/main/plugins/web-ux-gremlin",
     "defaultPrompt": [
-      "Plan, generate, run, and heal Playwright tests for this web app.",
-      "Create a Playwright test plan for a target flow, generate specs, run them, and heal failures."
+      "Plan, generate, run, and heal gremlin-mode Playwright tests for this web app.",
+      "Release the gremlins on a target flow: generate unusual UX mayhem specs, run them, and heal failures."
     ],
     "brandColor": "#1D4ED8",
     "screenshots": []

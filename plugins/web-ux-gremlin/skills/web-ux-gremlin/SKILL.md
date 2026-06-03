@@ -1,7 +1,7 @@
 ---
 name: web-ux-gremlin
-description: "Use when: hunting for UX bugs with Playwright using the web-ux-gremlin plugin. Use for: discover user-visible failures, create UX bug-hunt test plans, generate Playwright specs, run tests, debug failures, and coordinate the playwright-test-planner, playwright-test-generator, and playwright-test-healer sub-agents."
-argument-hint: "Target app or URL, UX flows or bug classes to hunt, auth/start state, and whether to plan, generate, run, or heal tests"
+description: "Use when: hunting for UX bugs with Playwright using the web-ux-gremlin plugin. Use for: gremlin mode, unusual UX mayhem, discover user-visible failures, create UX bug-hunt test plans, generate Playwright specs, run tests, debug failures, and coordinate the playwright-test-planner, playwright-test-generator, and playwright-test-healer sub-agents."
+argument-hint: "Target app or URL, UX flows or bug classes to hunt, auth/start state, whether to use standard or gremlin mode, and whether to plan, generate, run, or heal tests"
 user-invocable: true
 ---
 
@@ -9,7 +9,7 @@ user-invocable: true
 
 ## Purpose
 
-The `web-ux-gremlin` plugin and this skill are for hunting UX bugs: broken user journeys, confusing states, validation gaps, inaccessible controls, regressions, and other user-visible failures. Use this skill to create and run Playwright tests through the plugin's three stage agents:
+The `web-ux-gremlin` plugin and this skill are for hunting UX bugs: broken user journeys, confusing states, validation gaps, inaccessible controls, regressions, and other user-visible failures. In gremlin mode, the workflow deliberately creates uncommon, chaotic Playwright scenarios that poke at edge-case UX behavior instead of only replaying happy paths. Use this skill to create and run Playwright tests through the plugin's three stage agents:
 
 - `playwright-test-planner` explores the target and saves a Markdown UX bug-hunt test plan.
 - `playwright-test-generator` converts one bug-hunt scenario at a time into Playwright spec files.
@@ -26,7 +26,26 @@ Collect or infer these before delegating:
 - Auth model and safe test account setup, if needed.
 - Starting state, seed data, and destructive-action policy.
 - Desired scope: plan only, generate from plan, run existing tests, heal failures, or full workflow.
+- Mode: standard bug hunt or gremlin mode. Default to gremlin mode when the user asks to "release the gremlins", "break the UX", "cause mayhem", "stress UX", or find unusual edge cases.
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
+
+## Modes
+
+### Standard Bug Hunt
+
+Use standard mode when the user asks for normal UX coverage, regression tests, or specific documented flows. Tests should still include negative cases, recovery checks, and accessibility expectations, but they should mainly follow realistic user journeys.
+
+### Gremlin Mode
+
+Use gremlin mode when the user asks for mayhem, edge cases, resilience, abuse cases, or anything that should "live up to the gremlin name." Gremlin mode must generate tests that perform unusual but safe user actions from `checklists/gremlin-mode.md`, including combinations that are uncommon in ordinary QA scripts:
+
+- Rapid or duplicated interactions such as double-clicks, repeated submits, impatient navigation, back/forward/reload during a flow, and toggling controls out of the expected order.
+- Strange but user-enterable data such as emoji, right-to-left text, excessive length, whitespace-only input, pasted content, mixed casing, boundary values, invalid dates, and file names with special characters.
+- State disruption such as viewport changes, theme or locale changes when available, offline/online transitions, cleared storage, expired-looking sessions, multiple tabs, and stale pages.
+- Alternate input paths such as keyboard-only operation, Enter/Escape shortcuts, focus cycling, drag/drop where supported, paste instead of typing, and skipped optional steps.
+- Recovery pressure such as cancel/retry loops, partial form completion, interrupted uploads or saves, transient network failures, and returning to a half-finished task.
+
+Gremlin mode must remain safe: avoid production data, irreversible mutations, uncontrolled load, credential disclosure, destructive flows without explicit approval, and tests that depend on arbitrary sleeps or pixel coordinates.
 
 ## Stop Conditions
 
@@ -62,6 +81,7 @@ Handoff should include:
 Target app or URL:
 Scope / flows:
 UX risks or bug classes to hunt:
+Mode: standard or gremlin
 Auth and starting state:
 Safety constraints:
 Plan output path:
@@ -69,6 +89,13 @@ Out of scope:
 ```
 
 Require the planner to save a Markdown plan under `specs/`. Review the plan before generation and ensure it has independent scenarios, clear steps, expected outcomes, negative cases, safe assumptions, and explicit UX failure modes such as blocked paths, misleading feedback, missing validation, inaccessible controls, layout breakage, or confusing recovery states.
+
+For gremlin mode plans, require every scenario to name:
+
+- The gremlin tactic from `checklists/gremlin-mode.md`.
+- The unusual user behavior being simulated.
+- The UX failure mode it is trying to expose.
+- The safe rollback or recovery expectation.
 
 ### 2. Generate
 
@@ -81,10 +108,13 @@ Use this handoff shape:
 <test-name>Scenario name</test-name>
 <test-file>tests/path/to/scenario-name.spec.ts</test-file>
 <seed-file>tests/seed.spec.ts or another seed file from the plan</seed-file>
+<mode>standard or gremlin</mode>
 <body>Scenario steps, expected outcomes, and UX failure mode from the saved plan</body>
 ```
 
 Require one test per generated file unless the user explicitly asks for grouped specs. Prefer accessible locators, visible assertions, and comments that preserve the plan step text. Assertions should check user-visible behavior and UX outcomes rather than internal implementation details.
+
+For gremlin mode specs, require each test to include at least one explicit gremlin action before the main assertion and one recovery assertion after it. Examples include resizing mid-flow, submitting twice, pasting unusual Unicode, pressing Escape during a modal, going offline before retrying, clearing storage before reload, or using keyboard navigation instead of clicks.
 
 ### 3. Run
 
@@ -140,6 +170,7 @@ Before completion, verify:
 - The plan and generated tests match the requested scope.
 - Each generated test can run independently from a fresh state.
 - Each generated test targets a user-visible UX risk, bug hypothesis, or regression.
+- Gremlin mode tests include uncommon but safe interactions and verify recovery from the mayhem.
 - Tests avoid brittle selectors, arbitrary sleeps, and hidden data dependencies.
 - Assertions verify user outcomes, feedback, accessibility, or recoverability rather than implementation details.
 - Mutating flows use safe test data only.
@@ -148,5 +179,7 @@ Before completion, verify:
 ## Example Prompts
 
 - "Use web-ux-gremlin to hunt for UX bugs in the checkout flow at http://localhost:3000."
+- "Release the gremlins on onboarding and generate weird edge-case Playwright tests."
+- "Run gremlin mode against account settings: try rapid clicks, odd form input, viewport changes, and recovery checks."
 - "Generate and run Playwright tests for likely onboarding UX failures, then heal flaky failures."
 - "Create a UX bug-hunt test plan only for account settings, including validation, recovery, and accessibility cases."
