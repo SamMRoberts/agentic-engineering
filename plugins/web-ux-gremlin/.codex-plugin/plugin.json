@@ -12,6 +12,8 @@
   "keywords": [],
   "agents": "./agents/",
   "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json",
   "entrypointAgent": "web-ux-gremlin",
   "privateAgents": [
     "playwright-test-planner",

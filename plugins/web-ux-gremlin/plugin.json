@@ -7,6 +7,8 @@
     "playwright-test-generator",
     "playwright-test-healer"
   ],
+  "mcpServers": "./.mcp.json",
+  "hooks": "./hooks.json",
   "requirements": {
     "runtime": [
       {
