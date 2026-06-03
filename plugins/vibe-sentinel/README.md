@@ -36,10 +36,10 @@ The assumption and change-control filenames are unchanged from the previous plug
 
 Skill selection only tells an agent what workflow to follow. It does not prove the workflow happened. Vibe Sentinel enforces all three gates with deterministic artifacts and validators:
 
-- `bin/assumption-gate.mjs` fails when assumption fields, evidence, or blocking decisions are missing.
-- `bin/change-control.mjs check` fails when the contract is incomplete or risk requirements are not met.
-- `bin/change-control.mjs drift` compares modified files (via `git status --short`) against the contract's allowed and forbidden areas.
-- `bin/scope-guard.mjs check` fails when the plan is incomplete, pseudocode is not approved before implementation, tests are missing, or documentation/diagram deltas are stale.
+- `scripts/assumption-gate.mjs` fails when assumption fields, evidence, or blocking decisions are missing.
+- `scripts/change-control.mjs check` fails when the contract is incomplete or risk requirements are not met.
+- `scripts/change-control.mjs drift` compares modified files (via `git status --short`) against the contract's allowed and forbidden areas.
+- `scripts/scope-guard.mjs check` fails when the plan is incomplete, pseudocode is not approved before implementation, tests are missing, or documentation/diagram deltas are stale.
 
 Hooks and CI can run these scripts, but they cannot guarantee an agent selected the right skill at the right time. Use repository instructions and hooks together.
 
@@ -61,20 +61,20 @@ From the target repository root:
 
 ```bash
 # Assumption gate
-node plugins/vibe-sentinel/bin/assumption-gate.mjs init
-node plugins/vibe-sentinel/bin/assumption-gate.mjs check
-node plugins/vibe-sentinel/bin/assumption-gate.mjs summary
+node plugins/vibe-sentinel/scripts/assumption-gate.mjs init
+node plugins/vibe-sentinel/scripts/assumption-gate.mjs check
+node plugins/vibe-sentinel/scripts/assumption-gate.mjs summary
 
 # Change-control contract
-node plugins/vibe-sentinel/bin/change-control.mjs init
-node plugins/vibe-sentinel/bin/change-control.mjs check
-node plugins/vibe-sentinel/bin/change-control.mjs summary
-node plugins/vibe-sentinel/bin/change-control.mjs drift
+node plugins/vibe-sentinel/scripts/change-control.mjs init
+node plugins/vibe-sentinel/scripts/change-control.mjs check
+node plugins/vibe-sentinel/scripts/change-control.mjs summary
+node plugins/vibe-sentinel/scripts/change-control.mjs drift
 
 # Scope Guard plan
-node plugins/vibe-sentinel/bin/scope-guard.mjs init
-node plugins/vibe-sentinel/bin/scope-guard.mjs check
-node plugins/vibe-sentinel/bin/scope-guard.mjs summary
+node plugins/vibe-sentinel/scripts/scope-guard.mjs init
+node plugins/vibe-sentinel/scripts/scope-guard.mjs check
+node plugins/vibe-sentinel/scripts/scope-guard.mjs summary
 ```
 
 If installed as an npm-style package or exposed by a host, the bins are `assumption-gate`, `change-control`, and `scope-guard`.

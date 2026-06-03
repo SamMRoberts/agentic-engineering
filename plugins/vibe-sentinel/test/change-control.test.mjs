@@ -7,7 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const binPath = join(pluginRoot, "bin", "change-control.mjs");
+const binPath = join(pluginRoot, "scripts", "change-control.mjs");
 const validContract = join(pluginRoot, "skills", "change-control-compiler", "examples", "valid-contract.json");
 const invalidContract = join(pluginRoot, "skills", "change-control-compiler", "examples", "invalid-contract.json");
 

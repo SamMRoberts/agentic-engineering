@@ -78,7 +78,7 @@ The plugin blocks implementation until a valid contract exists and flags modifie
 
 ## Verification Commands
 
-- `node bin/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json`
+- `node scripts/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json`
 - `npm test`
 
 ## Risk Level

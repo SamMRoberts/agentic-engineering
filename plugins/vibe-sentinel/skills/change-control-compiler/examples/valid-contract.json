@@ -58,8 +58,8 @@
     "Drift check passes in a clean git repository."
   ],
   "verification_commands": [
-    "node bin/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json",
-    "node bin/change-control.mjs check --contract skills/change-control-compiler/examples/invalid-contract.json",
+    "node scripts/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json",
+    "node scripts/change-control.mjs check --contract skills/change-control-compiler/examples/invalid-contract.json",
     "npm test"
   ],
   "risk_level": "medium",

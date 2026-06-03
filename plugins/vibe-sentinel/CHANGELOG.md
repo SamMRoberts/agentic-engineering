@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0
+
+- **Breaking:** renames `plugins/vibe-sentinel/bin/` to `plugins/vibe-sentinel/scripts/`. Update any hook configurations, CI workflows, custom-instruction fragments, or repository scripts that reference `plugins/vibe-sentinel/bin/<name>.mjs` to use `plugins/vibe-sentinel/scripts/<name>.mjs`.
+- Updates the bundled `hooks.json`, `hooks/codex-hooks.example.json`, `hooks/copilot-hooks.example.json`, `ci/github-action.example.yml`, `AGENTS.fragment.md`, `custom-instructions.fragment.md`, `README.md`, `agents/scope-guard.agent.md`, `package.json`, and `plugin.json` to the new path.
+- Updates skill examples and test fixtures (`skills/assumption-killer/examples/*`, `skills/change-control-compiler/examples/*`, `test/fixtures/valid-workspace/.agent/session/*`) to reference the new path.
+- Updates the hooks test to assert canonical commands resolve under `plugins/vibe-sentinel/scripts/`.
+
 ## 1.1.0
 
 - Adds Scope Guard as a third Vibe Sentinel workflow stage alongside `assumption-killer` and `change-control-compiler`.

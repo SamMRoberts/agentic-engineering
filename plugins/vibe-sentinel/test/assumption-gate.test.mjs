@@ -7,7 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const binPath = join(pluginRoot, "bin", "assumption-gate.mjs");
+const binPath = join(pluginRoot, "scripts", "assumption-gate.mjs");
 const validFixtureRoot = join(pluginRoot, "test", "fixtures", "valid-workspace");
 
 test("check passes for a valid assumption gate", () => {

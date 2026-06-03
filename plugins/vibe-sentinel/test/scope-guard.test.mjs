@@ -7,7 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const binPath = join(pluginRoot, "bin", "scope-guard.mjs");
+const binPath = join(pluginRoot, "scripts", "scope-guard.mjs");
 const examplesDir = join(pluginRoot, "skills", "scope-guard", "examples");
 const validPlan = join(examplesDir, "valid-plan.json");
 const invalidPlan = join(examplesDir, "invalid-plan.json");

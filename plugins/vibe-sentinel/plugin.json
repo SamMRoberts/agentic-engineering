@@ -9,12 +9,12 @@
   ],
   "name": "vibe-sentinel",
   "metadata": {
-    "version": "1.1.0",
+    "version": "2.0.0",
     "description": "Combined vibe-coding guardrails: assumption gate, change-control contract, and Scope Guard lifecycle enforcement before implementation.",
     "scripts": [
-      "bin/assumption-gate.mjs",
-      "bin/change-control.mjs",
-      "bin/scope-guard.mjs",
+      "scripts/assumption-gate.mjs",
+      "scripts/change-control.mjs",
+      "scripts/scope-guard.mjs",
       "skills/assumption-killer/scripts/assumption-gate.mjs",
       "skills/change-control-compiler/scripts/change-control.mjs",
       "skills/scope-guard/scripts/scope-guard.mjs"

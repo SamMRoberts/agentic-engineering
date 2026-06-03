@@ -4,7 +4,10 @@
     "title": "Add assumption gate validation",
     "goal": "Ensure implementation starts only after high-risk assumptions are verified.",
     "scope": "Create reusable Assumption Killer artifacts and validator script.",
-    "non_goals": ["Create a full app", "Add external dependencies"]
+    "non_goals": [
+      "Create a full app",
+      "Add external dependencies"
+    ]
   },
   "assumptions": [
     {
@@ -13,17 +16,25 @@
       "category": "tooling_behavior",
       "risk_level": "high",
       "verification_method": "Check the request quality bar and script requirements.",
-      "evidence": ["User requirement says: Use only Node.js built-in modules. Do not add dependencies."],
+      "evidence": [
+        "User requirement says: Use only Node.js built-in modules. Do not add dependencies."
+      ],
       "status": "verified",
-      "files_checked": ["pasted request"],
+      "files_checked": [
+        "pasted request"
+      ],
       "commands_run": [],
       "impact_if_wrong": "Adding dependencies would make the package harder to reuse and violate the requested constraints.",
       "decision": "Implement the validator with fs, path, url, and JSON parsing only."
     }
   ],
   "final_verification": {
-    "commands_run": ["node plugins/assumption-killer/bin/assumption-gate.mjs check"],
-    "tests_run": ["node plugins/assumption-killer/bin/assumption-gate.mjs summary"],
+    "commands_run": [
+      "node plugins/vibe-sentinel/scripts/assumption-gate.mjs check"
+    ],
+    "tests_run": [
+      "node plugins/vibe-sentinel/scripts/assumption-gate.mjs summary"
+    ],
     "result": "passed",
     "notes": "The gate contains verified evidence and no high or critical unknown assumptions."
   }
