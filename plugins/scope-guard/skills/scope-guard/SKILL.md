@@ -26,7 +26,7 @@ Do not use for read-only explanation or trivial documentation typo fixes, unless
 - `.agent/session/scope-guard-plan.json`
 - `.agent/session/scope-guard-plan.md`
 
-Initialize them with `node skills/scope-guard/scripts/scope-guard.mjs init`.
+Initialize them with `node ./scripts/scope-guard.mjs init` (run from this skill's directory).
 
 ## Plan Fields
 
@@ -89,7 +89,7 @@ Ask whether the new behavior should be a separate task.
 
 ## Enforced Gates
 
-`node skills/scope-guard/scripts/scope-guard.mjs check` fails when:
+`node ./scripts/scope-guard.mjs check` fails when:
 
 - `userGoal` is empty or vague.
 - `scope.inScope` or `scope.outOfScope` is empty.
@@ -116,10 +116,12 @@ Report plan validation, scope boundaries, components, pseudocode approval, files
 
 ## Script Usage
 
+Run these from this skill's directory so `./scripts/` resolves regardless of where the skill is installed:
+
 ```bash
-node skills/scope-guard/scripts/scope-guard.mjs init
-node skills/scope-guard/scripts/scope-guard.mjs check
-node skills/scope-guard/scripts/scope-guard.mjs summary
+node ./scripts/scope-guard.mjs init
+node ./scripts/scope-guard.mjs check
+node ./scripts/scope-guard.mjs summary
 ```
 
 ## Cross-Agent Notes

@@ -29,8 +29,10 @@ Create or update these files before implementation:
 Initialize them with:
 
 ```bash
-node plugins/assumption-killer/bin/assumption-gate.mjs init
+node ./scripts/assumption-gate.mjs init
 ```
+
+Run these commands from this skill's directory so `./scripts/` resolves regardless of where the skill is installed.
 
 ## Assumption Categories
 
@@ -52,7 +54,7 @@ Use only these categories: `repo_structure`, `existing_behavior`, `test_behavior
 5. Record evidence in `.agent/session/assumption-gate.json` and summarize it in `.agent/session/assumptions.md`.
 6. Stop before implementation if any `high` or `critical` assumption has status `unknown`.
 7. If any assumption is `disproven`, update the plan before implementation.
-8. Before the final response, run `node plugins/assumption-killer/bin/assumption-gate.mjs check`.
+8. Before the final response, run `node ./scripts/assumption-gate.mjs check`.
 
 ## Good Assumptions
 
@@ -89,12 +91,12 @@ Report whether the Assumption Gate passed. Mention any remaining medium or low u
 ## Script Usage
 
 ```bash
-node plugins/assumption-killer/bin/assumption-gate.mjs init
-node plugins/assumption-killer/bin/assumption-gate.mjs check
-node plugins/assumption-killer/bin/assumption-gate.mjs summary
+node ./scripts/assumption-gate.mjs init
+node ./scripts/assumption-gate.mjs check
+node ./scripts/assumption-gate.mjs summary
 ```
 
-Run from the target repository root so artifacts are created under `.agent/session/`.
+Run from this skill's directory. Artifacts are created under the target repository's `.agent/session/` (resolved from your current working directory).
 
 ## Cross-Agent Notes
 

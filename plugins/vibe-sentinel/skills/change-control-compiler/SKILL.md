@@ -24,7 +24,7 @@ Do not use for read-only explanation, trivial documentation typo fixes, or tasks
 - `.agent/session/change-control-contract.json`
 - `.agent/session/change-control-contract.md`
 
-Initialize them with `node skills/change-control-compiler/scripts/change-control.mjs init`.
+Initialize them with `node ./scripts/change-control.mjs init` (run from this skill's directory).
 
 ## Contract Fields
 
@@ -83,11 +83,13 @@ Report contract validation, drift status, verification commands run, files chang
 
 ## Script Usage
 
+Run these from this skill's directory so `./scripts/` resolves regardless of where the skill is installed:
+
 ```bash
-node skills/change-control-compiler/scripts/change-control.mjs init
-node skills/change-control-compiler/scripts/change-control.mjs check
-node skills/change-control-compiler/scripts/change-control.mjs summary
-node skills/change-control-compiler/scripts/change-control.mjs drift
+node ./scripts/change-control.mjs init
+node ./scripts/change-control.mjs check
+node ./scripts/change-control.mjs summary
+node ./scripts/change-control.mjs drift
 ```
 
 ## Cross-Agent Notes
