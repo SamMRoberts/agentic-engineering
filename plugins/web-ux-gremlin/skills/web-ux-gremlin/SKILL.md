@@ -32,13 +32,13 @@ Collect or infer these before delegating:
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
 - Confirm these execution controls with the user before running anything:
   - Browser: `Chrome (headless)`, `Chrome (headed with remote devtools)`, or `Other`.
-  - Playwright execution method: `MCP`, `CLI`, or `Other`.
+  - Playwright execution method: `MCP` or `CLI`.
   - If headed mode is selected, whether the user needs to authenticate in the browser session before tests begin.
   - Run mode: run one plan item first vs full generated suite.
   - Whether existing tests may be reused, replaced, or kept unchanged.
   - Any explicit destructive-action constraints for mutations and fixtures.
 
-If any required execution control is not provided, including gremlin intensity for gremlin mode, stop and ask for it before proceeding.
+If any required execution control is not provided, or any value is `Other`, including gremlin intensity for gremlin mode, stop and ask for exact alternatives before proceeding.
 
 ## Modes
 
@@ -76,6 +76,7 @@ Stop and ask for clarification when:
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - Required execution-control answers are missing: browser choice, Playwright tool choice, headed-browser authentication decision, and run mode.
 - Required gremlin intensity is missing when mode is gremlin.
+- A required execution-control answer is `Other` (browser or tool). Ask a deterministic clarification with exact alternatives before continuing.
 - The requested scope would overwrite existing tests without user approval.
 
 Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to configure those directly in their environment.
@@ -104,18 +105,35 @@ Execution Control:
 - Browser: Chrome (headless) | Chrome (headed with remote devtools) | Other
 - Playwright tool: MCP | CLI | Other
 - Headed auth: Does headed execution require manual authentication before tests begin? yes | no
-  - Gremlin intensity: required only when mode is gremlin (1-5)
-  - Run mode: single generated spec first | full generated suite
+- Gremlin intensity: required only when mode is gremlin (1-5)
+- Run mode: single generated spec first | full generated suite
 - Existing tests: replace | append | untouched
 - Safety: safe fixtures available? yes | no
 ```
 
-If any required answer is missing or marked `Other`/`no` for any safety requirement, stop and confirm before continuing.
+If browser is `Other`, ask for one exact browser launcher before continuing:
+
+- `Chrome (headless)`
+- `Chrome (headed with remote devtools)`
+- `Chromium`
+- `Firefox`
+- `WebKit`
+- `Edge`
+
+If tool is `Other`, ask for the exact execution method:
+
+- `MCP`
+- `CLI`
+- `Remote CI runner` with explicit command in `run_contract`
+
+If headed auth details are missing, ask for explicit headed auth flow before continuing.
+
+If any required answer is missing, stop and confirm before continuing.
 
 Use this single-line run contract when available:
 
 ```text
-Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<headless|headed|other>, tool=<mcp|cli|other>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
+Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<chrome_headless|chrome_headed|chromium|firefox|webkit|edge|custom>, tool=<mcp|cli|custom>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
 ```
 
 ## Procedure
