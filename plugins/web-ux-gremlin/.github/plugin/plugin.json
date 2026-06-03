@@ -1,6 +1,6 @@
 {
   "name": "web-ux-gremlin",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem.",
   "author": {
     "name": "Sam Roberts",
