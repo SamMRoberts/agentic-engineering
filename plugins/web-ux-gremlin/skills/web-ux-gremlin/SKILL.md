@@ -29,6 +29,12 @@ Collect or infer these before delegating:
 - Mode: standard bug hunt or gremlin mode. Default to gremlin mode when the user asks to "release the gremlins", "break the UX", "cause mayhem", "stress UX", or find unusual edge cases.
 - Gremlin intensity when in gremlin mode: pick a numeric value from `1` to `5` (higher = more chaotic).
   - `1` = single-tactic chaos, `2` = light, `3` = broad, `4` = aggressive, `5` = maximal chaos.
+- If intensity is `4` or `5`, require explicit reviewer confirmation before running:
+  - High-chaos suitability reviewed (target app/flow can tolerate aggressive UX disturbances).
+  - Destructive actions and data-loss risk checks completed and accepted.
+- For intensity 4/5, record the confirmation in the contract as:
+  - `high_chaos_approved=<yes|no>`
+  - `high_chaos_approved=yes` only if both suitability and destructive/data-loss checks are explicitly approved.
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
 - Target app URL and explicit app-liveness expectation (for local apps, include a start command and expected readiness URL).
 - Confirm these execution controls with the user before running anything:
@@ -77,7 +83,9 @@ Stop and ask for clarification when:
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - Required execution-control answers are missing: browser choice, Playwright tool choice, headed-browser authentication decision, and run mode.
 - Required gremlin intensity is missing when mode is gremlin.
+- For intensity 4 or 5, the required high-chaos reviewer confirmation was not provided.
 - A required execution-control answer is `Other` (browser or tool). Ask a deterministic clarification with exact alternatives before continuing.
+- For intensity 4 or 5, if `high_chaos_approved` is not `yes`, stop and ask for explicit high-chaos confirmation.
 - The target app is not reachable and the user has not provided a clear “app not running yet” start path.
 - Headed execution is selected, `headed_auth=yes`, and auth/session readiness has not been confirmed.
 - The requested scope would overwrite existing tests without user approval.
@@ -124,6 +132,7 @@ Execution Control:
 - Run mode: single generated spec first | full generated suite
 - Existing tests: replace | append | untouched
 - Safety: safe fixtures available? yes | no
+- High-chaos reviewer confirmation: required only when intensity=4 or 5
 ```
 
 If browser is `Other`, ask for one exact browser launcher before continuing:
@@ -148,7 +157,7 @@ If any required answer is missing, stop and confirm before continuing.
 Use this single-line run contract when available:
 
 ```text
-Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<chrome_headless|chrome_headed|chromium|firefox|webkit|edge|custom>, tool=<mcp|cli|custom>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>
+Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<chrome_headless|chrome_headed|chromium|firefox|webkit|edge|custom>, tool=<mcp|cli|custom>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>, high_chaos_approved=<yes|no|na>
 ```
 
 ## Procedure
@@ -165,6 +174,7 @@ Scope / flows:
 UX risks or bug classes to hunt:
 Mode: standard or gremlin
 Gremlin intensity: 1-5 (required for gremlin mode; n/a for standard)
+High-chaos reviewer confirmation: yes | no | n/a
 Run contract: <the exact contract captured before delegation>
 Auth and starting state:
 Safety constraints:
@@ -194,6 +204,7 @@ Use this handoff shape:
 <seed-file>tests/seed.spec.ts or another seed file from the plan</seed-file>
 <mode>standard or gremlin</mode>
 <intensity>1-5 (or n/a for standard)</intensity>
+<high-chaos-confirmed>yes | no | n/a</high-chaos-confirmed>
 <run-contract>mode=..., intensity=..., browser=..., tool=..., headed_auth=..., run_mode=..., tests=..., safe_fixtures=...</run-contract>
 <body>Scenario steps, expected outcomes, and UX failure mode from the saved plan</body>
 ```
@@ -237,6 +248,7 @@ Observed error:
 Expected behavior:
 Mode: standard or gremlin
 Gremlin intensity: 1-5 (required for gremlin mode; n/a for standard)
+High-chaos reviewer confirmation: yes | no | n/a
 Run contract: <the exact contract captured before delegation>
 Suspected UX bug or failure mode:
 Safety constraints:
