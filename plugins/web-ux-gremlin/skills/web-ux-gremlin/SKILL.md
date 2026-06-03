@@ -27,6 +27,8 @@ Collect or infer these before delegating:
 - Starting state, seed data, and destructive-action policy.
 - Desired scope: plan only, generate from plan, run existing tests, heal failures, or full workflow.
 - Mode: standard bug hunt or gremlin mode. Default to gremlin mode when the user asks to "release the gremlins", "break the UX", "cause mayhem", "stress UX", or find unusual edge cases.
+- Gremlin intensity when in gremlin mode: pick a numeric value from `1` to `5` (higher = more chaotic).
+  - `1` = single-tactic chaos, `2` = light, `3` = broad, `4` = aggressive, `5` = maximal chaos.
 - Output locations, defaulting to `specs/` for plans and `tests/` for Playwright specs.
 - Confirm these execution controls with the user before running anything:
   - Browser: `Chrome (headless)`, `Chrome (headed with remote devtools)`, or `Other`.
@@ -36,7 +38,7 @@ Collect or infer these before delegating:
   - Whether existing tests may be reused, replaced, or kept unchanged.
   - Any explicit destructive-action constraints for mutations and fixtures.
 
-If any required execution control is not provided, stop and ask for it before proceeding.
+If any required execution control is not provided, including gremlin intensity for gremlin mode, stop and ask for it before proceeding.
 
 ## Modes
 
@@ -56,6 +58,13 @@ Use gremlin mode when the user asks for mayhem, edge cases, resilience, abuse ca
 
 Gremlin mode must remain safe: avoid production data, irreversible mutations, uncontrolled load, credential disclosure, destructive flows without explicit approval, and tests that depend on arbitrary sleeps or pixel coordinates.
 
+Apply the gremlin intensity (1–5) as a chaos budget:
+- `1`: one intentional unusual action plus one recovery assertion.
+- `2`: two unusual actions, including one state-disruption action if possible.
+- `3`: three unusual actions and two recovery assertions.
+- `4`: four unusual actions with mixed interaction/input/path disruptions.
+- `5`: five unusual actions with layered cross-surface disruption and at least three recovery assertions.
+
 ## Stop Conditions
 
 Stop and ask for clarification when:
@@ -66,6 +75,7 @@ Stop and ask for clarification when:
 - The Playwright MCP tools, `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are unavailable.
 - `npx playwright init-agents --loop=vscode` has not been run successfully in the target workspace.
 - Required execution-control answers are missing: browser choice, Playwright tool choice, and headed-browser authentication decision.
+- Required gremlin intensity is missing when mode is gremlin.
 - The requested scope would overwrite existing tests without user approval.
 
 Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to configure those directly in their environment.
@@ -93,6 +103,7 @@ Execution Control:
 - Browser: Chrome (headless) | Chrome (headed with remote devtools) | Other
 - Playwright tool: MCP | CLI | Other
 - Headed auth: Does headed execution require manual authentication before tests begin? yes | no
+- Gremlin intensity (if gremlin mode): 1-5
 - Run mode: single generated spec first | full generated suite
 - Existing tests: replace | append | untouched
 - Safety: safe fixtures available? yes | no
@@ -145,7 +156,10 @@ Use this handoff shape:
 
 Require one test per generated file unless the user explicitly asks for grouped specs. Prefer accessible locators, visible assertions, and comments that preserve the plan step text. Assertions should check user-visible behavior and UX outcomes rather than internal implementation details.
 
-For gremlin mode specs, require each test to include at least one explicit gremlin action before the main assertion and one recovery assertion after it. Examples include resizing mid-flow, submitting twice, pasting unusual Unicode, pressing Escape during a modal, going offline before retrying, clearing storage before reload, or using keyboard navigation instead of clicks.
+For gremlin mode specs, require each test to include:
+- a gremlin action count driven by the selected intensity (minimum actions = intensity value, capped by scenario relevance), and
+- one recovery assertion after each unusual action cluster.
+Examples include resizing mid-flow, submitting twice, pasting unusual Unicode, pressing Escape during a modal, going offline before retrying, clearing storage before reload, or using keyboard navigation instead of clicks.
 
 ### 3. Run
 
