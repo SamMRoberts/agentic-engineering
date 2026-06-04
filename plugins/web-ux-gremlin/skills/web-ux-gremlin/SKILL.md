@@ -9,13 +9,20 @@ user-invocable: true
 
 ## Purpose
 
-The `web-ux-gremlin` plugin and this skill are for hunting UX bugs: broken user journeys, confusing states, validation gaps, inaccessible controls, regressions, and other user-visible failures. In gremlin mode, the workflow deliberately creates uncommon, chaotic Playwright scenarios that poke at edge-case UX behavior instead of only replaying happy paths. Use this skill to create and run Playwright tests through the plugin's three stage agents:
+The `web-ux-gremlin` plugin and this skill are for hunting UX bugs: broken user journeys, confusing states, validation gaps, inaccessible controls, regressions, and other user-visible failures. In gremlin mode, the workflow deliberately creates uncommon, chaotic Playwright scenarios that poke at edge-case UX behavior instead of only replaying happy paths. Use this skill to coordinate Playwright work strictly through the plugin's three stage agents:
 
 - `playwright-test-planner` explores the target and saves a Markdown UX bug-hunt test plan.
 - `playwright-test-generator` converts one bug-hunt scenario at a time into Playwright spec files.
 - `playwright-test-healer` runs, debugs, edits, and verifies failing Playwright tests while distinguishing product UX bugs from test defects.
 
 The workflow is bug-hunt planner -> generator -> test run -> healer -> UX bug report.
+
+## Delegation Guardrails
+
+- The top-level `web-ux-gremlin` orchestrator must never run Playwright CLI commands directly.
+- The top-level `web-ux-gremlin` orchestrator must never run Playwright MCP tool actions directly.
+- Every Playwright action must be delegated to one of the custom Playwright stage agents: `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer`.
+- If any required stage agent is unavailable, stop and ask the user to restore agent availability before continuing.
 
 ## Required Inputs
 
@@ -118,7 +125,7 @@ Do not ask for passwords, API keys, cookies, or tokens in chat. Tell the user to
 5. If the target Playwright project is not the current workspace root, stop and tell the user to open that project as the workspace or restart the Playwright MCP server with `--config /absolute/path/to/playwright.config.ts`.
 6. Confirm the custom agents are available before delegation (regardless of whether tool=CLI or MCP):
    - If `playwright-test-planner`, `playwright-test-generator`, or `playwright-test-healer` are not listed in the project or MCP context, rerun step 2 and stop until they are available.
-7. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and run it from the target project root.
+7. Identify the safest command for validation, usually `npx playwright test` or a targeted spec path, and include that command in a handoff to `playwright-test-healer` for execution from the target project root.
 8. Keep generated tests scoped to the requested UX flows, risks, and bug hypotheses.
 
 If `npx playwright init-agents --loop=vscode` fails, block progression and ask the user to run it manually, share the exact error, and continue only after it succeeds.
@@ -221,21 +228,24 @@ Examples include resizing mid-flow, submitting twice, pasting unusual Unicode, p
 
 ### 3. Run
 
-Run the narrowest useful Playwright command after generation:
+Delegate all Playwright execution to `playwright-test-healer`. The orchestrator must not run Playwright commands directly.
 
-```bash
-npx playwright test path/to/generated.spec.ts
+Run handoff should include:
+
+```text
+Execution command: npx playwright test path/to/generated.spec.ts
+or
+Execution command: npx playwright test
+Target project root:
+Mode: standard or gremlin
+Gremlin intensity: 1-5 (required for gremlin mode; n/a for standard)
+High-chaos reviewer confirmation: yes | no | n/a
+Run contract: <the exact contract captured before delegation>
 ```
 
-For full-suite validation, use:
+Require `playwright-test-healer` to run Playwright commands from the target project root. Do not use `npm exec --prefix <project> -- playwright test` from another directory, because Playwright can resolve a different config and load tests with a different runner instance.
 
-```bash
-npx playwright test
-```
-
-Always run Playwright commands from the target project root. Do not use `npm exec --prefix <project> -- playwright test` from another directory, because Playwright can resolve a different config and load tests with a different runner instance.
-
-Capture failing test names, file paths, browser/project names, and the first actionable error. Treat failures as possible UX bugs until the healer determines whether the issue is product behavior, bad test setup, brittle selectors, or environment instability.
+Capture failing test names, file paths, browser/project names, and the first actionable error from `playwright-test-healer` output. Treat failures as possible UX bugs until the healer determines whether the issue is product behavior, bad test setup, brittle selectors, or environment instability.
 
 ### 4. Heal
 

@@ -24,8 +24,17 @@ test("gremlin mode requires uncommon actions and recovery assertions", () => {
   assert.match(skill, /State disruption/);
   assert.match(skill, /Alternate input paths/);
   assert.match(skill, /Recovery pressure/);
-  assert.match(skill, /at least one explicit gremlin action/);
-  assert.match(skill, /one recovery assertion/);
+  assert.match(skill, /gremlin action count driven by the selected intensity/);
+  assert.match(skill, /one recovery assertion after each unusual action cluster/);
+});
+
+test("top-level orchestrator requires delegated Playwright execution", () => {
+  assert.match(skill, /## Delegation Guardrails/);
+  assert.match(skill, /must never run Playwright CLI commands directly/);
+  assert.match(skill, /must never run Playwright MCP tool actions directly/);
+  assert.match(skill, /Every Playwright action must be delegated/);
+  assert.match(skill, /Delegate all Playwright execution to `playwright-test-healer`/);
+  assert.doesNotMatch(skill, /Run the narrowest useful Playwright command after generation:/);
 });
 
 test("gremlin checklist covers mayhem tactics and safety boundaries", () => {
