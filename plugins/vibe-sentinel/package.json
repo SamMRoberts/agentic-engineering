@@ -5,6 +5,7 @@
     "type": "module",
     "private": true,
     "bin": {
+        "vibe-sentinel": "./bin/vibe-sentinel.mjs",
         "assumption-gate": "./scripts/assumption-gate.mjs",
         "change-control": "./scripts/change-control.mjs",
         "scope-guard": "./scripts/scope-guard.mjs"

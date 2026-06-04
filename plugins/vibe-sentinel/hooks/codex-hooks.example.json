@@ -3,49 +3,49 @@
         {
             "event": "SessionStart",
             "name": "vibe-sentinel-assumption-init",
-            "command": "node plugins/vibe-sentinel/scripts/assumption-gate.mjs init",
+            "command": "vibe-sentinel assumption-gate init",
             "timeoutSeconds": 10
         },
         {
             "event": "SessionStart",
             "name": "vibe-sentinel-change-control-init",
-            "command": "node plugins/vibe-sentinel/scripts/change-control.mjs init",
+            "command": "vibe-sentinel change-control init",
             "timeoutSeconds": 10
         },
         {
             "event": "SessionStart",
             "name": "vibe-sentinel-scope-guard-init",
-            "command": "node plugins/vibe-sentinel/scripts/scope-guard.mjs init",
+            "command": "vibe-sentinel scope-guard init",
             "timeoutSeconds": 10
         },
         {
             "event": "PostToolUse",
             "name": "vibe-sentinel-change-control-drift",
-            "command": "node plugins/vibe-sentinel/scripts/change-control.mjs drift",
+            "command": "vibe-sentinel change-control drift",
             "timeoutSeconds": 10
         },
         {
             "event": "Stop",
             "name": "vibe-sentinel-assumption-check",
-            "command": "node plugins/vibe-sentinel/scripts/assumption-gate.mjs check",
+            "command": "vibe-sentinel assumption-gate check",
             "timeoutSeconds": 10
         },
         {
             "event": "Stop",
             "name": "vibe-sentinel-change-control-check",
-            "command": "node plugins/vibe-sentinel/scripts/change-control.mjs check",
+            "command": "vibe-sentinel change-control check",
             "timeoutSeconds": 10
         },
         {
             "event": "Stop",
             "name": "vibe-sentinel-scope-guard-check",
-            "command": "node plugins/vibe-sentinel/scripts/scope-guard.mjs check",
+            "command": "vibe-sentinel scope-guard check",
             "timeoutSeconds": 10
         },
         {
             "event": "Stop",
             "name": "vibe-sentinel-change-control-final-drift",
-            "command": "node plugins/vibe-sentinel/scripts/change-control.mjs drift",
+            "command": "vibe-sentinel change-control drift",
             "timeoutSeconds": 10
         }
     ]
