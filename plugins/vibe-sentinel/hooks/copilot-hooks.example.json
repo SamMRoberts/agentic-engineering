@@ -3,46 +3,46 @@
         "sessionStart": [
             {
                 "name": "vibe-sentinel-assumption-init",
-                "command": "node scripts/assumption-gate.mjs init",
+                "command": "node plugins/vibe-sentinel/scripts/assumption-gate.mjs init",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-init",
-                "command": "node scripts/change-control.mjs init",
+                "command": "node plugins/vibe-sentinel/scripts/change-control.mjs init",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-scope-guard-init",
-                "command": "node scripts/scope-guard.mjs init",
+                "command": "node plugins/vibe-sentinel/scripts/scope-guard.mjs init",
                 "timeoutSeconds": 10
             }
         ],
         "postToolUse": [
             {
                 "name": "vibe-sentinel-change-control-drift",
-                "command": "node scripts/change-control.mjs drift",
+                "command": "node plugins/vibe-sentinel/scripts/change-control.mjs drift",
                 "timeoutSeconds": 10
             }
         ],
         "sessionEnd": [
             {
                 "name": "vibe-sentinel-assumption-check",
-                "command": "node scripts/assumption-gate.mjs check",
+                "command": "node plugins/vibe-sentinel/scripts/assumption-gate.mjs check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-check",
-                "command": "node scripts/change-control.mjs check",
+                "command": "node plugins/vibe-sentinel/scripts/change-control.mjs check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-scope-guard-check",
-                "command": "node scripts/scope-guard.mjs check",
+                "command": "node plugins/vibe-sentinel/scripts/scope-guard.mjs check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-final-drift",
-                "command": "node scripts/change-control.mjs drift",
+                "command": "node plugins/vibe-sentinel/scripts/change-control.mjs drift",
                 "timeoutSeconds": 10
             }
         ]
