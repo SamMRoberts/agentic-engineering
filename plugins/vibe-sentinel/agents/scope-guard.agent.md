@@ -31,7 +31,11 @@ Do not require this stage for pure read-only explanation, trivial documentation 
 - Do not introduce behavior outside the agreed scope or outside the active change-control contract.
 - After implementation, update the design doc and diagrams (`docs.designDocUpdated`, `docs.diagramsUpdated`, `docs.docChanges`).
 - Produce or update tests matching the same scope (`implementation.testsAddedOrUpdated`).
+<<<<<<< Updated upstream
 - Run `node scripts/scope-guard.mjs check` before the final response when this stage was required.
+=======
+- Run `node plugins/vibe-sentinel/scripts/scope-guard.mjs check` before the final response when this stage was required.
+>>>>>>> Stashed changes
 
 ## Scope Creep Detection
 
@@ -64,7 +68,11 @@ Ask whether the new behavior should be a separate task rather than silently expa
 6. Review the pseudocode, record `pseudocode.reviewFindings`, revise, and set `pseudocode.approved`.
 7. Implement only within the approved scope and active change-control contract; record `implementation.changedFiles`, tests, and risks.
 8. Update `docs.docChanges` and set the documentation flags.
+<<<<<<< Updated upstream
 9. Run `node scripts/scope-guard.mjs check` before the final response.
+=======
+9. Run `node plugins/vibe-sentinel/scripts/scope-guard.mjs check` before the final response.
+>>>>>>> Stashed changes
 
 ## Output Format
 

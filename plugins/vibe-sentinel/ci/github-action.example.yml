@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: "20"
       - name: Assumption gate
+<<<<<<< Updated upstream
         run: node scripts/assumption-gate.mjs check
       - name: Change control contract
         run: node scripts/change-control.mjs check
@@ -22,3 +23,12 @@ jobs:
         run: node scripts/scope-guard.mjs check
       - name: Change control drift
         run: node scripts/change-control.mjs drift
+=======
+        run: node plugins/vibe-sentinel/scripts/assumption-gate.mjs check
+      - name: Change control contract
+        run: node plugins/vibe-sentinel/scripts/change-control.mjs check
+      - name: Scope Guard plan
+        run: node plugins/vibe-sentinel/scripts/scope-guard.mjs check
+      - name: Change control drift
+        run: node plugins/vibe-sentinel/scripts/change-control.mjs drift
+>>>>>>> Stashed changes

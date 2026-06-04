@@ -5,9 +5,15 @@
     "type": "module",
     "private": true,
     "bin": {
+<<<<<<< Updated upstream
         "assumption-gate": "scripts/assumption-gate.mjs",
         "change-control": "scripts/change-control.mjs",
         "scope-guard": "scripts/scope-guard.mjs"
+=======
+        "assumption-gate": "./scripts/assumption-gate.mjs",
+        "change-control": "./scripts/change-control.mjs",
+        "scope-guard": "./scripts/scope-guard.mjs"
+>>>>>>> Stashed changes
     },
     "scripts": {
         "test": "node --test test/**/*.test.mjs",

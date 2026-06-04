@@ -15,9 +15,15 @@
       "scripts/assumption-gate.mjs",
       "scripts/change-control.mjs",
       "scripts/scope-guard.mjs",
+<<<<<<< Updated upstream
       "skills/assumption-killescripts/assumption-gate.mjs",
       "skills/change-control-compilescripts/change-control.mjs",
       "skills/scope-guarscripts/scope-guard.mjs"
+=======
+      "skills/assumption-killer/scripts/assumption-gate.mjs",
+      "skills/change-control-compiler/scripts/change-control.mjs",
+      "skills/scope-guard/scripts/scope-guard.mjs"
+>>>>>>> Stashed changes
     ],
     "schemas": [
       "skills/assumption-killer/schemas/assumption-gate.schema.json",

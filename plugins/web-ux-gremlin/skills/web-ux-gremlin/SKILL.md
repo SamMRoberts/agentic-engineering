@@ -46,6 +46,7 @@ Collect or infer these before delegating:
   - Run mode: run one plan item first vs full generated suite.
   - Whether existing tests may be reused, replaced, or kept unchanged.
   - Any explicit destructive-action constraints for mutations and fixtures.
+  - Report format: `markdown` (default), `html`, or `both`. HTML reports follow `checklists/report-html.md` and are saved under `specs/reports/`.
 
 If any required execution control is not provided, or any value is `Other`, including gremlin intensity for gremlin mode, stop and ask for exact alternatives before proceeding.
 
@@ -134,6 +135,7 @@ Execution Control:
 - Existing tests: replace | append | untouched
 - Safety: safe fixtures available? yes | no
 - High-chaos reviewer confirmation: required only when intensity=4 or 5
+- Report format: markdown | html | both (default markdown)
 ```
 
 If browser is `Other`, ask for one exact browser launcher before continuing:
@@ -158,7 +160,7 @@ If any required answer is missing, stop and confirm before continuing.
 Use this single-line run contract when available:
 
 ```text
-Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<chrome_headless|chrome_headed|chromium|firefox|webkit|edge|custom>, tool=<mcp|cli|custom>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>, high_chaos_approved=<yes|no|na>
+Run contract: mode=<standard|gremlin>, intensity=<1-5|n/a for standard>, browser=<chrome_headless|chrome_headed|chromium|firefox|webkit|edge|custom>, tool=<mcp|cli|custom>, headed_auth=<yes|no>, run_mode=<single|full>, tests=<replace|append|untouched>, safe_fixtures=<yes|no>, high_chaos_approved=<yes|no|na>, report=<md|html|both>
 ```
 
 ## Procedure
@@ -259,14 +261,24 @@ Require the healer to rerun after each fix. Prefer robust selectors and assertio
 
 ### 5. Report
 
-Finish with:
+Produce one Markdown report by default. When the run contract sets `report=html` or `report=both`, also produce a self-contained HTML report following `checklists/report-html.md`. Markdown is always the source of truth.
+
+Every report (Markdown and HTML) must cover:
 
 - Plan file created or reused.
 - Test files created or changed.
-- Commands run and pass/fail status.
-- UX bugs found, suspected, or ruled out.
-- Failures healed, skipped with `test.fixme()`, or left blocked.
+- Commands run and pass/fail status, including browser project and the first actionable error per failure.
+- UX bugs found, suspected, or ruled out, each tagged with a severity (`info`, `low`, `medium`, `high`) and the related test file.
+- Failures healed, skipped with `test.fixme()`, or left blocked, including root cause classification (`product`, `test`, `selector`, `environment`).
 - Any auth, data, environment, accessibility, responsive layout, or coverage gaps.
+- The exact run contract string used.
+
+Report output rules:
+
+- Markdown reports: save under `specs/reports/web-ux-gremlin-report-<YYYYMMDD-HHMM>.md` using the run start time (UTC). Never overwrite an existing file; append `-2`, `-3`, etc.
+- HTML reports: follow `checklists/report-html.md` exactly. Inline all styles, no network requests, no embedded secrets, no `<script>` tags.
+- When `report=both`, pair the two files with the same base name so they sort together.
+- Do not include passwords, tokens, cookies, authorization headers, connection strings, or production identifiers in either report. Redact them from captured errors before writing.
 
 ## Quality Checks
 
