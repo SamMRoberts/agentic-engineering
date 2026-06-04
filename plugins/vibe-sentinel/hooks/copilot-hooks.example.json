@@ -3,46 +3,46 @@
         "sessionStart": [
             {
                 "name": "vibe-sentinel-assumption-init",
-                "command": "vibe-sentinel assumption-gate init",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs assumption-gate init",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-init",
-                "command": "vibe-sentinel change-control init",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs change-control init",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-scope-guard-init",
-                "command": "vibe-sentinel scope-guard init",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs scope-guard init",
                 "timeoutSeconds": 10
             }
         ],
         "postToolUse": [
             {
                 "name": "vibe-sentinel-change-control-drift",
-                "command": "vibe-sentinel change-control drift",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs change-control drift",
                 "timeoutSeconds": 10
             }
         ],
         "sessionEnd": [
             {
                 "name": "vibe-sentinel-assumption-check",
-                "command": "vibe-sentinel assumption-gate check",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs assumption-gate check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-check",
-                "command": "vibe-sentinel change-control check",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs change-control check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-scope-guard-check",
-                "command": "vibe-sentinel scope-guard check",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs scope-guard check",
                 "timeoutSeconds": 10
             },
             {
                 "name": "vibe-sentinel-change-control-final-drift",
-                "command": "vibe-sentinel change-control drift",
+                "command": "node $HOME/.copilot/installed-plugins/sammroberts-marketplace/vibe-sentinel/bin/vibe-sentinel.mjs change-control drift",
                 "timeoutSeconds": 10
             }
         ]
