@@ -39,7 +39,7 @@
             "name": "vibe-sentinel",
             "source": "./plugins/vibe-sentinel",
             "description": "Sentinel for vibe-coding: assumption gate, change-control contract, and Scope Guard plan before implementation.",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "skills": [
                 "./plugins/vibe-sentinel/skills/assumption-killer",
                 "./plugins/vibe-sentinel/skills/change-control-compiler",
@@ -50,7 +50,7 @@
             "name": "web-ux-gremlin",
             "source": "./plugins/web-ux-gremlin",
             "description": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem.",
-            "version": "1.8.1",
+            "version": "1.8.2",
             "skills": [
                 "./plugins/web-ux-gremlin/skills/web-ux-gremlin"
             ]

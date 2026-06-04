@@ -3,9 +3,14 @@
  * Rebuilds the SamMRoberts plugin manifests and marketplace descriptors from
  * this repo's plugins/.
  *
- * Source of truth: each plugin's .codex-plugin/plugin.json (rich metadata),
- * with package.json and .claude-plugin/plugin.json consulted for fallback
- * version and description data.
+ * Source of truth:
+ *   - Version:     package.json > plugin.json (metadata.version) > host manifests
+ *   - Rich UI metadata (interface.*): .codex-plugin/plugin.json
+ *   - Runtime manifest fields:       plugin.json
+ *
+ * The host manifests (.codex-plugin, .claude-plugin, .github/plugin) are
+ * GENERATED OUTPUTS, not inputs. They must never override package.json or
+ * plugin.json when regenerating.
  *
  * Per-plugin host manifests are generated or refreshed from the same plugin
  * metadata. Existing manifest fields are preserved, with defaults filling gaps:
@@ -186,16 +191,21 @@ function resolvePluginDescription(plugin) {
 }
 
 function resolvePluginVersion(plugin) {
+    // Explicit marketplace override takes highest precedence.
     const override =
         plugin.codex?.marketplace?.version ??
         plugin.root?.marketplace?.version ??
         plugin.claude?.marketplace?.version ??
         plugin.github?.marketplace?.version;
     if (override) return override;
+    // package.json is the canonical Node.js version source.
+    // plugin.json metadata.version is the next explicit source.
+    // Host manifests (codex, claude, github) are generated outputs — they must
+    // not win over the authoritative inputs above.
     return (
-        plugin.codex?.version ??
         plugin.pkg?.version ??
         plugin.root?.metadata?.version ??
+        plugin.codex?.version ??
         plugin.claude?.version ??
         plugin.github?.version ??
         DEFAULT_PLUGIN_VERSION
