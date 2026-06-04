@@ -1,6 +1,6 @@
 {
   "name": "vibe-sentinel",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Sentinel for vibe-coding: enforce assumption verification, change-control scope, and Scope Guard lifecycle discipline before implementation.",
   "author": {
     "name": "Sam Roberts",

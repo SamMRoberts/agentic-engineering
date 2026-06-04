@@ -30,7 +30,7 @@
             "name": "vibe-sentinel",
             "source": "./plugins/vibe-sentinel",
             "description": "Sentinel for vibe-coding: assumption gate, change-control contract, and Scope Guard plan before implementation.",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "skills": [
                 "./plugins/vibe-sentinel/skills/assumption-killer",
                 "./plugins/vibe-sentinel/skills/change-control-compiler",
