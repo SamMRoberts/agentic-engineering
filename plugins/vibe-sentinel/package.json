@@ -11,6 +11,7 @@
         "scope-guard": "./scripts/scope-guard.mjs"
     },
     "scripts": {
+        "postinstall": "node scripts/postinstall.mjs",
         "test": "node --test test/**/*.test.mjs",
         "validate": "node scripts/assumption-gate.mjs check --root test/fixtures/valid-workspace && node scripts/change-control.mjs check --contract skills/change-control-compiler/examples/valid-contract.json && node scripts/scope-guard.mjs check --plan skills/scope-guard/examples/valid-plan.json",
         "summary:assumption": "node scripts/assumption-gate.mjs summary --root test/fixtures/valid-workspace",
