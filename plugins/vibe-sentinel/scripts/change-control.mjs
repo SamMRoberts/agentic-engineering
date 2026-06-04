@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-import "../skills/change-control-compilescripts/change-control.mjs";
+import "../skills/change-control-compiler/scripts/change-control.mjs";

@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-import "../skills/scope-guarscripts/scope-guard.mjs";
+import "../skills/scope-guard/scripts/scope-guard.mjs";
