@@ -27,19 +27,10 @@
             ]
         },
         {
-            "name": "scope-guard",
-            "source": "./plugins/scope-guard",
-            "description": "Scoped coding partner: scope, design, pseudocode review, and doc deltas before implementation.",
-            "version": "1.0.0",
-            "skills": [
-                "./plugins/scope-guard/skills/scope-guard"
-            ]
-        },
-        {
             "name": "vibe-sentinel",
             "source": "./plugins/vibe-sentinel",
             "description": "Sentinel for vibe-coding: assumption gate, change-control contract, and Scope Guard plan before implementation.",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "skills": [
                 "./plugins/vibe-sentinel/skills/assumption-killer",
                 "./plugins/vibe-sentinel/skills/change-control-compiler",
