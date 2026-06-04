@@ -30,17 +30,10 @@
   ],
   "final_verification": {
     "commands_run": [
-<<<<<<< Updated upstream
-      "node scripts/assumption-gate.mjs check"
-    ],
-    "tests_run": [
-      "node scripts/assumption-gate.mjs summary"
-=======
       "node plugins/vibe-sentinel/scripts/assumption-gate.mjs check"
     ],
     "tests_run": [
       "node plugins/vibe-sentinel/scripts/assumption-gate.mjs summary"
->>>>>>> Stashed changes
     ],
     "result": "passed",
     "notes": "The gate contains verified evidence and no high or critical unknown assumptions."

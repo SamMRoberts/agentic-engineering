@@ -1,19 +1,13 @@
 {
     "name": "vibe-sentinel",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Combined assumption gate, change-control contract, and Scope Guard enforcement for vibe-coding agents.",
     "type": "module",
     "private": true,
     "bin": {
-<<<<<<< Updated upstream
-        "assumption-gate": "scripts/assumption-gate.mjs",
-        "change-control": "scripts/change-control.mjs",
-        "scope-guard": "scripts/scope-guard.mjs"
-=======
         "assumption-gate": "./scripts/assumption-gate.mjs",
         "change-control": "./scripts/change-control.mjs",
         "scope-guard": "./scripts/scope-guard.mjs"
->>>>>>> Stashed changes
     },
     "scripts": {
         "test": "node --test test/**/*.test.mjs",

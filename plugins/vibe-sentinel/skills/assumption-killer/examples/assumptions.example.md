@@ -29,11 +29,7 @@ Proceed with a Node ESM script and JSON artifacts.
 
 ## Final Verification
 
-<<<<<<< Updated upstream
-Run `node scripts/assumption-gate.mjs check`.
-=======
 Run `node plugins/vibe-sentinel/scripts/assumption-gate.mjs check`.
->>>>>>> Stashed changes
 
 ## Open Risks
 
