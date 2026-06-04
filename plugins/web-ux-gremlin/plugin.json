@@ -2,7 +2,11 @@
   "agents": "agents",
   "skills": "skills",
   "entrypointAgent": "web-ux-gremlin",
-  "privateAgents": [],
+  "privateAgents": [
+    "playwright-test-planner",
+    "playwright-test-generator",
+    "playwright-test-healer"
+  ],
   "mcpServers": "./.mcp.json",
   "hooks": "./hooks.json",
   "requirements": {
