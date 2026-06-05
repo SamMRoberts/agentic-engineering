@@ -15,6 +15,8 @@ const skill = readFileSync(skillPath, "utf8");
 const checklist = readFileSync(checklistPath, "utf8");
 const runContract = readFileSync(runContractPath, "utf8");
 const stageHandoffs = readFileSync(stageHandoffsPath, "utf8");
+const planSkill = readSkill("web-ux-gremlin-plan");
+const discoverySkill = readSkill("web-ux-gremlin-discovery");
 
 function readSkill(name) {
   return readFileSync(join(skillsRoot, name, "SKILL.md"), "utf8");
@@ -99,4 +101,18 @@ test("run contract and handoff references preserve safety state", () => {
   ]) {
     assert.ok(stageHandoffs.includes(field), `${field} missing from handoff template`);
   }
+});
+
+test("plan stage integrates Playwright planner-agent behavior", () => {
+  assert.match(planSkill, /planner_setup_page` exactly once/);
+  assert.match(planSkill, /before any browser exploration tool/);
+  assert.match(planSkill, /Explore the browser snapshot first/);
+  assert.match(planSkill, /Do not take screenshots unless/);
+  assert.match(planSkill, /blank or fresh starting state/);
+  assert.match(planSkill, /can run in any order/);
+  assert.match(planSkill, /happy paths, edge cases, boundary conditions, negative tests, validation, error handling/);
+  assert.match(planSkill, /use `planner_save_plan` when available/);
+  assert.match(discoverySkill, /planner_setup_page/);
+  assert.match(discoverySkill, /planner_save_plan/);
+  assert.match(stageHandoffs, /Planner tools available:/);
 });

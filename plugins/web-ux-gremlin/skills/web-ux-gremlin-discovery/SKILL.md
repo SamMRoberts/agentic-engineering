@@ -14,7 +14,7 @@ Confirm the target, scope, safety gate, and run contract before any planning or 
 1. Verify the workspace is the target Playwright project root or has a clear target project path.
 2. Check for `package.json`, `playwright.config.*`, `tests/`, and `specs/`; report missing pieces.
 3. Verify the target URL with a lightweight HTTP probe or record the start command and expected readiness URL.
-4. Confirm Playwright agent/MCP availability when the selected tool is MCP.
+4. Confirm Playwright agent/MCP availability when the selected tool is MCP, including `planner_setup_page` and `planner_save_plan` for plan-stage work.
 5. Collect execution controls from `../web-ux-gremlin/checklists/run-contract.md`.
 6. Apply stop conditions from the public skill.
 

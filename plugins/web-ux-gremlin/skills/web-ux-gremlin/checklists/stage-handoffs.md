@@ -29,6 +29,7 @@ High-chaos approval:
 Auth and starting state:
 Safety constraints:
 Plan output path:
+Planner tools available:
 Out of scope:
 Run contract:
 ```
