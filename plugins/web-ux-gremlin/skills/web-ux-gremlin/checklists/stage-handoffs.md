@@ -56,6 +56,7 @@ Failing command:
 Failing test file:
 Failing test name:
 Browser/project:
+Healer tools available:
 Observed error:
 Expected behavior:
 Mode:

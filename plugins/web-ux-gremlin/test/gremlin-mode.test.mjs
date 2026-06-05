@@ -17,6 +17,7 @@ const runContract = readFileSync(runContractPath, "utf8");
 const stageHandoffs = readFileSync(stageHandoffsPath, "utf8");
 const planSkill = readSkill("web-ux-gremlin-plan");
 const generateSkill = readSkill("web-ux-gremlin-generate");
+const healSkill = readSkill("web-ux-gremlin-heal");
 const discoverySkill = readSkill("web-ux-gremlin-discovery");
 
 function readSkill(name) {
@@ -136,4 +137,22 @@ test("generate stage integrates Playwright generator-agent behavior", () => {
   assert.match(discoverySkill, /generator_read_log/);
   assert.match(discoverySkill, /generator_write_test/);
   assert.match(stageHandoffs, /<generator-tools-available>yes \| no<\/generator-tools-available>/);
+});
+
+test("heal stage integrates Playwright healer-agent behavior", () => {
+  assert.match(healSkill, /Start with `test_run`/);
+  assert.match(healSkill, /run `test_debug`/);
+  assert.match(healSkill, /browser snapshot, console messages, network requests, locator candidates/);
+  assert.match(healSkill, /Classify root cause as `product`, `test`, `selector`, or `environment`/);
+  assert.match(healSkill, /Fix one issue at a time/);
+  assert.match(healSkill, /resilient regular-expression locators/);
+  assert.match(healSkill, /Never wait for `networkidle`/);
+  assert.match(healSkill, /Rerun after every fix/);
+  assert.match(healSkill, /test\.fixme\(\)/);
+  assert.match(healSkill, /comment before the failing step explaining what happens instead/);
+  assert.match(healSkill, /Do not stop to ask user questions during healing/);
+  assert.match(discoverySkill, /test_run/);
+  assert.match(discoverySkill, /test_debug/);
+  assert.match(discoverySkill, /browser_generate_locator/);
+  assert.match(stageHandoffs, /Healer tools available:/);
 });
