@@ -43,7 +43,13 @@
             "description": "Create validated UX resilience plans and release gremlin-mode Playwright mayhem.",
             "version": "1.8.2",
             "skills": [
-                "./plugins/web-ux-gremlin/skills/web-ux-gremlin"
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-discovery",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-execute",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-generate",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-heal",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-plan",
+                "./plugins/web-ux-gremlin/skills/web-ux-gremlin-report"
             ]
         }
     ]

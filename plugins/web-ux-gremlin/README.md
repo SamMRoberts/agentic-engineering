@@ -11,8 +11,10 @@ Gremlin mode is intentionally not random fuzzing. It should produce reproducible
 
 ## What It Provides
 
-- A user-invocable `web-ux-gremlin` skill under `skills/web-ux-gremlin/SKILL.md`.
+- A user-invocable `web-ux-gremlin` orchestrator skill under `skills/web-ux-gremlin/SKILL.md`.
+- Private stage skills for discovery, planning, generation, execution, healing, and reporting.
 - A gremlin-mode checklist under `skills/web-ux-gremlin/checklists/gremlin-mode.md`.
+- Run-contract and stage-handoff checklists for preserving scope and safety across workflow stages.
 - A Playwright project scaffold with `playwright.config.ts`, `tests/`, and `specs/`.
 - MCP configuration for Playwright test tooling in `.mcp.json`.
 - Host plugin manifests for Codex, Claude, and GitHub-style plugin discovery.
@@ -21,13 +23,14 @@ Gremlin mode is intentionally not random fuzzing. It should produce reproducible
 
 ## Workflow
 
-The intended workflow is:
+The public skill stays intentionally small and routes through private stage skills. The intended workflow is:
 
-1. **Plan** - create or reuse a Markdown UX bug-hunt plan under `specs/`.
-2. **Generate** - convert one scoped scenario at a time into a Playwright spec under `tests/`.
-3. **Run** - execute the narrowest useful Playwright command from the target project root.
-4. **Heal** - debug failing tests, separating real product UX bugs from brittle selectors, setup mistakes, or environment issues.
-5. **Report** - summarize created files, commands run, pass/fail status, UX bugs found, blocked cases, and residual coverage gaps.
+1. **Discover** - confirm target readiness, Playwright project shape, execution controls, and safety constraints.
+2. **Plan** - create or reuse a Markdown UX bug-hunt plan under `specs/`.
+3. **Generate** - convert one scoped scenario at a time into a Playwright spec under `tests/`.
+4. **Run** - execute the narrowest useful Playwright command from the target project root.
+5. **Heal** - debug failing tests, separating real product UX bugs from brittle selectors, setup mistakes, or environment issues.
+6. **Report** - summarize created files, commands run, pass/fail status, UX bugs found, blocked cases, and residual coverage gaps.
 
 Generated tests should prefer accessible locators, visible assertions, deterministic setup, and user-observable outcomes. They should avoid arbitrary sleeps, pixel coordinates, hidden implementation details, uncontrolled load, and production data.
 
@@ -155,6 +158,14 @@ plugins/web-ux-gremlin/
   skills/web-ux-gremlin/
     SKILL.md
     checklists/gremlin-mode.md
+    checklists/run-contract.md
+    checklists/stage-handoffs.md
+  skills/web-ux-gremlin-discovery/
+  skills/web-ux-gremlin-plan/
+  skills/web-ux-gremlin-generate/
+  skills/web-ux-gremlin-execute/
+  skills/web-ux-gremlin-heal/
+  skills/web-ux-gremlin-report/
   specs/
   test/
   tests/
@@ -178,5 +189,4 @@ Gremlin mode should remain deterministic, bounded, and safe. It is for UX resili
 
 ## Current Implementation Notes
 
-The checked-in behavior currently lives in the `web-ux-gremlin` skill, gremlin-mode checklist, Playwright configuration, MCP configuration, and tests. The host manifests include metadata for agent-based workflows and reference private Playwright stage agents, so verify those host-specific agents are installed before depending on delegated planner, generator, or healer behavior in a given environment.
-
+The checked-in behavior currently lives in the public `web-ux-gremlin` skill, private stage skills, checklists, Playwright configuration, MCP configuration, and tests. The host manifests also reference private Playwright stage agents, so verify those host-specific agents are installed before depending on delegated planner, generator, or healer behavior in a given environment.
