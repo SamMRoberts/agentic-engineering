@@ -41,6 +41,7 @@ Run contract:
 <test-name>Scenario name</test-name>
 <test-file>tests/path/to/scenario-name.spec.ts</test-file>
 <seed-file>tests/seed.spec.ts or n/a</seed-file>
+<generator-tools-available>yes | no</generator-tools-available>
 <mode>standard or gremlin</mode>
 <intensity>1-5 or n/a</intensity>
 <high-chaos-confirmed>yes | no | n/a</high-chaos-confirmed>

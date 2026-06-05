@@ -16,6 +16,7 @@ const checklist = readFileSync(checklistPath, "utf8");
 const runContract = readFileSync(runContractPath, "utf8");
 const stageHandoffs = readFileSync(stageHandoffsPath, "utf8");
 const planSkill = readSkill("web-ux-gremlin-plan");
+const generateSkill = readSkill("web-ux-gremlin-generate");
 const discoverySkill = readSkill("web-ux-gremlin-discovery");
 
 function readSkill(name) {
@@ -115,4 +116,24 @@ test("plan stage integrates Playwright planner-agent behavior", () => {
   assert.match(discoverySkill, /planner_setup_page/);
   assert.match(discoverySkill, /planner_save_plan/);
   assert.match(stageHandoffs, /Planner tools available:/);
+});
+
+test("generate stage integrates Playwright generator-agent behavior", () => {
+  assert.match(generateSkill, /generator_setup_page/);
+  assert.match(generateSkill, /Manually execute every scenario step and verification/);
+  assert.match(generateSkill, /Use the step text as the intent/);
+  assert.match(generateSkill, /generator_read_log/);
+  assert.match(generateSkill, /immediately write the generated source with `generator_write_test`/);
+  assert.match(generateSkill, /single-test file/);
+  assert.match(generateSkill, /fs-friendly scenario filename/);
+  assert.match(generateSkill, /test\.describe\('<top-level plan item>'\)/);
+  assert.match(generateSkill, /test title must match the scenario name without ordinal prefixes/);
+  assert.match(generateSkill, /\/\/ spec: <plan path>/);
+  assert.match(generateSkill, /\/\/ seed: <seed file>/);
+  assert.match(generateSkill, /one comment with the plan step text before each step execution/);
+  assert.match(generateSkill, /best practices from the generator log/);
+  assert.match(discoverySkill, /generator_setup_page/);
+  assert.match(discoverySkill, /generator_read_log/);
+  assert.match(discoverySkill, /generator_write_test/);
+  assert.match(stageHandoffs, /<generator-tools-available>yes \| no<\/generator-tools-available>/);
 });
