@@ -99,17 +99,6 @@ Ask whether the new behavior should be a separate task.
 - Implementation has changed files but no tests were added or updated.
 - Implementation has changed files but docs/diagrams are not updated.
 
-## Required Workflow
-
-1. Initialize the plan artifacts.
-2. Clarify scope and fill in/out of scope.
-3. Propose single-purpose components and extension points.
-4. Write pseudocode.
-5. Review the pseudocode and set `approved`.
-6. Implement within the approved scope and add tests.
-7. Record the documentation and diagram delta.
-8. Run `check` before the final response. If scope changes, update the plan and call out the change.
-
 ## Final Response Requirements
 
 Report plan validation, scope boundaries, components, pseudocode approval, files changed, tests, documentation delta, and any scope creep or open questions. If validation fails, say implementation is blocked.
@@ -123,13 +112,3 @@ node ./scripts/scope-guard.mjs init
 node ./scripts/scope-guard.mjs check
 node ./scripts/scope-guard.mjs summary
 ```
-
-## Cross-Agent Notes
-
-Codex: use this skill before edits and run `check` before the final response.
-
-GitHub Copilot: paste `AGENTS.fragment.md` into repository instructions or adapt the example hook.
-
-Claude: paste `custom-instructions.fragment.md` into project instructions or install this plugin where supported.
-
-Hooks and CI validate the plan artifact. They do not force skill selection.

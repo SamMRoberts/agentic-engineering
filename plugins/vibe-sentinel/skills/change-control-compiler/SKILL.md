@@ -91,13 +91,3 @@ node ./scripts/change-control.mjs check
 node ./scripts/change-control.mjs summary
 node ./scripts/change-control.mjs drift
 ```
-
-## Cross-Agent Notes
-
-Codex: use this skill before edits and run `check` plus `drift` before final response.
-
-GitHub Copilot: paste `AGENTS.fragment.md` into repository instructions or adapt the example hook.
-
-Claude: paste `custom-instructions.fragment.md` into project instructions or install this plugin where supported.
-
-Hooks and CI validate artifacts and drift. They do not force skill selection.

@@ -97,13 +97,3 @@ node ./scripts/assumption-gate.mjs summary
 ```
 
 Run from this skill's directory. Artifacts are created under the target repository's `.agent/session/` (resolved from your current working directory).
-
-## Cross-Agent Notes
-
-Codex: use this skill before edits and run `check` before the final response.
-
-GitHub Copilot: paste `AGENTS.fragment.md` into repository instructions or wire the example hook where supported.
-
-Claude: paste `custom-instructions.fragment.md` into custom instructions or install this plugin where supported.
-
-Hooks can enforce artifact validity, but they cannot force the agent to choose this skill. Keep the instructions and hooks together.
