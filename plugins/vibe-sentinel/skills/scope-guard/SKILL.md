@@ -30,13 +30,7 @@ Initialize them with `node ./scripts/scope-guard.mjs init` (run from this skill'
 
 ## Plan Fields
 
-The plan (`CodingTaskState`) must define `version`, `taskId`, `userGoal`, `scope`, `design`, `pseudocode`, `implementation`, and `docs`.
-
-- `scope`: `inScope`, `outOfScope`, `assumptions`, `openQuestions`.
-- `design`: `components` (each with `name`, `responsibility`, `dependencies`, `extensionPoints`), `extensionPoints`, `rejectedAlternatives`.
-- `pseudocode`: `draft`, `reviewFindings`, `approved`.
-- `implementation`: `changedFiles`, `testsAddedOrUpdated`, `knownRisks`.
-- `docs`: `designDocUpdated`, `diagramsUpdated`, `docChanges`.
+See `templates/scope-guard-plan.json` for the complete field list.
 
 ## Phase 1 - Scope Intake
 

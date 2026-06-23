@@ -56,20 +56,7 @@ Use only these categories: `repo_structure`, `existing_behavior`, `test_behavior
 7. If any assumption is `disproven`, update the plan before implementation.
 8. Before the final response, run `node ./scripts/assumption-gate.mjs check`.
 
-## Good Assumptions
-
-- "The frontend test runner is Vitest because `frontend/package.json` defines `test: vitest run`."
-- "The parser captures function calls through `pattern.call_expression` because `backend/src/indexing/parser.rs` maps that capture name."
-- "The API response must preserve `symbolId` because `frontend/src/api/types.ts` exports it and current tests assert it."
-
-## Weak Assumptions
-
-- "This probably uses React."
-- "The existing tests should cover it."
-- "The button selector should be stable."
-- "This config is only used locally."
-
-Weak assumptions are not evidence. Replace them with checked files, commands, or contracts.
+For strong vs. weak assumption examples, see `examples/assumptions.example.md`.
 
 ## Evidence Standards
 

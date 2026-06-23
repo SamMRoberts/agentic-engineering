@@ -28,7 +28,7 @@ Initialize them with `node ./scripts/change-control.mjs init` (run from this ski
 
 ## Contract Fields
 
-The contract must define `task`, `goal`, `problem_statement`, `success_criteria`, `scope`, `non_goals`, `allowed_change_areas`, `forbidden_change_areas`, `files_to_inspect`, `files_allowed_to_modify`, `files_forbidden_to_modify`, `expected_behavior`, `current_behavior`, `test_requirements`, `verification_commands`, `risk_level`, `rollback_plan`, `stop_conditions`, `open_questions`, `implementation_plan`, and `final_acceptance_checklist`.
+See `templates/change-control-contract.json` for the complete field list.
 
 ## Scope Classification
 
@@ -61,21 +61,7 @@ Stop when implementation requires forbidden files, broader scope, undocumented b
 6. Run `drift` before final response.
 7. If scope changes, update the contract before continuing.
 
-## Weak Contracts
-
-- Goal: "Improve parser behavior."
-- Non-goals: empty.
-- Allowed areas: "repo".
-- Verification: "run tests."
-
-Weak contracts are vague, unbounded, and hard to enforce.
-
-## Strong Contracts
-
-- Goal: "Fix TypeScript symbol signature extraction so control-flow nodes are not emitted as symbols and declaration signatures are bounded to their declaration node range."
-- Non-goals: "Do not redesign indexing. Do not change unrelated parser languages."
-- Allowed areas: `backend/src/indexing/typescript_parser.rs`, `backend/tests/fixtures/typescript/`.
-- Verification: `cargo test parser_signature_bounds`, `cargo test indexing`.
+For weak vs. strong contract examples, see `examples/contract.example.md`.
 
 ## Final Response Requirements
 
